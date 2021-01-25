@@ -57,8 +57,8 @@ if TYPE_CHECKING:
     from web3.types import (  # noqa: F401
         TxParams,
     )
-
-
+        
+   
 class ENS:
     """
     Quick access to common Ethereum Name Service functions,
