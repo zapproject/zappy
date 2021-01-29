@@ -17,4 +17,5 @@ jobs:
         uses: vsoch/pull-request-action@1.0.12
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
+          BRANCH_PREFIX: "feature/" 
           PULL_REQUEST_BRANCH: "develop"
