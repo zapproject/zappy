@@ -33,6 +33,7 @@ extras_require = {
         "wheel"
     ],
     'dev': [
+        'nose',
         "bumpversion",
         "flaky>=3.3.0",
         "hypothesis>=3.31.2,<6",
