@@ -3,6 +3,6 @@ import base_contract
 import utils
 
 class test_base_contract(unittest.TestCase):
-    
+
 
 
