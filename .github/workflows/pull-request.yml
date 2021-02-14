@@ -1,5 +1,8 @@
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 235d01c1b5e88448da6741dd19f128d8015ec865
 name: Pull Request on Branch Push
 on:
   push:
@@ -7,15 +10,24 @@ on:
       - staging
       - launchpad
       - production
+<<<<<<< HEAD
         
+=======
+>>>>>>> 235d01c1b5e88448da6741dd19f128d8015ec865
 jobs:
   auto-pull-request:
     name: PullRequestAction
     runs-on: ubuntu-latest
     steps:
       - name: pull-request-action
+<<<<<<< HEAD
         uses: vsoch/pull-request-action@1.0.12
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
           BRANCH_PREFIX: "feature/" 
+=======
+        uses: vsoch/pull-request-action@1.0.6
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
+>>>>>>> 235d01c1b5e88448da6741dd19f128d8015ec865
           PULL_REQUEST_BRANCH: "develop"
