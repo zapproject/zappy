@@ -6,10 +6,11 @@ import os
 
 
 # Fetches ABI and is a helper function for load_address.
-#   @params: (name) is the artifact name
-#            (file_path) is strictly for testing
+#   @notice: Adjust path below (if changed) to fetch /<name>.json or insert as 2nd arg.
+#
+#   @params: (name) is the artifact name.
+#            (file_path) is used to find artifacts if path is changed.
 def load_abi(name: str, file_path = None) -> dict:
-# Adjust path below (if changed) to fetch Artifacts/<name>.json.
     if file_path is not None:
         path = file_path
     else:
@@ -21,9 +22,11 @@ def load_abi(name: str, file_path = None) -> dict:
     except Exception as e:
         print(e)
 
-#   @params (name) is the name of the artifact
-#           (netId) is the Ethereum network
-#           (abi_file) is used for test
+
+#   @notice This function uses the above 'load_abi' function to fetch abi.
+#   @params (name) is the name of the artifact.
+#           (netId) is the Ethereum network.
+#           (abi_file) is used for test.
 def load_address(name: str, netId: int or str, abi_file = None) -> str:
     try:
         if abi_file is not None:
