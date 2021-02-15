@@ -29,7 +29,7 @@ class Curve:
         index: int = 0
 
         while index < len(self.values):
-            length: int = self.values[index]
+            length: int = self.values[index]  # no. of terms in polynomial
             if length <= 0:
                 raise Exception("Invalid curve length")
 
@@ -37,14 +37,14 @@ class Curve:
             if endIndex >= len(self.values):
                 raise Exception("Piece is out of bounds")
 
-            end: int = self.values[endIndex]
+            end: int = self.values[endIndex]  # x limit of polynomial function
             if end <= prevEnd:
                 raise Exception("Piece domains are overlapping")
 
-                prevEnd = end
-                index += length + 2
+            prevEnd = end
+            index += length + 2
 
-        self.Max = prevEnd
+        self.Max = prevEnd  # x limit of entire curve function
 
     def getPrice(self, total_x: int) -> int:
         """
@@ -61,7 +61,7 @@ class Curve:
         index: int = 0
         while index < len(self.values):
             length: int = self.values[index]
-            end: int = self.values[index]
+            end: int = self.values[index + length + 1]
 
             if total_x > end:
                 index += length + 2
@@ -212,4 +212,4 @@ class Curve:
         return [len(current_curve), *current_curve, end]
 
 
-from .types import *
+from types import *
