@@ -211,5 +211,11 @@ class Curve:
 
         return [len(current_curve), *current_curve, end]
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        del self
+
 
 from types import *

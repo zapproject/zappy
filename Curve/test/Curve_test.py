@@ -3,8 +3,8 @@ from Curve.curve import Curve
 
 
 @fixture
-def curves():
-    """Curve object values validity test
+def curve_data_except():
+    """Invalid curve object values for validity test
 
         The second parameter in each return element is the expected
         Exception class message.
@@ -16,10 +16,28 @@ def curves():
             ([3, 0, 0, 3, 1e10, 3, 0, 0, 4, -1], "Piece domains are overlapping")]
 
 
-def test_init(curves):
+@fixture
+def curve_data():
+    """Valid curve object values for validity test
+    """
+    return [[3, 0, 0, 3, 1e10],
+            [3, 1, 0, 3, 1e10],
+            [3, 0, 2, 3, 1e8, 4, 0, 0, 3, 4, 1e10],
+            [3, 1, 0, 5, 1e5, 2, 5, 4, 1e9]]
+
+
+def test_init(curve_data_except, curve_data):
     """
         Tests the initialization and validation of curves
     """
-    for curve in curves:
+    for curve in curve_data_except:
+        """ test for bad input """
         with raises(Exception, match=curve[1]):
             Curve(curve[0])
+
+    for curve in curve_data:
+        """ test for valid input """
+        with Curve(curve) as curve_obj:
+            assert(curve_obj.checkValidity(), None)
+
+# def test_getPrice(curve_data):
