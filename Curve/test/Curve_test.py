@@ -117,3 +117,31 @@ def test_getZapRequired_valid(a, n, curve_data):
         with Curve(curve) as curve_obj:
             assert curve_obj.getZapRequired(
                 a, n) == sigma_sum(a, n, curve_obj.getPrice)
+
+
+def test_valuesToString(curve_data):
+    for curve in curve_data:
+        with Curve(curve) as curve_obj:
+            stringed_expression = curve_obj.valuesToString()
+            correct_expression = [str(term) for term in curve_obj.values]
+            assert stringed_expression == correct_expression
+
+
+def split_curve_to_expressions(curve):
+    index = 0
+    end = curve[0] + 1
+    expressions = []
+    while index < len(curve):
+        expressions.append(curve[index:end + 1])
+        index = end + 1
+    return expressions
+
+
+def test_splitCurveToTerms(curve_data):
+    for curve in curve_data:
+        with Curve(curve) as curve_obj:
+            assert curve_obj.splitCurveToTerms(curve) == split_curve_to_expressions(curve)
+
+
+def test_termToString(curve_data):
+    pass

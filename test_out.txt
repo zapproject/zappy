@@ -3,11 +3,40 @@ platform win32 -- Python 3.8.2, pytest-6.2.2, py-1.10.0, pluggy-0.13.1
 rootdir: C:\Users\Azor Ahai\Documents\Py\zappy-JB
 plugins: session2file-0.1.11, web3-5.16.0
 collecting ... 
-collected 14 items                                                                                                                                                         
+collected 17 items                                                                                                                                                         
 
-Curve\test\Curve_test.py .............                                                                                                                               [ 92%]
+Curve\test\Curve_test.py ..............F.                                                                                                                            [ 94%]
 portedFiles\default_tx_test.py .                                                                                                                                     [100%]
 
+================================================================================ FAILURES =================================================================================
+_________________________________________________________________________ test_splitCurveToTerms __________________________________________________________________________
+
+curve_data = [[3, 0, 0, 3, 10000000000.0], [3, 1, 0, 3, 10000000000.0], [3, 4, 2, 3, 100000000.0, 4, ...], [3, 1, 0, 1e-05, 100000.0, 2, ...]]
+
+    def test_splitCurveToTerms(curve_data):
+        for curve in curve_data:
+            with Curve(curve) as curve_obj:
+>               assert curve_obj.splitCurveToTerms(curve) == split_curve_to_expressions(curve)
+
+Curve\test\Curve_test.py:143: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <Curve.curve.Curve object at 0x000001D6CEEDCF40>, curve = [3, 4, 2, 3, 100000000.0, 4, ...]
+
+    def splitCurveToTerms(self, curve: list) -> list:  # return: 2D list
+        if len(curve) <= 0:
+            return []
+        res = []
+        start: int = 0
+        currentLen = int(curve[0])
+        end = int(currentLen + 1)
+        while start < len(curve):
+            res.append(curve[start:(end + 1)])
+            start += currentLen + 2
+>           currentLen = int(curve[end]) + 1
+E           IndexError: list index out of range
+
+Curve\curve.py:121: IndexError
 ========================================================================= short test summary info =========================================================================
 PASSED Curve/test/Curve_test.py::test_init
 PASSED Curve/test/Curve_test.py::test_getPrice_invalid[-1-curve0]
@@ -22,5 +51,7 @@ PASSED Curve/test/Curve_test.py::test_getZapRequired_valid[2-3]
 PASSED Curve/test/Curve_test.py::test_getZapRequired_valid[1-5]
 PASSED Curve/test/Curve_test.py::test_getZapRequired_valid[1-10]
 PASSED Curve/test/Curve_test.py::test_getZapRequired_valid[5-1000.0]
+PASSED Curve/test/Curve_test.py::test_valuesToString
+PASSED Curve/test/Curve_test.py::test_termToString
 PASSED portedFiles/default_tx_test.py::DefaultTxTest::test_instance
-=========================================================================== [32m[1m14 passed[0m[32m in 0.24s[0m[32m ============================================================================
+====================================================================== [31m[1m1 failed[0m, [32m16 passed[0m[31m in 1.07s[0m[31m =======================================================================

@@ -108,34 +108,34 @@ class Curve:
     def valuesToString(self) -> list:
         return [str(val) for val in self.values]
 
-    def termToString(term: list) -> str:
-        limit: int = term[len(term) - 1]
-        parts: list = []
-
-        for i in range(1, term[0] + 1):
-            if term[i] == 0:
-                continue
-            elif term[i] == 1:
-                parts.append('x^' + str(i - 1))
-            else:
-                parts.append(str(term[i]) + 'x^' + str(i - 1))
-
-        return "+".join(parts) + '; limit = ' + str(limit)
-
-    def splitCurveToTerms(curve: list) -> list:  # return: 2D list
+    def splitCurveToTerms(self, curve: list) -> list:  # return: 2D list
         if len(curve) <= 0:
             return []
         res = []
         start: int = 0
-        currentLen: int = curve[0]
-        end: int = currentLen + 2
+        currentLen = int(curve[0])
+        end = int(currentLen + 1)
         while start < len(curve):
-            res.append(curve[start:end])
+            res.append(curve[start:(end + 1)])
             start += currentLen + 2
-            currentLen = curve[end]
-            end = start + currentLen + 2
+            currentLen = int(curve[end + 1]) + 1
+            end = start + currentLen + 1
 
         return res
+
+    def termToString(expression: list) -> str:
+        limit: int = expression[len(expression) - 1]
+        parts: list = []
+
+        for i in range(1, expression[0] + 1):
+            if expression[i] == 0:
+                continue
+            elif expression[i] == 1:
+                parts.append('x^' + str(i - 1))
+            else:
+                parts.append(str(expression[i]) + 'x^' + str(i - 1))
+
+        return "+".join(parts) + '; limit = ' + str(limit)
 
     def curveToString(self, values: list) -> str:
         """
