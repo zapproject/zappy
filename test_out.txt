@@ -1,0 +1,26 @@
+=========================================================================== test session starts ===========================================================================
+platform win32 -- Python 3.8.2, pytest-6.2.2, py-1.10.0, pluggy-0.13.1
+rootdir: C:\Users\Azor Ahai\Documents\Py\zappy-JB
+plugins: session2file-0.1.11, web3-5.16.0
+collecting ... 
+collected 14 items                                                                                                                                                         
+
+Curve\test\Curve_test.py .............                                                                                                                               [ 92%]
+portedFiles\default_tx_test.py .                                                                                                                                     [100%]
+
+========================================================================= short test summary info =========================================================================
+PASSED Curve/test/Curve_test.py::test_init
+PASSED Curve/test/Curve_test.py::test_getPrice_invalid[-1-curve0]
+PASSED Curve/test/Curve_test.py::test_getPrice_invalid[100000000000.0-curve1]
+PASSED Curve/test/Curve_test.py::test_getPrice_valid[1-expected0]
+PASSED Curve/test/Curve_test.py::test_getPrice_valid[10-expected1]
+PASSED Curve/test/Curve_test.py::test_getPrice_valid[1000000000.0-expected2]
+PASSED Curve/test/Curve_test.py::test_getZapRequired_invalid[-1-1-Invalid curve supply position]
+PASSED Curve/test/Curve_test.py::test_getZapRequired_invalid[100000000000.0-1-Invalid curve supply position]
+PASSED Curve/test/Curve_test.py::test_getZapRequired_invalid[1-100000000000.0-None]
+PASSED Curve/test/Curve_test.py::test_getZapRequired_valid[2-3]
+PASSED Curve/test/Curve_test.py::test_getZapRequired_valid[1-5]
+PASSED Curve/test/Curve_test.py::test_getZapRequired_valid[1-10]
+PASSED Curve/test/Curve_test.py::test_getZapRequired_valid[5-1000.0]
+PASSED portedFiles/default_tx_test.py::DefaultTxTest::test_instance
+=========================================================================== [32m[1m14 passed[0m[32m in 0.24s[0m[32m ============================================================================
