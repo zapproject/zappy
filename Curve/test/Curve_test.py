@@ -1,5 +1,12 @@
 from pytest import raises, fixture, mark, approx
-from Curve.curve import Curve
+from Curve.curve import Curve, isWhole
+"""
+    Get a detailed test output and upload to a pastebin:
+        pytest -r p --pastebin=all
+
+    Show fixtures used for test
+        pytest -r p --fixtures-per-test
+"""
 
 
 @fixture
@@ -11,8 +18,10 @@ def curve_data_except():
     """
     return [([-1, 0, 0, 3, 1e10], "Invalid curve length"),
             ([4, 0, 0, 3, 1e10], "Piece is out of bounds"),
-            ([3, 0, 0, 3, 1e10, 3, 0, 0, 4, 1e10], "Piece domains are overlapping"),
-            ([3, 0, 0, 3, 1e10, 3, 0, 0, 4, 1e9], "Piece domains are overlapping"),
+            ([3, 0, 0, 3, 1e10, 3, 0, 0, 4, 1e10],
+             "Piece domains are overlapping"),
+            ([3, 0, 0, 3, 1e10, 3, 0, 0, 4, 1e9],
+             "Piece domains are overlapping"),
             ([3, 0, 0, 3, 1e10, 3, 0, 0, 4, -1], "Piece domains are overlapping")]
 
 
@@ -70,5 +79,41 @@ def test_getPrice_valid(n, expected, curve_data):
     index = 0
     for curve in curve_data:
         assert(1e9 > 1e8)
-        assert Curve(curve).getPrice(n) == approx(expected[index])
-        index += 1
+        with Curve(curve) as curve_obj:
+            assert curve_obj.getPrice(n) == approx(expected[index])
+            index += 1
+
+
+@mark.parametrize("a, n, exception",
+                  [(-1, 1, "Invalid curve supply position"),
+                   (1e11, 1, "Invalid curve supply position"),
+                   (1, 1e11, None)])
+def test_getZapRequired_invalid(a, n, exception, curve_data):
+    """ Tests for invalid summation of dot value
+    """
+    for curve in curve_data:
+        with raises(Exception, match=exception):
+            Curve(curve).getZapRequired(a, n)
+
+
+def sigma_sum(start, end, func):
+    """ Helper for testing valid summation of
+        dot value:
+
+        getZapRequired(a, n) = \\sum_{i=a}^{a + n} getPrice(i)
+    """
+    assert isWhole(start) and isWhole(end)
+    return sum(func(i) for i in range(start, start + int(end)))
+
+
+@mark.parametrize("a, n",
+                  [(2, 3), (1, 5), (1, 10), (5, 1e3)])
+def test_getZapRequired_valid(a, n, curve_data):
+    """ Tests for valid summation of dot value
+
+        getZapRequired(a, n) = \\sum_{i=a}^{a + n} getPrice(i)
+    """
+    for curve in curve_data:
+        with Curve(curve) as curve_obj:
+            assert curve_obj.getZapRequired(
+                a, n) == sigma_sum(a, n, curve_obj.getPrice)

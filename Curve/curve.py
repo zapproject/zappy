@@ -1,6 +1,13 @@
 import re  # regex
 
 
+def isWhole(number):
+    if isinstance(number, float):
+        return number.is_integer()
+    else:
+        return isinstance(number, int)
+
+
 class Curve:
     """
         This class represents a Zap piecewise curve.
@@ -53,6 +60,7 @@ class Curve:
             e.g. the price of a single dot to a curve
             with no dots issued would be calculated at n=1.
         """
+        assert isWhole(total_x)
         if total_x <= 0 or total_x > self.Max:
             raise Exception("Invalid curve supply position")
         elif not self.values:
@@ -80,8 +88,12 @@ class Curve:
         """
             buying n dots starting at the a-th dot
         """
+        assert n < self.Max
+        assert isWhole(a) and isWhole(n)
+
         count: int = 0
-        for i in range(a, (a + n)):
+        a = int(a)
+        for i in range(a, (a + int(n))):
             count += self.getPrice(i)
 
         return count
