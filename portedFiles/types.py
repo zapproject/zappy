@@ -91,3 +91,76 @@ class SubscriptionType(TypedDict):
     provider: str
     subscriber: str
     endpoint: str
+
+
+############# BONDAGE #############
+
+class TokenBondType(defaultTx, TypedDict):
+    endpoint: str
+    dots: NumType
+
+class BondType(defaultTx, TypedDict, total=False):
+    subscriber: str
+    provider: str
+    endpoint: str
+    dots: NumType
+
+class DelegateBondType(BondType, TypedDict):
+    subscriber: str
+
+class UnbondType(defaultTx, TypedDict):
+    provider: str
+    endpoint: str
+    dots: NumType
+
+class SubscribeType(defaultTx, TypedDict):
+    provider: str
+    endpoint: str
+    dots: NumType
+    endpoint_params: list #need confirmation on this data type
+
+class SubscriberHandler(TypedDict, total=False):
+    handleResponse: Callable[..., Any]  # accepts a function, takes any # of args
+    handleUnsubscription: Callable[..., Any]  # accepts a function, takes any # of args
+    handleSubscription: Callable[..., Any]  # accepts a function, takes any # of args
+
+class ApproveType(defaultTx, TypedDict):
+    provider: str
+    zapNum: float
+
+class BondArgs(defaultTx, TypedDict):
+    provider: str
+    endpoint: str
+    dots: NumType
+
+class UnbondArgs(defaultTx, TypedDict):
+    provider: str
+    endpoint: str
+    dots: NumType
+
+class DelegateBondArgs(defaultTx, TypedDict):
+    provider: str
+    endpoint: str
+    dots: NumType
+    subscriber: str
+
+class BondageArgs(TypedDict, total=False):
+    subscriber: str
+    provider: str
+    endpoint: str
+    dots: NumType
+    zapNum: NumType
+
+class CalcBondRateType(TypedDict):
+    provider: str
+    endpoint: str
+    zapNum: NumType
+
+class BondFilter(Filter, TypedDict, total=False):
+    numDots: NumType
+    numZap: NumType
+
+
+############# TOKEN DOT FACTORY #############
+
+TransactionCallback = NewType("TransactionCallback", Callable[str or None, str or None]) # accepts a function, takes error and hash as args
