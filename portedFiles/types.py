@@ -91,3 +91,24 @@ class SubscriptionType(TypedDict):
     provider: str
     subscriber: str
     endpoint: str
+
+class SubscriptionParams(defaultTx, TypedDict):
+    receiver: str
+    endpoint: str
+    params: list
+
+class SubscriptionEndEvent(Filter, TypedDict):
+    terminator: address
+
+class DataPurchaseEvent(Filter, TypedDict):
+    pubkey: NumType
+    amount: NumType
+    endpoint: str
+    endpoint_params: list
+
+class ParamsPassedEvent(TypedDict):
+    sender: str
+    receiver: str
+    endpoint: str
+    params: str
+

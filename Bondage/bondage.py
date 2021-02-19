@@ -1,6 +1,6 @@
 from base_contract import BaseContract
 from portedFiles.types import (BondageArgs, BondArgs, UnbondArgs, DelegateBondArgs, BondFilter, Filter, txid, NetworkProviderOptions, Constants, NumType, TransactionCallback)
-from web3._utils. import (utf8ToHex, toHex)
+from web3._utils import (utf8ToHex, toHex)
 
 class ZapBondage(BaseConstract):
 
