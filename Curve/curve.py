@@ -8,6 +8,14 @@ def isWhole(number):
         return isinstance(number, int)
 
 
+def isDigit(x):
+    try:
+        float(x)
+        return True
+    except ValueError:
+        return False
+
+
 class Curve:
     """
         This class represents a Zap piecewise curve.
@@ -19,13 +27,14 @@ class Curve:
     values: list
     Max: int = 0
 
-    def __init__(self, curve: list):
+    def __init__(self, curve: list = None):
         """
             Initializes a wrapper class for function
             and structurizes the provided curves.
         """
         self.values = curve
-        self.checkValidity()
+        if self.values:
+            self.checkValidity()
 
     def checkValidity(self) -> None:
         """
@@ -98,7 +107,7 @@ class Curve:
 
         return count
 
-    def convertToBNArrays() -> list:
+    def convertToBNArrays(self) -> list:
         """ in Python, int types can grow arbitrarily large on their own
             when needed; they can already grow > 32 bit numbers and perform
             typical math operations
@@ -113,17 +122,16 @@ class Curve:
             return []
         res = []
         start: int = 0
-        currentLen = int(curve[0])
-        end = int(currentLen + 1)
+        currentLen = 0
+
         while start < len(curve):
-            res.append(curve[start:(end + 1)])
-            start += currentLen + 2
-            currentLen = int(curve[end + 1]) + 1
-            end = start + currentLen + 1
+            currentLen += int(curve[start]) + 2
+            res.append(curve[start:currentLen])
+            start += currentLen
 
         return res
 
-    def termToString(expression: list) -> str:
+    def termToString(self, expression: list) -> str:
         limit: int = expression[len(expression) - 1]
         parts: list = []
 
@@ -143,11 +151,13 @@ class Curve:
         """
         return "&".join([string for string in [self.termToString(term) for term in self.splitCurveToTerms(values)]])
 
-    def convertToCurve(end: int, curve: str) -> list:
-        if not end or not isinstance(end, int):
+    def convertToCurve(self, end: int, curve: str) -> list:
+        if not end or not isWhole(end):
             raise Exception("Start and end must be numbers")
+        assert end > 0
 
-        with open("regex", 'r') as regex:
+        from pathlib import Path
+        with open(Path(__file__).parent.as_posix() + r"\regex", 'r') as regex:
             tokenRegex = re.compile(regex.readline())
 
         terms: list = [term.strip() for term in curve.split("+")]
@@ -158,28 +168,32 @@ class Curve:
             "gether": lambda coef, index: (coef * 1e27, index + 1),
             "mether": lambda coef, index: (coef * 1e24, index + 1),
             "grand": lambda coef, index: (coef * 1e21, index + 1),
-            "kether": switch["grand"],
-            "zap": switch["ether"],
             "ether": lambda coef, index: (coef * 1e18, index + 1),
-            "finney": switch["milli"],
-            "milliether": switch["milli"],
             "milli": lambda coef, index: (coef * 1e15, index + 1),
-            "szabo": switch["micro"],
-            "microether": switch["micro"],
             "micro": lambda coef, index: (coef * 1e12, index + 1),
-            "gwei": switch["nano"],
-            "shannon": switch["nano"],
-            "nanoether": switch["nano"],
             "nano": lambda coef, index: (coef * 1e9, index + 1),
-            "mwei": switch["picoether"],
-            "lovelace": switch["picoether"],
             "picoether": lambda coef, index: (coef * 1e6, index + 1),
-            "kwei": switch["femtoether"],
-            "babbage": switch["femtoether"],
             "femtoether": lambda coef, index: (coef * 1e3, index + 1),
-            "wei": lambda coef, index: (coef * 1, index + 1),
-            "default": None
+            "wei": lambda coef, index: (coef * 1, index + 1)
         }
+
+        chain = [("kether", switch["grand"]),
+                 ("zap", switch["ether"]),
+                 ("finney", switch["milli"]),
+                 ("milliether", switch["milli"]),
+                 ("szabo", switch["micro"]),
+                 ("microether", switch["micro"]),
+                 ("gwei", switch["nano"]),
+                 ("shannon", switch["nano"]),
+                 ("nanoether", switch["nano"]),
+                 ("mwei", switch["picoether"]),
+                 ("lovelace", switch["picoether"]),
+                 ("kwei", switch["femtoether"]),
+                 ("babbage", switch["femtoether"])]
+
+        for pair in chain:
+            k, v = enumerate(pair)
+            switch[k[1]] = v[1]
 
         for term in terms:
             coef: float = 1.0
@@ -187,16 +201,16 @@ class Curve:
 
             tokens: list = [token for token in tokenRegex.findall(term)]
 
-            for i in range(0, len(tokens)):
+            for i in range(0, len(tokens) - 1):
                 token = tokens[i]
 
-                if float(token):
+                if isDigit(token):
                     coef *= float(token)
 
                     if i < len(tokens) - 1:
                         """// https://web3js.readthedocs.io/en/1.0/web3-utils.html#fromwei"""
                         try:
-                            coef, i = switch[tokens[i + 1].lower()]
+                            coef, i = switch[tokens[i + 1].lower()](coef, i)
                             continue
                         except Exception:
                             pass
@@ -219,7 +233,7 @@ class Curve:
             while len(current_curve) < exp:
                 current_curve.append(0)
 
-            current_curve[exp] = coef
+            current_curve.append(coef)
 
         return [len(current_curve), *current_curve, end]
 
