@@ -127,21 +127,67 @@ def test_valuesToString(curve_data):
             assert stringed_expression == correct_expression
 
 
-def split_curve_to_expressions(curve):
-    index = 0
-    end = curve[0] + 1
-    expressions = []
-    while index < len(curve):
-        expressions.append(curve[index:end + 1])
-        index = end + 1
-    return expressions
-
-
 def test_splitCurveToTerms(curve_data):
-    for curve in curve_data:
+    correct_expressions = [[[3, 0, 0, 3, 1e10]],
+                           [[3, 1, 0, 3, 1e10]],
+                           [[3, 4, 2, 3, 1e8], [4, 0, 0, 3, 4, 1e10]],
+                           [[3, 1, 0, 1e-5, 1e5], [2, 5, 4, 1e9]]]
+
+    for curve, expressions in zip(curve_data, correct_expressions):
         with Curve(curve) as curve_obj:
-            assert curve_obj.splitCurveToTerms(curve) == split_curve_to_expressions(curve)
+            for curve_obj_exp, expression in zip(curve_obj.splitCurveToTerms(curve), expressions):
+                assert curve_obj_exp == expression
+
+
+correct_expressions = [["3x^2; limit = 10000000000.0"],
+
+                       ["x^0+3x^2; limit = 10000000000.0"],
+
+                       ["4x^0+2x^1+3x^2; limit = 100000000.0",
+                        "3x^2+4x^3; limit = 10000000000.0"],
+
+                       ["x^0+1e-05x^2; limit = 100000.0",
+                        "5x^0+4x^1; limit = 1000000000.0"]]
 
 
 def test_termToString(curve_data):
-    pass
+    for curve, expressions in zip(curve_data, correct_expressions):
+        with Curve(curve) as curve_obj:
+            for curve_obj_exp, expression in zip(curve_obj.splitCurveToTerms(curve), expressions):
+                assert curve_obj.termToString(curve_obj_exp) == expression
+
+
+def test_curveToString(curve_data):
+    for curve, expressions in zip(curve_data, correct_expressions):
+        with Curve(curve) as curve_obj:
+            comparitor = "&".join(string for string in expressions)
+            assert comparitor == curve_obj.curveToString(curve)
+
+
+@mark.parametrize("curve_string, limit, exception",
+                  [("4x^2+6x^7", "hi", "Start and end must be numbers"),
+                   ("4x^2+6x^7", "1e10", "Start and end must be numbers"),
+                   ("4x^2+6x^7", None, "Start and end must be numbers")])
+def test_convertToCurve_invalid(curve_string, limit, exception):
+    with raises(Exception, match=exception):
+        Curve().convertToCurve(limit, curve_string)
+
+
+@mark.parametrize("curve_string, limit",
+                  [("4x^2+6x^7", -1),
+                   ("4x^2+6x^7", int("-10000"))])
+def test_convertToCurve_invalid_assert(curve_string, limit):
+    with raises(AssertionError):
+        Curve().convertToCurve(limit, curve_string)
+
+
+@mark.parametrize("curve_string, limit, expected_curve",
+                  [("3x^2", 10000000000.0, [3, 0, 0, 3, 1e10]),
+                   ("x^0+3x^2", 10000000000.0, [3, 1, 0, 3, 1e10]),
+                   ("4x^0+2x^1+3x^2", 100000000.0, [3, 4, 2, 3, 1e8]),
+                   ("4x^0+2tetherx^1+3x^2", 100000000.0,
+                    [3, 4, 2 * 1e30, 3, 1e8]),
+                   ("x^0+0.00001x^2", 1000000.0, [3, 1, 0, 1e-5, 1e6]),
+                   ("x^0+100000.0szabox^2", 1000000.0, [3, 1, 0, 1e5 * 1e12, 1e6])])
+def test_convertToCurve(curve_string, limit, expected_curve):
+    assert Curve().convertToCurve(limit, curve_string) == expected_curve
