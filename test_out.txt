@@ -1,57 +1,38 @@
-=========================================================================== test session starts ===========================================================================
-platform win32 -- Python 3.8.2, pytest-6.2.2, py-1.10.0, pluggy-0.13.1
+================================================= test session starts =================================================
+platform win32 -- Python 3.8.2, pytest-6.2.2, py-1.10.0, pluggy-0.13.1 -- c:\users\azor ahai\documents\py\zappy-jb\venv\scripts\python.exe
+cachedir: .pytest_cache
 rootdir: C:\Users\Azor Ahai\Documents\Py\zappy-JB
 plugins: session2file-0.1.11, web3-5.16.0
 collecting ... 
-collected 17 items                                                                                                                                                         
+collected 28 items                                                                                                     
 
-Curve\test\Curve_test.py ..............F.                                                                                                                            [ 94%]
-portedFiles\default_tx_test.py .                                                                                                                                     [100%]
+Curve/test/Curve_test.py::test_init PASSED                                                                       [  3%]
+Curve/test/Curve_test.py::test_getPrice_invalid[-1-curve0] PASSED                                                [  7%]
+Curve/test/Curve_test.py::test_getPrice_invalid[100000000000.0-curve1] PASSED                                    [ 10%]
+Curve/test/Curve_test.py::test_getPrice_valid[1-expected0] PASSED                                                [ 14%]
+Curve/test/Curve_test.py::test_getPrice_valid[10-expected1] PASSED                                               [ 17%]
+Curve/test/Curve_test.py::test_getPrice_valid[1000000000.0-expected2] PASSED                                     [ 21%]
+Curve/test/Curve_test.py::test_getZapRequired_invalid[-1-1-Invalid curve supply position] PASSED                 [ 25%]
+Curve/test/Curve_test.py::test_getZapRequired_invalid[100000000000.0-1-Invalid curve supply position] PASSED     [ 28%]
+Curve/test/Curve_test.py::test_getZapRequired_invalid[1-100000000000.0-None] PASSED                              [ 32%]
+Curve/test/Curve_test.py::test_getZapRequired_valid[2-3] PASSED                                                  [ 35%]
+Curve/test/Curve_test.py::test_getZapRequired_valid[1-5] PASSED                                                  [ 39%]
+Curve/test/Curve_test.py::test_getZapRequired_valid[1-10] PASSED                                                 [ 42%]
+Curve/test/Curve_test.py::test_getZapRequired_valid[5-1000.0] PASSED                                             [ 46%]
+Curve/test/Curve_test.py::test_valuesToString PASSED                                                             [ 50%]
+Curve/test/Curve_test.py::test_splitCurveToTerms PASSED                                                          [ 53%]
+Curve/test/Curve_test.py::test_termToString PASSED                                                               [ 57%]
+Curve/test/Curve_test.py::test_curveToString PASSED                                                              [ 60%]
+Curve/test/Curve_test.py::test_convertToCurve_invalid[4x^2+6x^7-hi-Start and end must be numbers] PASSED         [ 64%]
+Curve/test/Curve_test.py::test_convertToCurve_invalid[4x^2+6x^7-1e10-Start and end must be numbers] PASSED       [ 67%]
+Curve/test/Curve_test.py::test_convertToCurve_invalid[4x^2+6x^7-None-Start and end must be numbers] PASSED       [ 71%]
+Curve/test/Curve_test.py::test_convertToCurve_invalid_assert[4x^2+6x^7--1] PASSED                                [ 75%]
+Curve/test/Curve_test.py::test_convertToCurve_invalid_assert[4x^2+6x^7--10000] PASSED                            [ 78%]
+Curve/test/Curve_test.py::test_convertToCurve[3x^2-10000000000.0-expected_curve0] PASSED                         [ 82%]
+Curve/test/Curve_test.py::test_convertToCurve[x^0+3x^2-10000000000.0-expected_curve1] PASSED                     [ 85%]
+Curve/test/Curve_test.py::test_convertToCurve[4x^0+2x^1+3x^2-100000000.0-expected_curve2] PASSED                 [ 89%]
+Curve/test/Curve_test.py::test_convertToCurve[4x^0+2tetherx^1+3x^2-100000000.0-expected_curve3] PASSED           [ 92%]
+Curve/test/Curve_test.py::test_convertToCurve[x^0+0.00001x^2-1000000.0-expected_curve4] PASSED                   [ 96%]
+Curve/test/Curve_test.py::test_convertToCurve[x^0+100000.0szabox^2-1000000.0-expected_curve5] PASSED             [100%]
 
-================================================================================ FAILURES =================================================================================
-_________________________________________________________________________ test_splitCurveToTerms __________________________________________________________________________
-
-curve_data = [[3, 0, 0, 3, 10000000000.0], [3, 1, 0, 3, 10000000000.0], [3, 4, 2, 3, 100000000.0, 4, ...], [3, 1, 0, 1e-05, 100000.0, 2, ...]]
-
-    def test_splitCurveToTerms(curve_data):
-        for curve in curve_data:
-            with Curve(curve) as curve_obj:
->               assert curve_obj.splitCurveToTerms(curve) == split_curve_to_expressions(curve)
-
-Curve\test\Curve_test.py:143: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-
-self = <Curve.curve.Curve object at 0x000001D6CEEDCF40>, curve = [3, 4, 2, 3, 100000000.0, 4, ...]
-
-    def splitCurveToTerms(self, curve: list) -> list:  # return: 2D list
-        if len(curve) <= 0:
-            return []
-        res = []
-        start: int = 0
-        currentLen = int(curve[0])
-        end = int(currentLen + 1)
-        while start < len(curve):
-            res.append(curve[start:(end + 1)])
-            start += currentLen + 2
->           currentLen = int(curve[end]) + 1
-E           IndexError: list index out of range
-
-Curve\curve.py:121: IndexError
-========================================================================= short test summary info =========================================================================
-PASSED Curve/test/Curve_test.py::test_init
-PASSED Curve/test/Curve_test.py::test_getPrice_invalid[-1-curve0]
-PASSED Curve/test/Curve_test.py::test_getPrice_invalid[100000000000.0-curve1]
-PASSED Curve/test/Curve_test.py::test_getPrice_valid[1-expected0]
-PASSED Curve/test/Curve_test.py::test_getPrice_valid[10-expected1]
-PASSED Curve/test/Curve_test.py::test_getPrice_valid[1000000000.0-expected2]
-PASSED Curve/test/Curve_test.py::test_getZapRequired_invalid[-1-1-Invalid curve supply position]
-PASSED Curve/test/Curve_test.py::test_getZapRequired_invalid[100000000000.0-1-Invalid curve supply position]
-PASSED Curve/test/Curve_test.py::test_getZapRequired_invalid[1-100000000000.0-None]
-PASSED Curve/test/Curve_test.py::test_getZapRequired_valid[2-3]
-PASSED Curve/test/Curve_test.py::test_getZapRequired_valid[1-5]
-PASSED Curve/test/Curve_test.py::test_getZapRequired_valid[1-10]
-PASSED Curve/test/Curve_test.py::test_getZapRequired_valid[5-1000.0]
-PASSED Curve/test/Curve_test.py::test_valuesToString
-PASSED Curve/test/Curve_test.py::test_termToString
-PASSED portedFiles/default_tx_test.py::DefaultTxTest::test_instance
-====================================================================== [31m[1m1 failed[0m, [32m16 passed[0m[31m in 1.07s[0m[31m =======================================================================
+================================================= [32m[1m28 passed[0m[32m in 0.29s[0m[32m ==================================================
