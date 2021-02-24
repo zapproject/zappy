@@ -13,13 +13,14 @@ These instructions will get you a copy of the project up and running on your loc
 ### Prerequisites
 
 ```
-
+python3 -m venv venv
+source ./venv/bin/activate
 ```
 
 ### Installing
 
 ```
-
+pip3 install -r requirements.txt
 ```
 
 ## Running build and tests
