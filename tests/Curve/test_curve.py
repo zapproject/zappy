@@ -1,11 +1,14 @@
 from pytest import raises, fixture, mark, approx
+from os.path import join, realpath
+import sys
+sys.path.insert(0, realpath(join(__file__, "../../../")))
 from Curve.curve import Curve, isWhole
 """
     Get a detailed test output and upload to a pastebin:
-        pytest -r p --pastebin=all
+        pytest -v -r p --pastebin=all
 
     Show fixtures used for test
-        pytest -r p --fixtures-per-test
+        pytest -v -r p --fixtures-per-test
 """
 
 

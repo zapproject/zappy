@@ -157,7 +157,8 @@ class Curve:
         assert end > 0
 
         from pathlib import Path
-        with open(Path(__file__).parent.as_posix() + r"\regex", 'r') as regex:
+        from os.path import join
+        with open(join(Path(__file__).parent.as_posix(), r"regex"), 'r') as regex:
             tokenRegex = re.compile(regex.readline())
 
         terms: list = [term.strip() for term in curve.split("+")]
