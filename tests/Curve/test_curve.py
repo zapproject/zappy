@@ -1,9 +1,7 @@
 from pytest import raises, fixture, mark, approx
 from os.path import join, realpath
 import sys
-sys.path.pop(0)
 sys.path.insert(0, realpath(join(__file__, "../../../")))
-print(sys.path)
 from Curve.curve import Curve, isWhole
 """
     Get a detailed test output and upload to a pastebin:
