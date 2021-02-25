@@ -8,7 +8,7 @@ import os
 # Helper function for load_abi and load_address.
 def load_json(name: str) -> str:
     # Adjust path below to fetch Artifacts/<name>.json.
-    path = #f"{os.path.dirname(os.path.dirname(__file__))}/Artifacts/"
+    path = "./Artifacts/"
     with open(os.path.abspath(path + f"{name}.json")) as f:
         json_file = json.load(f)
     return json_file
