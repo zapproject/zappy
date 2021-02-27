@@ -1,14 +1,14 @@
-FROM python:3.6
+# FROM python:3.6
 
-# Set up code directory
-RUN mkdir -p /usr/src/app
-WORKDIR /usr/src/app
+# # Set up code directory
+# RUN mkdir -p /usr/src/app
+# WORKDIR /usr/src/app
 
-# Install Linux dependencies
-RUN apt-get update && apt-get install -y libssl-dev
+# # Install Linux dependencies
+# RUN apt-get update && apt-get install -y libssl-dev
 
-COPY .
+# COPY .
 
-RUN pip install -r requirements.txt
+# RUN pip install -r requirements.txt
 
 
