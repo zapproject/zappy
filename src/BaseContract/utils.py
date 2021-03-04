@@ -1,29 +1,42 @@
-import json
 import os
+import json
 
 
-# These functions replace the monorepo's artifactDir and negates the need for each 
-# artifact's location to be hardcoded in a seperate module.
-#
-# Helper function for load_abi and load_address.
-def load_json(name: str) -> str:
-    # Adjust path below to fetch Artifacts/<name>.json.
-    path = "./Artifacts/"
-    with open(os.path.abspath(path + f"{name}.json")) as f:
-        json_file = json.load(f)
-    return json_file
+class Utils:
 
+    """
+    # @ignore
+    # @params {string} buildDir
+    # @returns {any}
+    """
 
-def load_abi(name: str) -> dict:
-    obj = load_json(name)
-    abi = obj['abi']
-    return abi
+    @staticmethod
+    def get_artifacts(build_dir: str) -> dict:
+        artifacts = {
+            'ARBITER': os.path.join(build_dir, 'Arbiter.json'),
+            'BONDAGE': os.path.join(build_dir, 'Bondage.json'),
+            'DISPATCH': os.path.join(build_dir, 'Dispatch.json'),
+            'REGISTRY': os.path.join(build_dir, 'Registry.json'),
+            'CurrentCost': os.path.join(build_dir, 'CurrentCost.json'),
+            'PiecewiseLogic': os.path.join(build_dir, 'PiecewiseLogic.json'),
+            'ZAP_TOKEN': os.path.join(build_dir, 'ZapToken.json'),
+            'Client1': os.path.join(build_dir, 'Client1.json'),
+            'Client2': os.path.join(build_dir, 'Client2.json'),
+            'Client3': os.path.join(build_dir, 'Client3.json'),
+            'Client4': os.path.join(build_dir, 'Client4.json'),
+            'ZAPCOORDINATOR': os.path.join(build_dir, 'ZapCoordinator.json'),
+            'TOKENDOTFACTORY': os.path.join(build_dir, 'TokenDotFactory.json'),
+        }
+        return artifacts
 
-def load_address(name: str, netId: int or str) -> dict:
-    try:
-        a_dict = load_json(name)
-        addr = a_dict['networks']
-        network_address = addr[netId]['address']
-        return network_address
-    except Exception as e:
-        print('Error with: ' + str(e))
+    """
+    # @ignore
+    # @params {string} artifact
+    # @returns {dict}
+    """
+
+    @staticmethod
+    def open_artifact_in_dir(artifact: str) -> dict:
+        with open(artifact) as f:
+            abi = json.load(f)
+            return abi
