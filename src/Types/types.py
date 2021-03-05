@@ -180,7 +180,7 @@ class BondFilter(Filter, TypedDict, total=False):
 
 # accepts a function, takes error and hash as args
 TransactionCallback = NewType(
-    "TransactionCallback", Callable[str, str], None)
+    "TransactionCallback", Callable[[str, str], None])
 
 
 ############# PROVIDER #############
