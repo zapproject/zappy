@@ -1,4 +1,5 @@
-from web3.Web3 import toHex, toText, toBytes
+from web3 import Web3
+# from Web3 import Web3.toHex, Web3.toText, Web3.toBytes
 
 from BaseContract.base_contract import BaseContract
 from ZapToken.Curve.curve import Curve
@@ -25,8 +26,8 @@ class ZapRegistry(BaseContract):
             ZapRegistry({"networkId": 42, "networkProvider": "web3"})
     """
 
-    def __init__(self, options: NetworkProviderOptions):
-        options["artifactName"] = "REGISTRY"
+    def __init__(self, options: NetworkProviderOptions = {}):
+        options["artifact_name"] = "REGISTRY"
         super().__init__(**options)
 
     """
@@ -78,7 +79,7 @@ class ZapRegistry(BaseContract):
 
         try:
             tx_hash = await self.contract.functions.InitiateProvider(
-                str(public_key), toHex(title)).transact(
+                str(public_key), Web3.toHex(title)).transact(
                     {"from": From, "gas": gas})
 
             cb(None, tx_hash)
@@ -103,7 +104,7 @@ class ZapRegistry(BaseContract):
         title = await\
             self.contract.functions.getProviderTitle(provider).call()
 
-        return toText(title)
+        return Web3.toText(title)
 
     async def set_provider_title(self, From: address, title: str,
                                  cb: TransactionCallback, gas=const.DEFAULT_GAS):
@@ -117,7 +118,7 @@ class ZapRegistry(BaseContract):
         """
         try:
             tx_hash = await\
-                self.contract.functions.setProviderTitle(toHex(title)).transact(
+                self.contract.functions.setProviderTitle(Web3.toHex(title)).transact(
                     {"from": From, "gas": gas})
             cb(None, tx_hash)
 
@@ -130,7 +131,7 @@ class ZapRegistry(BaseContract):
         return await self.contract.is_provider_initiated(provider)
 
     async def get_provider_param(self, provider: address, key: str):
-        return await self.contract.functions.getProviderParameter(provider, toHex(key))
+        return await self.contract.functions.getProviderParameter(provider, Web3.toHex(key))
 
     async def get_all_provider_params(self, provider: address):
         return await self.contract.functions.getAllProviderParams(provider).call()
@@ -138,7 +139,7 @@ class ZapRegistry(BaseContract):
     async def get_provider_endpoints(self, provider: address):
         endpoints = await\
             self.contract.functions.getProviderEndpoints(provider).call()
-        endpoints = [toText(endpoint) for endpoint in endpoints]
+        endpoints = [Web3.toText(endpoint) for endpoint in endpoints]
         valid_endpoints = [e for e in endpoints if e != '']
 
         return valid_endpoints
@@ -152,11 +153,11 @@ class ZapRegistry(BaseContract):
                                       broker=const.NULL_ADDRESS,
                                       gas=const.DEFAULT_GAS):
         """"""
-        hex_terms = [toHex(t) for t in term]
+        hex_terms = [Web3.toHex(t) for t in term]
 
         try:
             tx_hash = await\
-                self.contract.functions.initiateProviderCurve(toHex(end_point),
+                self.contract.functions.initiateProviderCurve(Web3.toHex(end_point),
                                                               hex_terms, broker)
             cb(None, tx_hash)
         except Exception as e:
@@ -168,7 +169,7 @@ class ZapRegistry(BaseContract):
                              cb: TransactionCallback, gas=const.DEFAULT_GAS):
         try:
             tx_hash = await\
-                self.contract.functions.clearEndpoint(toHex(endpoint)).send(
+                self.contract.functions.clearEndpoint(Web3.toHex(endpoint)).send(
                     {"from": From, "gas": gas})
             cb(None, tx_hash)
         except Exception as e:
@@ -179,33 +180,33 @@ class ZapRegistry(BaseContract):
     async def get_provider_curve(self, provider: address, endpoint: str):
         terms: list = await\
             self.contract.functions.getProviderCurve(
-                provider, toHex(endpoint)).call()
+                provider, Web3.toHex(endpoint)).call()
 
         return Curve([int(t) for t in terms])
 
     def encode_params(endpoint_params: list = [], ):
         pars = endpoint_params
         hex_params =\
-            [el if el.find('0x') == 0 else toHex(el) for el in pars]
+            [el if el.find('0x') == 0 else Web3.toHex(el) for el in pars]
         bytes_params =\
-            [bytearray(toBytes(hexstr=hex_p)) for hex_p in hex_params]
+            [bytearray(Web3.toBytes(hexstr=hex_p)) for hex_p in hex_params]
         params = []
 
         from math import ceil
         for element in bytes_params:
             if len(element) <= 32:
-                params.append(toHex(element))
+                params.append(Web3.toHex(element))
                 continue
             chunks_len = ceil((len(element) + 2) / 32)
             param_bytes_w_len = [0, chunks_len].extend(element)
             for i in range(0, chunks_len):
                 start = i * 32
                 end = start + 32
-                params.append(toHex(param_bytes_w_len[start:end]))
+                params.append(Web3.toHex(param_bytes_w_len[start:end]))
         return params
 
     def decode_params(self, raw_params: list = []):
-        bytes_params = [bytearray(toBytes(hexstr=el)) for el in raw_params]
+        bytes_params = [bytearray(Web3.toBytes(hexstr=el)) for el in raw_params]
         params = []
         i = 0
         length = len(bytes_params)
@@ -217,7 +218,7 @@ class ZapRegistry(BaseContract):
                 len(bytes_params[i]) == 32
 
             if not is_start_o_chunks:
-                params.append(toHex(bytes_params[i]))
+                params.append(Web3.toHex(bytes_params[i]))
                 i += 1
                 continue
 
@@ -231,10 +232,10 @@ class ZapRegistry(BaseContract):
                 raw_bytes = raw_bytes.extend(bytes_params[i])
                 i += 1
 
-            params.append(toHex(raw_bytes))
+            params.append(Web3.toHex(raw_bytes))
 
             try:
-                return [toText(hexstr=raw_hex) for raw_hex in params]
+                return [Web3.toText(hexstr=raw_hex) for raw_hex in params]
             except Exception as e:
                 print(e)
 
@@ -246,7 +247,7 @@ class ZapRegistry(BaseContract):
         try:
             tx_hash = await\
                 self.contract.functions.setEndpointParams(
-                    toHex(text=endpoint), params).transact(
+                    Web3.toHex(text=endpoint), params).transact(
                         {"from": From, "gas": gas})
             cb(None, tx_hash)
         except Exception as e:
@@ -257,12 +258,12 @@ class ZapRegistry(BaseContract):
     async def get_endpoint_broker(self, provider: address, endpoint: str):
         return\
             await self.contract.functions.getEndpointBroker(provider,
-                                                            toHex(text=endpoint)).call()
+                                                            Web3.toHex(text=endpoint)).call()
 
     async def is_endpoint_set(self, provider: address, endpoint: str):
         unset: bool = await\
             self.contract.functions.getCurveUnset(provider,
-                                                  toHex(text=endpoint)).call()
+                                                  Web3.toHex(text=endpoint)).call()
         return not unset
 
     """ Events
