@@ -28,7 +28,7 @@ class ZapRegistry(BaseContract):
 
     def __init__(self, options: NetworkProviderOptions = {}):
         options["artifact_name"] = "REGISTRY"
-        super().__init__(**options)
+        BaseContract.__init__(self, **options)
 
     """
         Registry storage calls for all providers
