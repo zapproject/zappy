@@ -1,10 +1,13 @@
+import os
+import sys
+sys.path.insert(0, os.path.dirname(os.path.abspath("./__file__")))
+
 from typing import Any
 from web3 import Web3
 import asyncio
 
-from .utils import Utils
-# from .Artifacts.src.index import Artifacts
-from ..Artifacts.src.index import Artifacts
+from src.BaseContract.utils import Utils
+from src.Artifacts.src.index import Artifacts
 #from portedFiles.types import base_contract_type
 
 
