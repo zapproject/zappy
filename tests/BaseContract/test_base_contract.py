@@ -14,12 +14,11 @@ mock_abi = {
 }
 
 
-
 @patch.dict('base_contract.Artifacts', mock_abi)
 @patch('base_contract.Web3', autospec=True)
 class TestInit:
 
-    def test_instance_name(self, mock_Web3):
+    def test_instance_name_and_coordinator(self, mock_Web3):
         """
         Sanity check to ensure the instance runs without errors while mocking web3
 
@@ -44,10 +43,11 @@ class TestInit:
         """
         mock_Web3.return_value = MagicMock()
         w3 = mock_Web3()
-        w3.eth.contract.return_value = MagicMock()
+        w3.eth.contract.return_value = w3._utils.datatypes.Contract
 
         with pytest.raises(KeyError):
             instance = base_contract.BaseContract(artifact_name='')
+            assert instance
 
 
     def test_network_id_default(self, mock_Web3):
@@ -58,7 +58,7 @@ class TestInit:
         """
         mock_Web3.return_value = MagicMock()
         w3 = mock_Web3()
-        w3.eth.contract.return_value = MagicMock()
+        w3.eth.contract.return_value = w3._utils.datatypes.Contract
 
         instance = base_contract.BaseContract(artifact_name='TEST_ARTIFACT')
 
@@ -79,7 +79,7 @@ class TestInit:
         """
         mock_Web3.return_value = MagicMock()
         w3 = mock_Web3()
-        w3.eth.contract.return_value = MagicMock()
+        w3.eth.contract.return_value = w3._utils.datatypes.Contract
         instance = base_contract.BaseContract(artifact_name='TEST_ARTIFACT', network_id=input)
 
         assert instance.network_id == input
@@ -94,10 +94,11 @@ class TestInit:
         """
         mock_Web3.return_value = MagicMock()
         w3 = mock_Web3()
-        w3.eth.contract.return_value = MagicMock()
+        w3.eth.contract.return_value = w3._utils.datatypes.Contract
 
         with pytest.raises(KeyError):
             instance = base_contract.BaseContract(artifact_name='TEST_ARTIFACT', network_id=wrong_net_id)
+            assert instance
 
     def test_network_id_of_zero(self, mock_Web3):
         """
@@ -105,7 +106,7 @@ class TestInit:
         """
         mock_Web3.return_value = MagicMock()
         w3 = mock_Web3()
-        w3.eth.contract.return_value = MagicMock()
+        w3.eth.contract.return_value = w3._utils.datatypes.Contract
 
         instance = base_contract.BaseContract(artifact_name='TEST_ARTIFACT', network_id=0)
 
@@ -125,7 +126,7 @@ class TestAddress:
         """
         mock_Web3.return_value = MagicMock()
         w3 = mock_Web3()
-        w3.eth.contract.return_value = MagicMock()
+        w3.eth.contract.return_value = w3._utils.datatypes.Contract
 
         instance = base_contract.BaseContract(artifact_name='TEST_ARTIFACT', address='0x_some_address')
 
@@ -146,7 +147,7 @@ class TestAddress:
         """
         mock_Web3.return_value = MagicMock()
         w3 = mock_Web3()
-        w3.eth.contract.return_value = MagicMock()
+        w3.eth.contract.return_value = w3._utils.datatypes.Contract
 
         instance = base_contract.BaseContract(artifact_name='TEST_ARTIFACT', network_id=network_input)
 
@@ -161,8 +162,6 @@ class TestAddress:
 @patch('base_contract.Web3', autospec=True)
 class TestArtifacts:
 
-    mock_contract = MagicMock(address="0x000000000000000000", abi=['abi'], name="MOCKCONTRACT")
-
     def test_artifact_and_coor_artifact_assignments_from_dictionary(self, mock_Web3):
         """
         Testing that the artifact_name kwarg triggers the Artifacts dictionary and populates the artifact
@@ -172,7 +171,7 @@ class TestArtifacts:
         """
         mock_Web3.return_value = MagicMock()
         w3 = mock_Web3()
-        w3.eth.contract.return_value = MagicMock()
+        w3.eth.contract.return_value = w3._utils.datatypes.Contract
 
         instance = base_contract.BaseContract(artifact_name='TEST_ARTIFACT')
 
@@ -220,7 +219,7 @@ class TestArtifactsDirectory:
         respectively. Thereafter, the BaseContract instance attribute 'artifact' should be assigned as an object
         (abi). The get_artifacts and open_artifact_in_dir functions are patched and return expected values.
 
-        :param mock_utils_abi: a mocked abi that mimicks what open_artifacts_in_dir function will return.
+        :param mock_utils_abi: a mocked abi that mimics what open_artifacts_in_dir function will return.
         :param mock_artifact_dir: a small mocked directory that replicates the return of get_artifacts function.
         :param mock_Web3: patched web3.
         """
@@ -228,7 +227,7 @@ class TestArtifactsDirectory:
         """Mock web3"""
         mock_Web3.return_value = MagicMock()
         w3 = mock_Web3()
-        w3.eth.contract.return_value = MagicMock()
+        w3.eth.contract.return_value = w3._utils.datatypes.Contract
 
         """Mock the relevant function returns"""
         mock_artifact_dir.return_value = self.mock_dict_dir
@@ -261,6 +260,51 @@ class TestArtifactsDirectory:
             assert type(instance.coor_artifact['abi']) != dict
             assert instance.coor_address == '0xfailingstring'
             assert instance.coor_artifact['abi']['network']
+
+
+@patch.dict('base_contract.Artifacts', mock_abi)
+@patch('base_contract.Web3', autospec=True)
+class TestContracts:
+
+    def test_coordinator_contract_if_no_coor_provided(self, mock_Web3):
+        """
+        Testing that the coordinator contract object is assigned.
+        """
+        mock_Web3.return_value = MagicMock()
+        w3 = mock_Web3()
+        w3.eth.contract.return_value = w3._utils.datatypes.Contract
+
+        instance = base_contract.BaseContract(artifact_name='TEST_ARTIFACT')
+        assert instance.coordinator
+
+    def test_coordinator_contract_with_coordinator_address(self, mock_Web3):
+        """
+        Testing that the coordinator contract object is assigned.
+        """
+
+        mock_Web3.return_value = MagicMock()
+        w3 = mock_Web3()
+        w3.eth.contract.return_value = w3._utils.datatypes.Contract
+
+        instance = base_contract.BaseContract(artifact_name='TEST_ARTIFACT', coordinator='0x0102030405')
+
+        """Testing that the coordinator instance was assigned"""
+
+        assert instance.coordinator
+
+
+
+    def test_self_contract_if_no_coor_provided(self, mock_Web3):
+        """
+        Testing that the contract instance object is assigned.
+        """
+        mock_Web3.return_value = MagicMock()
+        w3 = mock_Web3()
+        w3.eth.contract.return_value = w3._utils.datatypes.Contract
+
+        instance = base_contract.BaseContract(artifact_name='TEST_ARTIFACT')
+        assert instance.contract
+
 
 
 

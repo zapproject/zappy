@@ -1,6 +1,7 @@
 from web3 import Web3
 from src.index import Artifacts
 from utils import Utils
+import asyncio
 
 
 class BaseContract:
@@ -41,30 +42,39 @@ class BaseContract:
             if coordinator is not None:
                 self.coordinator = self.w3.eth.contract(address=self.w3.toChecksumAddress(coordinator),
                                                         abi=self.coor_artifact['abi'])
-                self.get_contract()
+                call_get_contract = self.get_contract()
+                asyncio.run(call_get_contract)
             else:
                 self.coor_address = self.coor_artifact['networks'][str(self.network_id)]['address']
                 self.coordinator = self.w3.eth.contract(address=self.w3.toChecksumAddress(self.coor_address),
                                                         abi=self.coor_artifact['abi'])
                 self.contract = self.w3.eth.contract(address=self.w3.toChecksumAddress(self.address),
                                                      abi=self.artifact['abi'])
+
+            call_contract_owner = self.get_contract_owner()
+            asyncio.run(call_contract_owner)
+
         except Exception as e:
             raise e
 
-    def get_contract(self) -> str:
+    async def get_contract(self) -> str:
         """
         This function fetches the contract address from coordinator and assigns the 'self.contract' contract object.
         :return: the contract address of the coordinator.
         """
-        contract_address = self.coordinator.functions.getContract(self.name.upper()).call()
+        await asyncio.sleep(1)
+        contract_address = self.coordinator.functions.getContract.address
+        print('address is:' + contract_address)     #DELETE: For demo purposes!!!
         self.contract = self.w3.eth.contract(address=self.w3.toChecksumAddress(contract_address),
                                              abi=self.artifact['abi'])
         return contract_address
 
-    def get_contract_owner(self) -> str:
+    async def get_contract_owner(self) -> str:
         """
         This function fetches the owner of the contract instance.
         :return: the contract owner's address.
         """
+        await asyncio.sleep(1)
         contract_owner = self.contract.functions.owner().call()
+        print('owner is:' + contract_owner)     #DELETE: For demo purposes!!!
         return contract_owner
