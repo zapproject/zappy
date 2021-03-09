@@ -13,15 +13,16 @@ class MockWeb3():
 
     def __init__(self, node_url: str = "http://127.0.0.1:8545"):
         self.node_url = node_url
+        # self.network_id = network_id
         self.web3 = Web3(Web3.HTTPProvider(node_url))
 
-    def getAbi(contract_name:str):
+    def getArtifact(cls, contract_name:str):
         base_path = os.path.dirname(os.path.abspath("./__file__"))
-        artifacts_directory = "src/Artifacts"
+        artifacts_directory = "src/Artifacts/contracts"
         artifact_path = os.path.join(base_path, artifacts_directory, f"{contract_name.capitalize()}.json")
-        with open("tests/test_helper/Arbiter.json") as f:
+        with open(artifact_path) as f:
             artifact = json.load(f)
-            return artifact['abi']
+            return artifact
 
     def isConnected(self):
         return self.web3.isConnected()
@@ -30,11 +31,13 @@ class MockWeb3():
         pp.pprint(dir(self.web3))
 
     def connectToContract(self, contract_name):
-         contract_abi = getAbi(contract_name)
-        #  return self.web3.eth.contract(addres:)
-
+        artifacts = self.getArtifact(contract_name)
+        contract_abi = artifacts['abi']
+        contract_address = artifacts['networks'][str(self.web3.eth.chain_id)]['address']
+        return self.web3.eth.contract(address=contract_address, abi=contract_abi)
+        # return self.web3.eth.contract(address=contract_abi)
 
 
 
 w3 = MockWeb3()
-# print(w3.pprint_dir())
+
