@@ -40,41 +40,75 @@ class BaseContract:
             self.address = address or self.artifact['networks'][str(self.network_id)]['address']
 
             if coordinator is not None:
-                self.coordinator = self.w3.eth.contract(address=self.w3.toChecksumAddress(coordinator),
+                self.coor_address = self.w3.toChecksumAddress(coordinator)
+                self.coordinator = self.w3.eth.contract(address=self.w3.toChecksumAddress(self.coor_address),
                                                         abi=self.coor_artifact['abi'])
-                call_get_contract = self.get_contract()
-                asyncio.run(call_get_contract)
+
+                contract_address = self.get_contract()
+
+                self.contract = self.w3.eth.contract(address=self.w3.toChecksumAddress(contract_address),
+                                                     abi=self.artifact['abi'])
+
             else:
                 self.coor_address = self.coor_artifact['networks'][str(self.network_id)]['address']
                 self.coordinator = self.w3.eth.contract(address=self.w3.toChecksumAddress(self.coor_address),
                                                         abi=self.coor_artifact['abi'])
+
                 self.contract = self.w3.eth.contract(address=self.w3.toChecksumAddress(self.address),
                                                      abi=self.artifact['abi'])
-
-            call_contract_owner = self.get_contract_owner()
-            asyncio.run(call_contract_owner)
 
         except Exception as e:
             raise e
 
-    async def get_contract(self) -> str:
+    async def _get_contract(self) -> str:
         """
-        This function fetches the contract address from coordinator and assigns the 'self.contract' contract object.
+        This async function fetches the contract address from the coordinator and assigns the contract object instance
+        to the coordinator (within the context of the conditional statement of where it's located). Further,
         :return: the contract address of the coordinator.
         """
         await asyncio.sleep(1)
         contract_address = self.coordinator.functions.getContract.address
-        print('address is:' + contract_address)     #DELETE: For demo purposes!!!
-        self.contract = self.w3.eth.contract(address=self.w3.toChecksumAddress(contract_address),
-                                             abi=self.artifact['abi'])
         return contract_address
 
-    async def get_contract_owner(self) -> str:
+    async def _get_contract_owner(self) -> str:
         """
-        This function fetches the owner of the contract instance.
+        This async function fetches the owner of the contract instance.
+
         :return: the contract owner's address.
         """
         await asyncio.sleep(1)
         contract_owner = self.contract.functions.owner().call()
-        print('owner is:' + contract_owner)     #DELETE: For demo purposes!!!
         return contract_owner
+
+    def get_contract(self) -> str:
+        """
+        A synchronous function that wraps the asynchronous _get_contract method. This provides flexibility. The
+        async function is used in the constructor to assign the coordinator address to the contract object; while in a
+        different context, a user can fetch the contract object's address.
+
+        :return: the contract address.
+        """
+        task = self._get_contract()
+        contract_address = asyncio.run(task)
+        return contract_address
+
+    def get_contract_owner(self) -> str:
+        """
+        A synchronous function that wraps the asynchronous _get_contract_owner method. This function returns the
+        contract owner's address.
+
+        :return: the contract owner's address.
+        """
+        task = self._get_contract_owner()
+        owner = asyncio.run(task)
+        return owner
+
+
+w3 = Web3(Web3.HTTPProvider('http://127.0.0.1:8545'))
+y = BaseContract(artifact_name='ARBITER', web3=w3, network_id=31337,
+                 coordinator='0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0')
+print(y.get_contract_owner())
+
+
+
+

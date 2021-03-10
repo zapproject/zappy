@@ -1,6 +1,8 @@
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch, AsyncMock, PropertyMock
 import pytest
+import unittest
 import base_contract
+import re
 
 mock_abi = {
     'TEST_ARTIFACT': {'abi': [], 'networks':
@@ -18,7 +20,7 @@ mock_abi = {
 @patch('base_contract.Web3', autospec=True)
 class TestInit:
 
-    def test_instance_name_and_coordinator(self, mock_Web3):
+    def test_instance_name(self, mock_Web3):
         """
         Sanity check to ensure the instance runs without errors while mocking web3
 
@@ -134,7 +136,7 @@ class TestAddress:
         assert instance.address == '0x_some_address'
 
         with pytest.raises(AssertionError):
-            assert instance.address == '0xsomeotheraddress'
+            assert instance.address == '0x_some_other_address'
 
     @pytest.mark.parametrize('network_input, address_output', [(1, '0xmainnet'), (42, '0xkovan'), (31337, '0xdevnet')])
     def test_address_with_no_argument(self, mock_Web3, network_input, address_output):
@@ -155,7 +157,7 @@ class TestAddress:
         assert instance.address == address_output
 
         with pytest.raises(AssertionError):
-            assert instance.address == '0xwrongaddress'
+            assert instance.address == '0x_wrong_address'
 
 
 @patch.dict('base_contract.Artifacts', mock_abi)
@@ -164,7 +166,7 @@ class TestArtifacts:
 
     def test_artifact_and_coor_artifact_assignments_from_dictionary(self, mock_Web3):
         """
-        Testing that the artifact_name kwarg triggers the Artifacts dictionary and populates the artifact
+        Testing that the artifact_name kwarg triggers the artifacts dictionary and populates the artifact
         attribute with the controlled mock abi.
 
         :param mock_Web3: patched web3.
@@ -201,8 +203,8 @@ class TestArtifactsDirectory:
     mock_coor_abi = {'abi': [], 'networks': {'1': {'address': '0xcoormainnet'}, '42': {'address': '0xcoorkovan'},
                                              '31337': {'address': '0xcoordevnet'}}}
 
-    mock_dict_dir = {'TEST_ARTIFACT': 'Artifacts/contracts/TestArtifact.json',
-                     'ZAPCOORDINATOR': 'Artifacts/contracts/ZapCoordinator.json'}
+    mock_dict_dir = {'TEST_ARTIFACT': 'artifacts/contracts/TestArtifact.json',
+                     'ZAPCOORDINATOR': 'artifacts/contracts/ZapCoordinator.json'}
 
     @patch('base_contract.Utils.get_artifacts')
     @patch('base_contract.Utils.open_artifact_in_dir')
@@ -216,7 +218,7 @@ class TestArtifactsDirectory:
                                                             coor_address_output):
         """
         Testing that the artifacts_dir kwarg passes through both get_artifacts and open_artifact_in_dir functions
-        respectively. Thereafter, the BaseContract instance attribute 'artifact' should be assigned as an object
+        respectively. Thereafter, the base_contract instance attribute 'artifact' should be assigned as an object
         (abi). The get_artifacts and open_artifact_in_dir functions are patched and return expected values.
 
         :param mock_utils_abi: a mocked abi that mimics what open_artifacts_in_dir function will return.
@@ -266,16 +268,33 @@ class TestArtifactsDirectory:
 @patch('base_contract.Web3', autospec=True)
 class TestContracts:
 
-    def test_coordinator_contract_if_no_coor_provided(self, mock_Web3):
+    """Side effect function for checking args and kwargs passed"""
+    def capture_args(self, *args, **kwargs) -> any:
+        return args, kwargs
+
+    @patch('base_contract.BaseContract.get_contract')
+    def test_coordinator_contract_if_no_coor_provided(self, mock_get_contract, mock_Web3):
         """
         Testing that the coordinator contract object is assigned.
         """
         mock_Web3.return_value = MagicMock()
         w3 = mock_Web3()
-        w3.eth.contract.return_value = w3._utils.datatypes.Contract
+        w3.toChecksumAddress.side_effect = self.capture_args
+        w3.eth.contract.side_effect = self.capture_args
 
-        instance = base_contract.BaseContract(artifact_name='TEST_ARTIFACT')
-        assert instance.coordinator
+        mock_get_contract = MagicMock()
+
+        instance = base_contract.BaseContract(artifact_name='TEST_ARTIFACT', coordinator='0x_some_address')
+
+        assert type(instance.coordinator) == tuple
+        assert instance.coordinator[1]['abi'] == []
+
+        expected_address = '0x_some_address'
+
+        """Iterate through the returned tuple to find the passed address"""
+        res = re.search(expected_address, str(instance.coordinator[1]['address']))
+        assert res is not None
+
 
     def test_coordinator_contract_with_coordinator_address(self, mock_Web3):
         """
@@ -294,7 +313,7 @@ class TestContracts:
 
 
 
-    def test_self_contract_if_no_coor_provided(self, mock_Web3):
+    def test_contract_instance_if_no_coor_provided(self, mock_Web3):
         """
         Testing that the contract instance object is assigned.
         """
@@ -304,6 +323,50 @@ class TestContracts:
 
         instance = base_contract.BaseContract(artifact_name='TEST_ARTIFACT')
         assert instance.contract
+
+
+@patch.dict('base_contract.Artifacts', mock_abi)
+@patch('base_contract.Web3', autospec=True)
+class TestMethods:
+
+
+    def mock_get_contract(self):
+        return '0xcoormainnet'
+
+    @patch('base_contract.asyncio')
+    @patch('base_contract.BaseContract._get_contract')
+    def test_get_contract(self, mock_async_get, mock_asyncio, mock_Web3):
+        """
+        Testing that the get_contract function returns the proper values.
+        """
+        mock_Web3.return_value = MagicMock()
+        w3 = mock_Web3()
+        w3.eth.contract.return_value = w3._utils.datatypes.Contract
+
+        """Mock the async function call"""
+        mock_async_get.return_value = AsyncMock()
+
+        """Mock asyncio"""
+        mock_asyncio.return_value = MagicMock()
+        m_asyncio = mock_asyncio()
+
+        instance = base_contract.BaseContract(artifact_name='TEST_ARTIFACT', coordinator='0xcoormainnet')
+
+
+        # FINISH THIS TEST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
