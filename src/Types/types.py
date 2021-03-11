@@ -69,7 +69,7 @@ class TransferType(defaultTx, TypedDict):
 
 
 Constants = namedtuple("Constants", ["DEFAULT_GAS", "NULL_ADDRESS"])
-const = Constants(4e5, "0x0000000000000000000000000000000000000000")
+const = Constants(int(4e5), "0x0000000000000000000000000000000000000000")
 """
     accessed by const.DEFAULT_GAS and const.NULL_ADDRESS
 """
