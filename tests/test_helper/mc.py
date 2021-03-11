@@ -16,10 +16,11 @@ pp = pprint.PrettyPrinter(indent=4)
 class MockContract():
     
     def __init__(self, contract_name):
-        self.name = contract_name
+        self.name = contract_name.upper()
         self.address = f"0x{contract_name}"
         self.artifacts = getArtifact(contract_name)
-        self.list_of_functions = get_contract_functions(self.artifacts['abi'])
+        self.abi = self.artifacts['abi']
+        self.list_of_functions = get_contract_functions(self.abi)
 
     def mock_func_and_return_value(self, function_name, rv):
         try:
@@ -29,6 +30,6 @@ class MockContract():
             print(e)
 
 
-registry = MockContract('registry')
-# pp.pprint(registry.list_of_functions)
-registry.mock_func_and_return_value('initiateProvider', 'woof')
+# registry = MockContract('registry')
+# # pp.pprint(registry.list_of_functions)
+# registry.mock_func_and_return_value('initiateProvider', 'woof')
