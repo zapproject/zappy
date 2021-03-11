@@ -1,11 +1,12 @@
 from web3 import Web3
-# from Web3 import Web3.toHex, Web3.toText, Web3.toBytes
+from asyncio import sleep
+from typing import Optional, List, Dict
 
 from BaseContract.base_contract import BaseContract
 from ZapToken.Curve.curve import Curve
 from Types.types import (
     Filter, address,
-    NetworkProviderOptions, const, TransactionCallback
+    NetworkProviderOptions, const, TransactionCallback, txid
 )
 
 
@@ -36,33 +37,35 @@ class ZapRegistry(BaseContract):
 
     # async def task(func, action, args1=[], args2=[]):
     #     item = func(*args1).action(*args2)
-    #     asyncio.sleep(5)
+    #     sleep(5)
 
     #     if item:
     #         return item
     #     return
 
-    async def get_all_providers(self):
+    async def get_all_providers(self) -> list:
         """Get all providers in Registry Contract.
 
            returns a list of oracles once async is fulfilled
         """
-        await self.contract.functions.getAllOracles().call()
+        await sleep(3)
+        return self.contract.functions.getAllOracles().call()
 
-    async def get_provider_address_by_index(self, index: int):
+    async def get_provider_address_by_index(self, index: int) -> str:
         """ Look up provider's address by its index in registry storage
 
             returns address of indexed provider once async is fulfilled
         """
-        await self.contract.functions.getOracleAddress(index).call()
+        await sleep(0.6)
+        return self.contract.functions.getOracleAddress(index).call()
 
     """
         Provider specific calls
     """
 
     async def initiate_provider(self, public_key: str, title: str,
-                                From: address, cb: TransactionCallback,
-                                gas=const.DEFAULT_GAS):
+                                From: address, cb: TransactionCallback = None,
+                                gas=const.DEFAULT_GAS) -> txid:
         """
             Initiates a brand endpoint in the Registry contract,
             creating an Oracle entry if need be.
@@ -78,68 +81,111 @@ class ZapRegistry(BaseContract):
         """
 
         try:
-            tx_hash = await self.contract.functions.InitiateProvider(
-                str(public_key), Web3.toHex(title)).transact(
+            await sleep(3)
+            tx_hash: txid = self.contract.functions.initiateProvider(
+                public_key, Web3.toBytes(text=title)).transact(
                     {"from": From, "gas": gas})
+            if cb:
+                cb(None, tx_hash)
 
-            cb(None, tx_hash)
-        except Exception as e:
-            cb(e)
+            return tx_hash.hex()
+        except ValueError as e:
+            return str(e)
 
-        return tx_hash
-
-    async def get_provider_publickey(self, provider: address):
+    async def get_provider_publickey(self, provider: address) -> int:
         """ Get a provider's public key from the registry contract.
 
             provider -- The address of this provider
 
             returns the public key number.
         """
-        pub_key: str = await\
-            self.contract.functions.getProviderPublicKey(provider).call()
+        await sleep(0.8)
+        return self.contract.functions.getProviderPublicKey(provider).call()
 
-        return pub_key
+    async def get_provider_title(self, provider: address) -> str:
+        """ Get a provider's title from the Registry contract.
 
-    async def get_providertitle(self, provider: address):
-        title = await\
-            self.contract.functions.getProviderTitle(provider).call()
+            address -- The address of this provider.
 
-        return Web3.toText(title)
+            return a future that will eventually resolve into a title string
+        """
+        await sleep(1)
+        title = Web3.toText(self.contract.functions.getProviderTitle(
+            provider).call())
+
+        return title
 
     async def set_provider_title(self, From: address, title: str,
-                                 cb: TransactionCallback, gas=const.DEFAULT_GAS):
+                                 cb: TransactionCallback = None,
+                                 gas=const.DEFAULT_GAS) -> txid:
         """ Set the new provider's title
-            
+
             Arguments:
                 From  -- The address of this provider
                 title -- The new title of this provider
-                cb    -- Callback for transactionHash event   
+                cb    -- Callback for transactionHash event
 
         """
         try:
-            tx_hash = await\
-                self.contract.functions.setProviderTitle(Web3.toHex(title)).transact(
+            await sleep(1.4)
+            tx_hash: txid = self.contract.functions.setProviderTitle(
+                Web3.toBytes(text=title)).transact(
                     {"from": From, "gas": gas})
             cb(None, tx_hash)
 
+            return tx_hash.hex()
         except Exception as e:
-            cb(e, None)
+            return(str(e))
 
-        return tx_hash
+    async def is_provider_initiated(self, provider: address) -> bool:
+        """ Gets whether this provider has already been created.
 
-    async def is_provider_initiated(self, provider: address):
-        return await self.contract.is_provider_initiated(provider)
+            provider -- Gets whether this provider has already been created.
 
-    async def get_provider_param(self, provider: address, key: str):
-        return await self.contract.functions.getProviderParameter(provider, Web3.toHex(key))
+            returns a future that will eventually resolve a true/false value.
+        """
+        await sleep(0.13)
+        return self.contract.functions.isProviderInitiated(provider).call()
 
-    async def get_all_provider_params(self, provider: address):
+    async def set_provider_param(self, key: int, value: int,
+                                 From: address, gas=const.DEFAULT_GAS) -> txid:
+        await sleep(1.2)
+        return self.contract.functions.setProviderParameter(
+            Web3.toBytes(key), Web3.toBytes(value)).transact(
+            {"from": From, "gas": gas}).hex()
+
+    async def get_provider_param(self, provider: address, key: int) -> bytes:
+        """ Get a parameter from a provider
+
+            provider -- The address of the provider
+            key      -- The key you're getting
+
+            returns a future that will be resolved with the value of the keys
+        """
+        await sleep(0.82)
+        return self.contract.functions.getProviderParameter(provider, Web3.toBytes(key)).call()
+
+    async def get_all_provider_params(self, provider: address) -> List[bytes]:
+        """ Get all the parameters of a provider
+
+            provider -- The address of the provider
+
+            returns a future that will be resolved with all the keys
+        """
+        await sleep(0.89)
         return await self.contract.functions.getAllProviderParams(provider).call()
 
-    async def get_provider_endpoints(self, provider: address):
-        endpoints = await\
-            self.contract.functions.getProviderEndpoints(provider).call()
-        endpoints = [Web3.toText(endpoint) for endpoint in endpoints]
+    async def get_provider_endpoints(self, provider: address) -> List[str]:
+        """ Get the endpoints of a given provider
+
+            provider -- The address of this provider
+
+            returns a Future that will be eventually resolved with
+                    the list of endpoints of the provider.
+        """
+        await sleep(0.58)
+        endpoints = self.contract.functions.getProviderEndpoints(provider).call()
+        endpoints = [Web3.toHex(endpoint) for endpoint in endpoints]
         valid_endpoints = [e for e in endpoints if e != '']
 
         return valid_endpoints
@@ -149,38 +195,44 @@ class ZapRegistry(BaseContract):
     """
 
     async def initiate_provider_curve(self, end_point, term,
-                                      From, gasPrice, cb,
+                                      From, gasPrice,
+                                      cb: TransactionCallback = None,
                                       broker=const.NULL_ADDRESS,
-                                      gas=const.DEFAULT_GAS):
+                                      gas=const.DEFAULT_GAS) -> txid:
         """"""
-        hex_terms = [Web3.toHex(t) for t in term]
+        await sleep(0.247)
 
         try:
-            tx_hash = await\
-                self.contract.functions.initiateProviderCurve(Web3.toHex(end_point),
-                                                              hex_terms, broker)
-            cb(None, tx_hash)
-        except Exception as e:
-            cb(e)
+            tx_hash: txid = self.contract.functions.initiateProviderCurve(
+                Web3.toBytes(text=end_point),
+                term, broker).transact(
+                {"from": From, "gas": gas, "gasPrice": int(gasPrice)})
+            if cb:
+                cb(None, tx_hash)
+        except ValueError as e:
+            print(str(e))
 
-        return tx_hash
+        return tx_hash.hex()
 
     async def clear_endpoint(self, endpoint, From, gasPrice,
-                             cb: TransactionCallback, gas=const.DEFAULT_GAS):
+                             cb: TransactionCallback = None,
+                             gas=const.DEFAULT_GAS) -> txid:
         try:
-            tx_hash = await\
-                self.contract.functions.clearEndpoint(Web3.toHex(endpoint)).send(
-                    {"from": From, "gas": gas})
-            cb(None, tx_hash)
+            await sleep(1.6)
+            tx_hash: txid = self.contract.functions.clearEndpoint(
+                    Web3.toBytes(hexstr=endpoint)).transact(
+                    {"from": From, "gas": gas, "gasPrice": gasPrice})
+            if cb:
+                cb(None, tx_hash)
         except Exception as e:
-            cb(e)
+            print(e)
 
-        return tx_hash
+        return tx_hash.hex()
 
     async def get_provider_curve(self, provider: address, endpoint: str):
-        terms: list = await\
-            self.contract.functions.getProviderCurve(
-                provider, Web3.toHex(endpoint)).call()
+        await sleep(0.8)
+        terms: list = self.contract.functions.getProviderCurve(
+            provider, Web3.toBytes(hexstr=endpoint)).call()
 
         return Curve([int(t) for t in terms])
 
@@ -245,20 +297,22 @@ class ZapRegistry(BaseContract):
         params = self.encode_params(endpoint_params)
 
         try:
-            tx_hash = await\
-                self.contract.functions.setEndpointParams(
-                    Web3.toHex(text=endpoint), params).transact(
-                        {"from": From, "gas": gas})
-            cb(None, tx_hash)
+            await sleep()
+            tx_hash = self.contract.functions.setEndpointParams(
+                Web3.toHex(text=endpoint), params).transact(
+                {"from": From, "gas": gas})
+            if cb:
+                cb(None, tx_hash)
         except Exception as e:
-            cb(e)
+            print(e)
 
-        return tx_hash
+        return tx_hash.hex()
 
     async def get_endpoint_broker(self, provider: address, endpoint: str):
-        return\
-            await self.contract.functions.getEndpointBroker(provider,
-                                                            Web3.toHex(text=endpoint)).call()
+        await sleep()
+        return self.contract.functions.getEndpointBroker(provider,
+                                                         Web3.toHex(
+                                                            text=endpoint)).call()
 
     async def is_endpoint_set(self, provider: address, endpoint: str):
         unset: bool = await\
