@@ -8,24 +8,23 @@ from unittest.mock import MagicMock, patch
 
 
 from src.BaseContract.base_contract import BaseContract
+from tests.test_helper.mc import MockContract
 
 
-MockContract = MagicMock(abi = ['abi'], address="0x000000000000000000", name="MOCKCONTRACT")
 
-@patch('src.BaseContract.base_contract.Web3', autospec=True)
-def test_instance(mock_Web3):
+def test_instance():
 
-    # mock instantaited web3
-    mock_Web3.return_value = MagicMock()
-    w3 = mock_Web3()
 
-    # set return value of a contract
-    w3.eth.contract.return_value = MockContract
+    mock_w3 = MagicMock()
+    mock_w3.eth.contract.side_effect = [MockContract('zapcoordinator'), MockContract('registry')]
 
-    instance = BaseContract(artifact_name="ZAPCOORDINATOR")
+    instance = BaseContract(artifact_name="REGISTRY", web3=mock_w3)
+    contract = instance.contract
 
     # test if instantiated
     assert instance
     
     # test name
-    assert "ZAPCOORDINATOR" == instance.name
+    assert "REGISTRY" == contract.name
+    assert "registry" != contract.name
+    assert "ARBITER" != contract.name
