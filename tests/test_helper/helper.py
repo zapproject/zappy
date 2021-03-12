@@ -30,5 +30,3 @@ def grab_function_name(obj):
 
 def get_contract_functions(abi):
     return list(map(grab_function_name, abi))
-
-# pp.pprint(get_contract_functions(arbiter['abi']))

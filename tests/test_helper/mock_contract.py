@@ -25,6 +25,9 @@ class MockContract():
         self.list_of_functions = self.get_contract_functions(self.abi)
         self.contract = self.connectToContract(contract_name) if use_hardhat else MagicMock()
 
+        if not self.hardhat:
+            self.contract.address = f"0x{contract_name}"
+
     def grab_function_name(self, dct):
         name = dct.get('name')
         if name:
@@ -62,50 +65,10 @@ class MockContract():
         except Exception as e:
             print(e)
     
-# registry = MockContract('registry')
+# example of use:
+  
+# registry = MockContract('registry') # hardhat not used
 # registry.mock_func_and_return_value('initiateProvider', 'woof')
 # registry.contract.functions.initiateProvider()
 
-
-# # # pp.pprint(dir(arbiter.contract.functions))
-# # # registry.mock_func_and_return_value('initiateProvider', 'woof')
-# # # print(registry.contract.functions.initiateProvider())
-# # registry = MockContract('registry')
-# # web3 = registry.web3
-# # accounts = web3.eth.accounts
-
-# # # print(accounts)
-# # testProvider = {
-# #     'publicKey': 123,
-# #     'title': 'testProvider',
-# #     'endpointParams': ['p1.md', 'p2.json'],
-# #     'markdownFile': 'https://raw.githubusercontent.com/mxstbr/markdown-test-file/master/TEST.md',
-# #     'jsonFile': ' https://gateway.ipfs.io/ipfs/QmaWPP9HFvWZceV8en2kisWdwZtrTo8ZfamEzkTuFg3PFr',
-# #     'endpoint': 'testEndpoint',
-# #     'curve': [3, 0, 2, 1, 100],
-# #     'emptyBroker': '0x0000000000000000000000000000000000000000'
-# # }
-
-# # key = testProvider['publicKey']
-# # title = Web3.toBytes(text=testProvider['title'])
-
-
-# # ep = testProvider['endpoint']
-# # term = testProvider['curve']
-# # broker = testProvider['emptyBroker']
-# # account = Web3.toChecksumAddress(accounts[-1])
-
-
-# # tx_hash = registry.contract.functions.initiateProvider(
-# #     key, title).transact({'from': account})
-
-# # receipt = web3.eth.waitForTransactionReceipt(tx_hash)
-
-# # tx_getProviderTitle = registry.contract.functions.getProviderTitle(account).transact({'from': account})
-# # tx_getTitle = registry.contract.functions.getTitle(account).call()
-
-# # # registry.contract.functions.initiateProviderCurve(Web3.toBytes(text=ep), term, broker).transact(
-# # #     {'from': Web3.toChecksumAddress('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266')})
-
-# # tx_getProviderEP = registry.contract.functions.getProviderEndpoints(
-# #     account).call()
+# rh = MockContract('registry', use_hardhat=True) # hardhat used

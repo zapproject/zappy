@@ -29,7 +29,3 @@ class MockContract():
         except Exception as e:
             print(e)
 
-
-# registry = MockContract('registry')
-# # pp.pprint(registry.list_of_functions)
-# registry.mock_func_and_return_value('initiateProvider', 'woof')
