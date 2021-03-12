@@ -1,8 +1,20 @@
 from unittest.mock import MagicMock, patch, AsyncMock, PropertyMock
 import pytest
 import unittest
-import base_contract
+from unittest import mock
+from anyio import run
+import anyio
+import sys
 import re
+import asyncio
+from os.path import join, realpath
+sys.path.insert(0, realpath(join(__file__, "../../../src/")))
+
+from base_contract import BaseContract, Artifacts, Web3
+
+
+
+print(sys.path[0])
 
 mock_abi = {
     'TEST_ARTIFACT': {'abi': [], 'networks':
@@ -15,22 +27,31 @@ mock_abi = {
          '31337': {'address': '0xcoordevnet'}}}
 }
 
+@pytest.fixture
+@patch('Web3', autospec=True)
+def mock_web3(mock_Web3):
+    mock_Web3.return_value = MagicMock()
+    w3 = mock_Web3()
+    w3.eth.contract.return_value = MagicMock()
 
-@patch.dict('base_contract.Artifacts', mock_abi)
-@patch('base_contract.Web3', autospec=True)
+
+
+
+@patch.dict('Artifacts', mock_abi)
+@patch('Web3', autospec=True)
 class TestInit:
 
-    def test_instance_name(self, mock_Web3):
+    def test_instance_name(self, mock_web3):
         """
         Sanity check to ensure the instance runs without errors while mocking web3
 
         :param mock_Web3: patched web3.
         """
-        mock_Web3.return_value = MagicMock()
-        w3 = mock_Web3()
-        w3.eth.contract.return_value = MagicMock()
+        #mock_Web3.return_value = MagicMock()
+        #w3 = mock_Web3()
+        #w3.eth.contract.return_value = MagicMock()
 
-        instance = base_contract.BaseContract(artifact_name='TEST_ARTIFACT')
+        instance = BaseContract(artifact_name='TEST_ARTIFACT')
 
         assert type(instance.name) == str
         assert instance.name == 'TEST_ARTIFACT'
@@ -48,21 +69,20 @@ class TestInit:
         w3.eth.contract.return_value = w3._utils.datatypes.Contract
 
         with pytest.raises(KeyError):
-            instance = base_contract.BaseContract(artifact_name='')
+            instance = BaseContract(artifact_name='')
             assert instance
 
 
     def test_network_id_default(self, mock_Web3):
         """
         Testing that the default network (1) is assigned to the contract instance.
-
         :param mock_Web3: patched web3.
         """
         mock_Web3.return_value = MagicMock()
         w3 = mock_Web3()
         w3.eth.contract.return_value = w3._utils.datatypes.Contract
 
-        instance = base_contract.BaseContract(artifact_name='TEST_ARTIFACT')
+        instance = BaseContract(artifact_name='TEST_ARTIFACT')
 
         assert type(instance.network_id) == int
         assert instance.network_id == 1
@@ -82,7 +102,7 @@ class TestInit:
         mock_Web3.return_value = MagicMock()
         w3 = mock_Web3()
         w3.eth.contract.return_value = w3._utils.datatypes.Contract
-        instance = base_contract.BaseContract(artifact_name='TEST_ARTIFACT', network_id=input)
+        instance = BaseContract(artifact_name='TEST_ARTIFACT', network_id=input)
 
         assert instance.network_id == input
 
@@ -99,7 +119,7 @@ class TestInit:
         w3.eth.contract.return_value = w3._utils.datatypes.Contract
 
         with pytest.raises(KeyError):
-            instance = base_contract.BaseContract(artifact_name='TEST_ARTIFACT', network_id=wrong_net_id)
+            instance = BaseContract(artifact_name='TEST_ARTIFACT', network_id=wrong_net_id)
             assert instance
 
     def test_network_id_of_zero(self, mock_Web3):
@@ -110,14 +130,14 @@ class TestInit:
         w3 = mock_Web3()
         w3.eth.contract.return_value = w3._utils.datatypes.Contract
 
-        instance = base_contract.BaseContract(artifact_name='TEST_ARTIFACT', network_id=0)
+        instance = BaseContract(artifact_name='TEST_ARTIFACT', network_id=0)
 
         assert instance.network_id != 0
         assert instance.network_id == 1
 
 
-@patch.dict('base_contract.Artifacts', mock_abi)
-@patch('base_contract.Web3', autospec=True)
+@patch.dict('Artifacts', mock_abi)
+@patch('Web3', autospec=True)
 class TestAddress:
 
     def test_address_argument(self, mock_Web3):
@@ -130,7 +150,7 @@ class TestAddress:
         w3 = mock_Web3()
         w3.eth.contract.return_value = w3._utils.datatypes.Contract
 
-        instance = base_contract.BaseContract(artifact_name='TEST_ARTIFACT', address='0x_some_address')
+        instance = BaseContract(artifact_name='TEST_ARTIFACT', address='0x_some_address')
 
         assert type(instance.address) == str
         assert instance.address == '0x_some_address'
@@ -151,7 +171,7 @@ class TestAddress:
         w3 = mock_Web3()
         w3.eth.contract.return_value = w3._utils.datatypes.Contract
 
-        instance = base_contract.BaseContract(artifact_name='TEST_ARTIFACT', network_id=network_input)
+        instance = BaseContract(artifact_name='TEST_ARTIFACT', network_id=network_input)
 
         assert type(instance.address) == str
         assert instance.address == address_output
@@ -160,8 +180,8 @@ class TestAddress:
             assert instance.address == '0x_wrong_address'
 
 
-@patch.dict('base_contract.Artifacts', mock_abi)
-@patch('base_contract.Web3', autospec=True)
+@patch.dict('Artifacts', mock_abi)
+@patch('Web3', autospec=True)
 class TestArtifacts:
 
     def test_artifact_and_coor_artifact_assignments_from_dictionary(self, mock_Web3):
@@ -175,7 +195,7 @@ class TestArtifacts:
         w3 = mock_Web3()
         w3.eth.contract.return_value = w3._utils.datatypes.Contract
 
-        instance = base_contract.BaseContract(artifact_name='TEST_ARTIFACT')
+        instance = BaseContract(artifact_name='TEST_ARTIFACT')
 
         """Asserting the artifact attribute is equal to the mock dictionary"""
 
@@ -195,7 +215,7 @@ class TestArtifacts:
             assert instance.coor_artifact['networks']['1']['address'] == '0x123'
 
 
-@patch('base_contract.Web3', autospec=True)
+@patch('Web3', autospec=True)
 class TestArtifactsDirectory:
     mock_test_abi = {'abi': [], 'networks': {'1': {'address': '0xmainnet'}, '42': {'address': '0xkovan'},
                                              '31337': {'address': '0xdevnet'}}}
@@ -206,8 +226,8 @@ class TestArtifactsDirectory:
     mock_dict_dir = {'TEST_ARTIFACT': 'artifacts/contracts/TestArtifact.json',
                      'ZAPCOORDINATOR': 'artifacts/contracts/ZapCoordinator.json'}
 
-    @patch('base_contract.Utils.get_artifacts')
-    @patch('base_contract.Utils.open_artifact_in_dir')
+    @patch('Utils.get_artifacts')
+    @patch('Utils.open_artifact_in_dir')
     @pytest.mark.parametrize(
         'art_input, net_id_input, address_output, coor_address_output', [
             ('TEST_ARTIFACT', 1, '0xmainnet', '0xcoormainnet'), ('TEST_ARTIFACT', 42, '0xkovan', '0xcoorkovan'),
@@ -235,7 +255,7 @@ class TestArtifactsDirectory:
         mock_artifact_dir.return_value = self.mock_dict_dir
         mock_utils_abi.side_effect = [self.mock_test_abi, self.mock_coor_abi]
 
-        instance = base_contract.BaseContract(artifact_name=art_input, artifacts_dir='some/path/',
+        instance = BaseContract(artifact_name=art_input, artifacts_dir='some/path/',
                                               network_id=net_id_input)
 
         assert type(instance.artifact) == dict
@@ -264,98 +284,246 @@ class TestArtifactsDirectory:
             assert instance.coor_artifact['abi']['network']
 
 
-@patch.dict('base_contract.Artifacts', mock_abi)
-@patch('base_contract.Web3', autospec=True)
+@patch.dict('Artifacts', mock_abi)
+@patch('Web3', autospec=True)
 class TestContracts:
 
     """Side effect function for checking args and kwargs passed"""
     def capture_args(self, *args, **kwargs) -> any:
         return args, kwargs
 
-    @patch('base_contract.BaseContract.get_contract')
-    def test_coordinator_contract_if_no_coor_provided(self, mock_get_contract, mock_Web3):
+    @patch('BaseContract.get_contract')
+    @pytest.mark.parametrize('net_id', [1, 42, 31337])
+    def test_coordinator_contract_args_with_coordinator_address_provided(self, mock_get_contract, mock_Web3, net_id):
         """
-        Testing that the coordinator contract object is assigned.
+        Testing that the coordinator contract object is assigned with the correct args.
         """
         mock_Web3.return_value = MagicMock()
         w3 = mock_Web3()
         w3.toChecksumAddress.side_effect = self.capture_args
         w3.eth.contract.side_effect = self.capture_args
 
+        """Mocking the get_contract function so the contract instance runs without error"""
         mock_get_contract = MagicMock()
 
-        instance = base_contract.BaseContract(artifact_name='TEST_ARTIFACT', coordinator='0x_some_address')
+        instance = BaseContract(artifact_name='TEST_ARTIFACT', coordinator='0x_some_address',
+                                              network_id=net_id)
 
         assert type(instance.coordinator) == tuple
         assert instance.coordinator[1]['abi'] == []
 
+        """
+        Iterate through the returned tuple to find the passed address. Because of all the mocks, the returned
+        kwargs include a lot of unnecessary parenthesis hence the utilization of regexp.
+        """
+
         expected_address = '0x_some_address'
 
-        """Iterate through the returned tuple to find the passed address"""
         res = re.search(expected_address, str(instance.coordinator[1]['address']))
         assert res is not None
 
+        """Testing for false positive"""
 
-    def test_coordinator_contract_with_coordinator_address(self, mock_Web3):
+        with pytest.raises(AssertionError):
+            res = re.search('this_should_fail', str(instance.coordinator[1]['address']))
+            assert res is not None
+
+    @pytest.mark.parametrize('input_id, expected_output', [(1, '0xcoormainnet'), (42, '0xcoorkovan'),
+                                                            (31337, '0xcoordevnet')])
+    def test_coordinator_contract_without_coordinator_address_provided(self, mock_Web3, input_id, expected_output):
         """
-        Testing that the coordinator contract object is assigned.
+        Testing that the coordinator contract object is assigned with the correct args.
         """
 
         mock_Web3.return_value = MagicMock()
         w3 = mock_Web3()
-        w3.eth.contract.return_value = w3._utils.datatypes.Contract
+        w3.toChecksumAddress.side_effect = self.capture_args
+        w3.eth.contract.side_effect = self.capture_args
 
-        instance = base_contract.BaseContract(artifact_name='TEST_ARTIFACT', coordinator='0x0102030405')
+        instance = BaseContract(artifact_name='TEST_ARTIFACT', network_id=input_id)
 
         """Testing that the coordinator instance was assigned"""
 
-        assert instance.coordinator
+        assert type(instance.coordinator) == tuple
+        assert instance.coordinator[1]['abi'] == []
 
+        res = re.search(expected_output, str(instance.coordinator[1]['address']))
+        assert res is not None
 
+        with pytest.raises(AssertionError):
+            res = re.search('this_should_fail', str(instance.coordinator[1]['address']))
+            assert res is not None
 
-    def test_contract_instance_if_no_coor_provided(self, mock_Web3):
+    @patch('BaseContract.get_contract')
+    def test_contract_instance_with_coor_through_get_contract_method(self, mock_get_contract, mock_Web3):
+
         """
-        Testing that the contract instance object is assigned.
+        Testing that the return value from get_contract passes through to the contract instance object.
+        """
+
+        test_address = '0x_some_address'
+
+        mock_Web3.return_value = MagicMock()
+        w3 = mock_Web3()
+        w3.toChecksumAddress.side_effect = self.capture_args
+        w3.eth.contract.side_effect = self.capture_args
+
+        """Mocking the get_contract function to return the expected value"""
+
+        mock_get_contract.return_value = test_address
+
+        instance = BaseContract(artifact_name='TEST_ARTIFACT', coordinator=test_address)
+
+        """Actual test that iterates through the returned arguments from the web3 side effect"""
+
+        res = re.search(test_address, str(instance.contract[1]['address']))
+        assert res is not None
+
+    @pytest.mark.parametrize('input_id, expected_address', [(1, '0xmainnet'), (42, '0xkovan'), (31337, '0xdevnet')])
+    def test_contract_instance_if_no_coor_provided(self, mock_Web3, input_id, expected_address):
+        """
+        Testing that the contract instance object is assigned with the correct args using the mock_abi with different
+        networks.
         """
         mock_Web3.return_value = MagicMock()
         w3 = mock_Web3()
-        w3.eth.contract.return_value = w3._utils.datatypes.Contract
+        w3.toChecksumAddress.side_effect = self.capture_args
+        w3.eth.contract.side_effect = self.capture_args
 
-        instance = base_contract.BaseContract(artifact_name='TEST_ARTIFACT')
-        assert instance.contract
+        instance = BaseContract(artifact_name='TEST_ARTIFACT', network_id=input_id)
+
+        assert type(instance.contract) == tuple
+        assert instance.contract[1]['abi'] == []
+
+        expected_address = expected_address
+        res = re.search(expected_address, str(instance.contract[1]['address']))
+        assert res is not None
+
+        with pytest.raises(AssertionError):
+            res = re.search('this_will_fail', str(instance.contract[1]['address']))
+            assert res is not None
 
 
-@patch.dict('base_contract.Artifacts', mock_abi)
-@patch('base_contract.Web3', autospec=True)
+@patch.dict('Artifacts', mock_abi)
+@patch('Web3', autospec=True)
 class TestMethods:
 
+    """Side effect function for checking args and kwargs passed"""
 
-    def mock_get_contract(self):
-        return '0xcoormainnet'
+    def capture_args(self, *args, **kwargs) -> any:
+        return args, kwargs
 
-    @patch('base_contract.asyncio')
-    @patch('base_contract.BaseContract._get_contract')
-    def test_get_contract(self, mock_async_get, mock_asyncio, mock_Web3):
+    @patch('BaseContract._get_contract')
+    def test_sync_get_contract(self, mock_async_get_contract, mock_Web3):
         """
-        Testing that the get_contract function returns the proper values.
+        Testing that the get_contract function returns the proper values from the _get_contract async function.
         """
         mock_Web3.return_value = MagicMock()
         w3 = mock_Web3()
-        w3.eth.contract.return_value = w3._utils.datatypes.Contract
+        w3.eth.contract.side_effect = self.capture_args
+        w3.toChecksumAddress.side_effect = self.capture_args
 
-        """Mock the async function call"""
-        mock_async_get.return_value = AsyncMock()
+        """
+        Mock the async _get_contract function and give it a return value to check that the get_contract
+        wrapper returns the proper value.
+        """
+        mock_async_get_contract.return_value = 'test_get_contract_address'
 
-        """Mock asyncio"""
-        mock_asyncio.return_value = MagicMock()
-        m_asyncio = mock_asyncio()
+        instance = BaseContract(artifact_name='ARBITER', coordinator='some_address')
 
-        instance = base_contract.BaseContract(artifact_name='TEST_ARTIFACT', coordinator='0xcoormainnet')
+        assert type(instance.get_contract()) == str
+        assert instance.get_contract() == 'test_get_contract_address'
+
+        """Test false positive"""
+
+        with pytest.raises(AssertionError):
+            assert instance.get_contract() == 'this_should_fail'
 
 
-        # FINISH THIS TEST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    @patch('BaseContract._get_contract_owner')
+    def test_sync_get_contract_owner(self, mock_async_owner, mock_Web3):
+        """
+        Testing that the get_contract_owner returns the proper values from the async _get_contract_owner function.
+        """
+        mock_Web3.return_value = MagicMock()
+
+        """
+        Mock the async _get_contract_owner function and give it a return value to check that the get_contract_owner
+        wrapper returns the proper value.
+        """
+        mock_async_owner.return_value = 'test_owner_address'
+
+        instance = BaseContract(artifact_name='TEST_ARTIFACT')
+
+        assert type(instance.get_contract_owner()) == str
+        assert instance.get_contract_owner() == 'test_owner_address'
+
+@pytest.fixture
+def anyio_backend():
+    """ Ensures anyio uses the default, pytest-asyncio plugin
+        for running async tests
+    """
+    return 'asyncio'
+@patch.dict('Artifacts', mock_abi)
+
+@patch('Web3', autospec=True)
+class TestAsyncs:
 
 
+    def capture_args(self, *args, **kwargs) -> any:
+        """Side effect function for checking args and kwargs passed"""
+        return args, kwargs
+
+
+    def mock_owner_abi(self, *args, **kwargs):
+        """
+        A mocked abi for the async _get_contract_owner to fetch from without being read by web3--hence it being
+        a class and not a dictionary.
+        """
+        return_val = 'some_string'
+
+        class Irrelevant:
+            class functions:
+                class owner:
+                    def call(self):
+                        return return_val
+        return Irrelevant
+
+    def test_get_contract_owner_type(self, mock_Web3):
+        mock_Web3.return_value = MagicMock()
+        w3 = mock_Web3()
+        w3.eth.contract.side_effect = self.capture_args
+        w3.toChecksumAddress.side_effect = self.capture_args
+
+        """Create instance to allow the coordinator attribute to be visible"""
+        instance = BaseContract(artifact_name='TEST_ARTIFACT')
+        async_owner = instance._get_contract_owner()
+        isinstance(async_owner, type(object))
+        assert asyncio.iscoroutine(async_owner) is True
+
+    @pytest.mark.anyio
+    async def test_get_contract_type(self, mock_Web3):
+        mock_Web3.return_value = MagicMock()
+
+        instance = BaseContract(artifact_name='TEST_ARTIFACT')
+        async_contract = await instance._get_contract()
+
+        isinstance(async_contract, type(object))
+        assert asyncio.iscoroutine(async_contract) is True
+
+
+
+
+
+    def test_async_get_contract_owner(self, mock_Web3):
+        mock_Web3.return_value = MagicMock()
+        w3 = mock_Web3()
+        w3.eth.contract.side_effect = self.mock_owner_abi
+        w3.toChecksumAddress.side_effect = self.mock_owner_abi
+
+        instance = BaseContract(artifact_name='TEST_ARTIFACT')
+
+        assert instance.get_contract_owner() == 'some_string'
 
 
 

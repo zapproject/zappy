@@ -1,6 +1,10 @@
 from web3 import Web3
-from src.index import Artifacts
-from utils import Utils
+import sys
+#from os.path import join, realpath
+#sys.path.insert(0, realpath(join(__file__, "../../../src/")))
+from artifacts.src.index import Artifacts
+#from src import index
+import utils
 import asyncio
 
 
@@ -29,9 +33,9 @@ class BaseContract:
                 self.artifact = Artifacts[artifact_name]
                 self.coor_artifact = Artifacts['ZAPCOORDINATOR']
             else:
-                artifacts: any = Utils.get_artifacts(artifacts_dir)
-                self.artifact = Utils.open_artifact_in_dir(artifacts[artifact_name])
-                self.coor_artifact = Utils.open_artifact_in_dir(artifacts['ZAPCOORDINATOR'])
+                artifacts: any = utils.Utils.get_artifacts(artifacts_dir)
+                self.artifact = utils.Utils.open_artifact_in_dir(artifacts[artifact_name])
+                self.coor_artifact = utils.Utils.open_artifact_in_dir(artifacts['ZAPCOORDINATOR'])
 
             self.name = artifact_name
             self.provider = web3 or Web3(network_provider or Web3.HTTPProvider("https://cloudflare-eth.com"))
@@ -40,12 +44,10 @@ class BaseContract:
             self.address = address or self.artifact['networks'][str(self.network_id)]['address']
 
             if coordinator is not None:
-                self.coor_address = self.w3.toChecksumAddress(coordinator)
-                self.coordinator = self.w3.eth.contract(address=self.w3.toChecksumAddress(self.coor_address),
+                self.coordinator = self.w3.eth.contract(address=self.w3.toChecksumAddress(coordinator),
                                                         abi=self.coor_artifact['abi'])
 
                 contract_address = self.get_contract()
-
                 self.contract = self.w3.eth.contract(address=self.w3.toChecksumAddress(contract_address),
                                                      abi=self.artifact['abi'])
 
@@ -66,8 +68,8 @@ class BaseContract:
         to the coordinator (within the context of the conditional statement of where it's located). Further,
         :return: the contract address of the coordinator.
         """
-        await asyncio.sleep(1)
-        contract_address = self.coordinator.functions.getContract.address
+        await asyncio.sleep(.5)
+        contract_address = self.coordinator.functions.getContract(self.name).call()
         return contract_address
 
     async def _get_contract_owner(self) -> str:
@@ -76,7 +78,7 @@ class BaseContract:
 
         :return: the contract owner's address.
         """
-        await asyncio.sleep(1)
+        await asyncio.sleep(.5)
         contract_owner = self.contract.functions.owner().call()
         return contract_owner
 
@@ -102,13 +104,3 @@ class BaseContract:
         task = self._get_contract_owner()
         owner = asyncio.run(task)
         return owner
-
-
-w3 = Web3(Web3.HTTPProvider('http://127.0.0.1:8545'))
-y = BaseContract(artifact_name='ARBITER', web3=w3, network_id=31337,
-                 coordinator='0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0')
-print(y.get_contract_owner())
-
-
-
-
