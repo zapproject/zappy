@@ -1,10 +1,6 @@
 from web3 import Web3
-import sys
-#from os.path import join, realpath
-#sys.path.insert(0, realpath(join(__file__, "../../../src/")))
-from artifacts.src.index import Artifacts
-#from src import index
-import utils
+import src.artifacts.src.index as index
+import src.base_contract.utils as utils
 import asyncio
 
 
@@ -30,8 +26,8 @@ class BaseContract:
                  ):
         try:
             if artifacts_dir is None:
-                self.artifact = Artifacts[artifact_name]
-                self.coor_artifact = Artifacts['ZAPCOORDINATOR']
+                self.artifact = index.Artifacts[artifact_name]
+                self.coor_artifact = index.Artifacts['ZAPCOORDINATOR']
             else:
                 artifacts: any = utils.Utils.get_artifacts(artifacts_dir)
                 self.artifact = utils.Utils.open_artifact_in_dir(artifacts[artifact_name])
