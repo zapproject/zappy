@@ -27,10 +27,10 @@ def anyio_backend():
 
 
 @pytest.fixture
-@patch.dict(ARTIFACTS_DICT, MOCK_ABI, clear=True)
-@patch(WEB3, autospec=True)
+@patch.dict(base_contract.index.Artifacts, MOCK_ABI, clear=True)
+@patch('src.base_contract.Web3', autospec=True)
 def instance(mock_Web3):
-    with patch(WEB3) as mock_Web3:
+    with patch('src.base_contract.Web3') as mock_Web3:
         mock_Web3.return_value = MagicMock()
         w3 = mock_Web3()
         w3.eth.contract.side_effect = MagicMock()

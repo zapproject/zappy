@@ -26,6 +26,7 @@ MOCK_ABI = {
          '31337': {'address': '0xcoordevnet'}}}
 }
 
+
 def capture_args(*args, **kwargs) -> any:
     """Side effect function for checking args and kwargs passed"""
     return args, kwargs

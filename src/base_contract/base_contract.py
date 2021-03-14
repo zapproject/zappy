@@ -13,7 +13,7 @@ class BaseContract:
     coordinator: any
     artifact: any
     name: str
-    address: str = None
+    address: str or None
 
     def __init__(self,
                  artifact_name: str,
