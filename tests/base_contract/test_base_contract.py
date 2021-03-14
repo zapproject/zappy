@@ -14,6 +14,7 @@ import src.base_contract.base_contract as base_contract
 
 """Default setup"""
 
+
 MOCK_ABI = {
     'TEST_ARTIFACT': {'abi': [], 'networks':
         {'1': {'address': '0xmainnet'},
@@ -25,42 +26,18 @@ MOCK_ABI = {
          '31337': {'address': '0xcoordevnet'}}}
 }
 
-ARTIFACTS_DICT = base_contract.index.Artifacts
-WEB3 = 'src.base_contract.Web3'
-
-
 def capture_args(*args, **kwargs) -> any:
     """Side effect function for checking args and kwargs passed"""
     return args, kwargs
 
 
-@pytest.fixture
-def anyio_backend():
-    """
-    Ensures anyio uses the default, pytest-asyncio plugin
-    for running async tests.
-    """
-    return 'asyncio'
-
-
-@pytest.fixture
-@patch.dict(ARTIFACTS_DICT, MOCK_ABI, clear=True)
-@patch(WEB3, autospec=True)
-def instance(mock_Web3):
-    with patch(WEB3) as mock_Web3:
-        mock_Web3.return_value = MagicMock()
-        w3 = mock_Web3()
-        w3.eth.contract.side_effect = MagicMock()
-        return base_contract.BaseContract(artifact_name='TEST_ARTIFACT', web3=w3)
-
-
-@patch.dict(ARTIFACTS_DICT, MOCK_ABI, clear=True)
-@patch(WEB3, autospec=True)
+@patch.dict(base_contract.index.Artifacts, MOCK_ABI, clear=True)
+@patch('src.base_contract.Web3', autospec=True)
 class TestInit:
 
     """Setup"""
 
-    with patch(WEB3) as mock_Web3:
+    with patch('src.base_contract.Web3') as mock_Web3:
         mock_Web3.return_value = MagicMock()
         w3 = mock_Web3()
         w3.eth.contract.side_effect = MagicMock()
@@ -129,13 +106,13 @@ class TestInit:
         assert instance.network_id == 1
 
 
-@patch.dict(ARTIFACTS_DICT, MOCK_ABI, clear=True)
-@patch(WEB3, autospec=False)
+@patch.dict(base_contract.index.Artifacts, MOCK_ABI, clear=True)
+@patch('src.base_contract.Web3', autospec=False)
 class TestAddress:
 
     """Setup"""
 
-    with patch(WEB3) as mock_Web3:
+    with patch('src.base_contract.Web3') as mock_Web3:
         mock_Web3.return_value = MagicMock()
         w3 = mock_Web3()
         w3.eth.contract.side_effect = MagicMock()
@@ -170,13 +147,13 @@ class TestAddress:
             assert instance.address == '0x_wrong_address'
 
 
-@patch.dict(ARTIFACTS_DICT, MOCK_ABI, clear=True)
-@patch(WEB3, autospec=True)
+@patch.dict(base_contract.index.Artifacts, MOCK_ABI, clear=True)
+@patch('src.base_contract.Web3', autospec=True)
 class TestArtifacts:
 
     """Setup"""
 
-    with patch(WEB3) as mock_Web3:
+    with patch('src.base_contract.Web3') as mock_Web3:
         mock_Web3.return_value = MagicMock()
         w3 = mock_Web3()
         w3.eth.contract.side_effect = MagicMock()
@@ -202,12 +179,12 @@ class TestArtifacts:
             assert instance.coor_artifact['networks']['1']['address'] == '0x123'
 
 
-@patch(WEB3, autospec=False)
+@patch('src.base_contract.Web3', autospec=False)
 class TestArtifactsDirectory:
 
     """Setup"""
 
-    with patch(WEB3) as mock_Web3:
+    with patch('src.base_contract.Web3') as mock_Web3:
         mock_Web3.return_value = MagicMock()
         w3 = mock_Web3()
         w3.eth.contract.side_effect = MagicMock()
@@ -274,13 +251,13 @@ class TestArtifactsDirectory:
             assert instance.coor_artifact['abi']['network']
 
 
-@patch.dict(ARTIFACTS_DICT, MOCK_ABI, clear=True)
-@patch(WEB3, autospec=False)
+@patch.dict(base_contract.index.Artifacts, MOCK_ABI, clear=True)
+@patch('src.base_contract.Web3', autospec=False)
 class TestContracts:
 
     """Setup"""
 
-    with patch(WEB3) as mock_Web3:
+    with patch('src.base_contract.Web3') as mock_Web3:
         mock_Web3.return_value = MagicMock()
         w3 = mock_Web3()
         w3.toChecksumAddress.side_effect = capture_args
@@ -368,13 +345,13 @@ class TestContracts:
             assert res is not None
 
 
-@patch.dict(ARTIFACTS_DICT, MOCK_ABI, clear=True)
-@patch(WEB3, autospec=False)
+@patch.dict(base_contract.index.Artifacts, MOCK_ABI, clear=True)
+@patch('src.base_contract.Web3', autospec=False)
 class TestWrapperMethods:
 
     """Setup"""
 
-    with patch(WEB3) as mock_Web3:
+    with patch('src.base_contract.Web3') as mock_Web3:
         mock_Web3.return_value = MagicMock()
         w3 = mock_Web3()
         w3.toChecksumAddress.side_effect = capture_args
@@ -431,6 +408,7 @@ class TestAsyncMethods:
 
     """Setup"""
 
+
     def mock_owner_abi(self, *args, **kwargs):
         """Function mimicking abi"""
         return_val = '0x_owner_address'
@@ -460,13 +438,13 @@ class TestAsyncMethods:
         """
         Testing the asynchronous _get_contract_owner function.
         """
-        with patch(WEB3) as mock_Web3:
+        with patch('src.base_contract.Web3') as mock_Web3:
             mock_Web3.return_value = MagicMock()
             w3 = mock_Web3()
             w3.eth.contract.side_effect = self.mock_owner_abi
             w3.toChecksumAddress.side_effect = MagicMock()
 
-            with patch.dict(ARTIFACTS_DICT, MOCK_ABI, clear=True):
+            with patch.dict(base_contract.index.Artifacts, MOCK_ABI, clear=True):
 
                 instance = base_contract.BaseContract(artifact_name='TEST_ARTIFACT', web3=w3)
                 res = await instance._get_contract_owner()
@@ -480,13 +458,13 @@ class TestAsyncMethods:
         """
         Testing the asynchronous _get_contract function.
         """
-        with patch(WEB3) as mock_Web3:
+        with patch('src.base_contract.Web3') as mock_Web3:
             mock_Web3.return_value = MagicMock()
             w3 = mock_Web3()
             w3.eth.contract.side_effect = self.mock_coor_abi
             w3.toChecksumAddress.side_effect = MagicMock()
 
-            with patch.dict(ARTIFACTS_DICT, MOCK_ABI, clear=True):
+            with patch.dict(base_contract.index.Artifacts, MOCK_ABI, clear=True):
 
                 instance = base_contract.BaseContract(artifact_name='TEST_ARTIFACT', web3=w3)
                 res = await instance._get_contract()
