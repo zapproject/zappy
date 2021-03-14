@@ -1,4 +1,4 @@
-""" Tests the setting up, transactions and calls of the Zap Registry contract.
+""" Tests the setting up, transactions, and calls of the Zap Registry contract.
 
     This is an integration test that uses the Zap Hardhat testing environment
     to test the output and side effects of Zap Registry.
@@ -10,173 +10,16 @@
     Fixtures are ran once the first time they're requested and their return
     values are cached for the remainder of the test.
 """
-from pytest import (
-    MonkeyPatch, raises, fixture, mark
-)
+from pytest import fixture, mark
 
 from web3 import Web3
 
 from os.path import join, realpath
-import sys
-from subprocess import run
-sys.path.insert(0, realpath(join(__file__, "../../../src/")))
+from sys import path
+path.insert(0, realpath(join(__file__, "../../../src/")))
 
-
-from Artifacts.src.index import Artifacts
-from Types.types import const, txid
 from ZapToken.Curve.curve import Curve
-
-
-# @fixture
-# def test_provider():
-#     return EthereumTesterProvider()
-
-
-# @fixture
-# def tester(test_provider):
-#     return test_provider.ethereum_tester
-
-
-# @fixture
-# def w3(test_provider):
-#     return Web3(test_provider)
-
-# @fixture(autouse=True)
-# def prepare_hh():
-#     run(["wsl", "-d Ubuntu", "-e", "killall node"], shell=True)
-#     run(["wsl", "-d Ubuntu", "-e",
-#          "~/projects/zap-hardhat/start.sh"], shell=True)
-
-
-w3 = Web3(Web3.HTTPProvider("http://localhost:8545"))
-abi = Artifacts["REGISTRY"]
-coor_artifact = Artifacts["ZAPCOORDINATOR"]
-_address = abi["networks"]["31337"]["address"]
-
-
-@fixture
-def reg_contract():
-    _reg_contract = w3.eth.contract(address=_address,
-                                    abi=abi["abi"])
-    return _reg_contract
-
-
-@fixture
-def coor():
-    _coor = w3.eth.contract(abi=coor_artifact['abi'],
-                            address=coor_artifact['networks']["31337"]['address'])
-    return _coor
-
-
-@fixture
-def funcs(reg_contract):
-    _funcs = reg_contract.functions.__dict__
-    del _funcs['_functions']
-    del _funcs['abi']
-    return _funcs
-
-
-@fixture
-def coor_funcs(coor):
-    _coor_funcs = coor.functions.__dict__
-    del _coor_funcs['_functions']
-    del _coor_funcs['abi']
-    return _coor_funcs
-
-
-""" Arrange/SetUp Section
-"""
-
-
-def _ZapRegistry(reg_contract):
-    """ WIP: Returns an object representation of ZapRegistry for testing.
-
-        This ZapRegistry object has a mocked BaseContract
-        used for its init phase.
-
-        This mocked BaseContract has fixture data, including its contract.
-
-        Contracts (and/or their functions) are asynchronous mock objects.
-        Almost everything else is base of Magic mock objects.
-
-    """
-
-    mp = MonkeyPatch()
-    # same as setting the return_value of a mock obj
-
-    class MockBaseContract:
-        def __init__(self, artifact_name, artifact_dir=None, network_id=None,
-                     network_provider=None, coordinator=None,
-                     address=None, web3=None):
-
-            self.name = artifact_name
-            self.artifact = Artifacts[artifact_name]
-            coor_artifact = Artifacts["ZAPCOORDINATOR"]
-            self.provider = web3 or w3
-            self.network_id = network_id or "1"
-            self.coordinator = self.provider.eth.contract(abi=coor_artifact['abi'],
-                                                          address=coor_artifact['networks'][self.network_id]['address'])
-            self.address = self.artifact["networks"][self.network_id]["address"]
-            self.contract = reg_contract
-
-    mp.setattr("Registry.registry.BaseContract", MockBaseContract)
-    from Registry.registry import ZapRegistry
-
-    try:
-        return(ZapRegistry({"network_id": "31337"}))
-    except Exception as e:
-        raise e
-
-
-@fixture()
-def Zap_Registry():
-    """ yield a ZapRegistry object
-
-        This object stays in pytest cache for the lifespan of the test.
-        It is not necessary to have a SetUp class method/function.
-
-        references:
-            https://docs.pytest.org/en/stable/xunit_setup.html
-            https://docs.pytest.org/en/stable/fixture.html#what-fixtures-are
-            https://docs.pytest.org/en/stable/fixture.html#\
-                fixtures-can-be-requested-more-than-once-per-test-return-values-are-cached
-    """
-    zap_reg_obj = _ZapRegistry
-    yield zap_reg_obj
-    del zap_reg_obj
-
-
-@fixture
-def functions(reg_contract):
-    return reg_contract.functions
-
-
-# @fixture
-# def all_oracles(functions):
-#     return functions.getAllOracles().call()
-
-
-@fixture
-def oracle(functions):
-    return functions.getOracleAddress(0).call()
-
-
-@fixture
-def account():
-    return w3.eth.accounts[11]
-
-
-@fixture
-def pubkey(functions, account):
-    return functions.getPublicKey(account).call()
-
-
-@fixture
-def anyio_backend():
-    """ Ensures anyio uses the default, pytest-asyncio plugin
-        for running async tests
-    """
-    return 'asyncio'
+from Artifacts.src.index import Artifacts
 
 
 """ pytest section
@@ -186,16 +29,6 @@ def anyio_backend():
 class TestRegistry:
     """ Tests the initialization and functionality of Zap's Registry Contract
     """
-
-    @fixture
-    def instance(self, Zap_Registry, reg_contract):
-        """ SetUp: ZapRegistry instance.
-
-            This instance is cached and can be reused for
-            the remainder of the test.
-        """
-        instance = Zap_Registry(reg_contract)
-        return instance
 
     def test_init(self, instance, funcs, coor_funcs):
         """ Test if ZapRegistry is initialized
@@ -223,8 +56,8 @@ class TestRegistry:
 
     # @mark.skip(reason="Provider already initialized.")
     @mark.anyio
-    async def test_initiate_provider(self, instance, pubkey, account):
-        opt = {"public_key": pubkey, "title": "Registry",
+    async def test_initiate_provider(self, instance, pubkey, account, title):
+        opt = {"public_key": pubkey, "title": title,
                "From": account, "gas": 4 * 10**5}
         tx = await instance.initiate_provider(**opt)
 
@@ -296,9 +129,10 @@ class TestRegistry:
 
     # @mark.skip(reason="Possible error with python types")
     @mark.anyio
-    async def test_initiate_provider_curve(self, instance, account):
-        term = [3, 0, 0, 3, 100000]
-        opts = {"end_point": 'hi', "term": term,
+    async def test_initiate_provider_curve(self, instance, account,
+                                           endpoint, curve_values):
+        term = curve_values
+        opts = {"end_point": endpoint, "term": term,
                 "From": account, "gasPrice": int(5e4)}
 
         curve = await instance.initiate_provider_curve(**opts)
@@ -322,29 +156,54 @@ class TestRegistry:
 
         return e
 
-    @fixture
-    async def endpoints(self, instance, account):
-        e = await instance.get_provider_endpoints(account)
-
-        return e
-
     @mark.anyio
     async def test_get_provider_curve(self, instance,
-                                      account, endpoints):
-        e = endpoints
-        curve = await instance.get_provider_curve(account, e[-1])
+                                      account, endpoint):
+        e = endpoint
+        curve = await instance.get_provider_curve(account, e)
 
         assert curve
         print(curve.values)
         assert isinstance(curve, Curve)
 
+    def decode_params(self, instance, params):
+        return(instance.decode_params(params))
+
+    def encode_params(self, instance, params):
+        return(instance.encode_params(params))
+
+    @mark.anyio
+    async def test_set_endpoint_params(self, instance, account,
+                                       endpoint, endpoint_params):
+        tx = await instance.set_endpoint_params(
+            endpoint, account,
+            int(5e4),
+            endpoint_params=endpoint_params)
+
+        assert tx
+        assert isinstance(tx, str)
+
+    @mark.anyio
+    async def test_get_endpoint_broker(self, instance, broker):
+        broker = await instance.get_endpoint_broker(broker, "123")
+
+        assert broker
+        assert isinstance(broker, str)
+
+    @mark.anyio
+    async def test_is_endpoint_set(self, instance, account, endpoint):
+        isSet = await instance.is_endpoint_set(account, endpoint)
+
+        assert isSet is True
+        assert isinstance(isSet, bool)
+
     @mark.anyio
     async def test_clear_endpoint(self, instance,
-                                  endpoints, 
+                                  endpoint,
                                   account):
-        e = endpoints
+        e = endpoint
         tx = await instance.clear_endpoint(
-            e[-1], account, int(5e3))
+            e, account, int(5e3))
 
         assert tx
         print(tx)
@@ -359,10 +218,10 @@ class TestRegistry:
     #     assert isinstance(get, bytes)
 
 
-async def task(co_mock):
-    """ Will handle awaitables from contract calls/tx
-    """
-    await co_mock
+# async def task(co_mock):
+#     """ Will handle awaitables from contract calls/tx
+#     """
+#     await co_mock
 
 """ python "direct calls" section
 """
