@@ -34,6 +34,26 @@ def capture_args(*args, **kwargs) -> any:
     return args, kwargs
 
 
+@pytest.fixture
+def anyio_backend():
+    """
+    Ensures anyio uses the default, pytest-asyncio plugin
+    for running async tests.
+    """
+    return 'asyncio'
+
+
+@pytest.fixture
+@patch.dict(ARTIFACTS_DICT, MOCK_ABI, clear=True)
+@patch(WEB3, autospec=True)
+def instance(mock_Web3):
+    with patch(WEB3) as mock_Web3:
+        mock_Web3.return_value = MagicMock()
+        w3 = mock_Web3()
+        w3.eth.contract.side_effect = MagicMock()
+        return base_contract.BaseContract(artifact_name='TEST_ARTIFACT', web3=w3)
+
+
 @patch.dict(ARTIFACTS_DICT, MOCK_ABI, clear=True)
 @patch(WEB3, autospec=True)
 class TestInit:
@@ -45,12 +65,10 @@ class TestInit:
         w3 = mock_Web3()
         w3.eth.contract.side_effect = MagicMock()
 
-    def test_instance_name(self, mock_Web3):
+    def test_instance_name(self, mock_Web3, instance):
         """
         Sanity check to ensure the instance runs without errors while mocking web3.
         """
-        instance = base_contract.BaseContract(artifact_name='TEST_ARTIFACT', web3=self.w3)
-
         assert type(instance.name) == str
         assert instance.name == 'TEST_ARTIFACT'
 
@@ -62,18 +80,14 @@ class TestInit:
         """
         Testing that the contract fails if the artifact_name kwarg is an empty string.
         """
-
         with pytest.raises(KeyError):
             instance = base_contract.BaseContract(artifact_name='', web3=self.w3)
             assert instance
 
-    def test_network_id_default(self, mock_Web3):
+    def test_network_id_default(self, mock_Web3, instance):
         """
         Testing that the default network (1) is assigned to the contract instance.
         """
-
-        instance = base_contract.BaseContract(artifact_name='TEST_ARTIFACT', web3=self.w3)
-
         assert type(instance.network_id) == int
         assert instance.network_id == 1
 
@@ -89,7 +103,6 @@ class TestInit:
         :param mock_Web3: patched web3.
         :param input: the relevant networks' corresponding integer.
         """
-
         instance = base_contract.BaseContract(artifact_name='TEST_ARTIFACT', network_id=input, web3=self.w3)
 
         assert instance.network_id == input
@@ -102,7 +115,6 @@ class TestInit:
         """
         Testing that the contract fails if given an unknown network id.
         """
-
         with pytest.raises(KeyError):
             instance = base_contract.BaseContract(artifact_name='TEST_ARTIFACT', network_id=wrong_net_id, web3=self.w3)
             assert instance
@@ -111,7 +123,6 @@ class TestInit:
         """
         Testing that the network_id of zero actually uses the default network of '1.'
         """
-
         instance = base_contract.BaseContract(artifact_name='TEST_ARTIFACT', network_id=0, web3=self.w3)
 
         assert instance.network_id != 0
@@ -133,7 +144,6 @@ class TestAddress:
         """
         Testing that the address argument is assigned as the instance address.
         """
-
         instance = base_contract.BaseContract(artifact_name='TEST_ARTIFACT', address='0x_some_address', web3=self.w3)
 
         assert type(instance.address) == str
@@ -151,7 +161,6 @@ class TestAddress:
         :param network_input: relevant networks including mainnet, kovan, and devnet.
         :param address_output: the associated address within the MOCK_ABI dictionary.
         """
-
         instance = base_contract.BaseContract(artifact_name='TEST_ARTIFACT', network_id=network_input, web3=self.w3)
 
         assert type(instance.address) == str
@@ -172,15 +181,13 @@ class TestArtifacts:
         w3 = mock_Web3()
         w3.eth.contract.side_effect = MagicMock()
 
-    def test_artifact_and_coor_artifact_assignments_from_dictionary(self, mock_Web3):
+    def test_artifact_and_coor_artifact_assignments_from_dictionary(self, mock_Web3, instance):
         """
         Testing that the artifact_name kwarg triggers the artifacts dictionary and populates the artifact
         attribute with the controlled mock abi.
 
         :param mock_Web3: patched web3.
         """
-        instance = base_contract.BaseContract(artifact_name='TEST_ARTIFACT', web3=self.w3)
-
         assert type(instance.artifact) == dict
         assert instance.artifact['networks']['1']['address'] == '0xmainnet'
 
@@ -394,15 +401,13 @@ class TestWrapperMethods:
 
 
     @patch('src.base_contract.base_contract.BaseContract._get_contract_owner')
-    def test_sync_get_contract_owner(self, mock_async_owner, mock_Web3):
+    def test_sync_get_contract_owner(self, mock_async_owner, mock_Web3, instance):
         """
         Testing that the get_contract_owner returns the proper values from the async _get_contract_owner function.
         The test mocks the async _get_contract_owner function and gives it a return value to check that the
         get_contract_owner wrapper returns the proper value.
         """
         mock_async_owner.return_value = 'test_owner_address'
-
-        instance = base_contract.BaseContract(artifact_name='TEST_ARTIFACT', web3=self.w3)
 
         assert type(instance.get_contract_owner()) == str
         assert instance.get_contract_owner() == 'test_owner_address'
@@ -429,12 +434,12 @@ class TestAsyncMethods:
     def mock_owner_abi(self, *args, **kwargs):
         """Function mimicking abi"""
         return_val = '0x_owner_address'
-        class Irrelevant:
+        class mimicked_abi:
             class functions:
                 class owner:
                     def call(self):
                         return return_val
-        return Irrelevant
+        return mimicked_abi
 
 
     def mock_coor_abi(self, *args, **kwargs):
@@ -450,8 +455,7 @@ class TestAsyncMethods:
                         return return_val
         return mimicked_coordinator
 
-
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     async def test_async_get_contract_owner(self):
         """
         Testing the asynchronous _get_contract_owner function.
@@ -471,7 +475,7 @@ class TestAsyncMethods:
                 with pytest.raises(AssertionError):
                     assert res == 'this_should_fail'
 
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     async def test_async_get_contract(self):
         """
         Testing the asynchronous _get_contract function.
