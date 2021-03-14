@@ -1,7 +1,8 @@
 from web3 import Web3
+import asyncio
+
 import src.artifacts.src.index as index
 import src.base_contract.utils as utils
-import asyncio
 
 
 class BaseContract:
@@ -21,7 +22,6 @@ class BaseContract:
                  network_provider: any = None,
                  artifacts_dir: str = None,
                  coordinator: str = None,
-                 contract: any = None,
                  address: str = None
                  ):
         try:
@@ -60,8 +60,9 @@ class BaseContract:
 
     async def _get_contract(self) -> str:
         """
-        This async function fetches the contract address from the coordinator and assigns the contract object instance
-        to the coordinator (within the context of the conditional statement of where it's located). Further,
+        This async function fetches the contract address from the coordinator abi. Thereafter, the function returns the
+        address where it is assigned to the address kwarg in the contract instance.
+
         :return: the contract address of the coordinator.
         """
         await asyncio.sleep(.5)
@@ -80,9 +81,8 @@ class BaseContract:
 
     def get_contract(self) -> str:
         """
-        A synchronous function that wraps the asynchronous _get_contract method. This provides flexibility. The
-        async function is used in the constructor to assign the coordinator address to the contract object; while in a
-        different context, a user can fetch the contract object's address.
+        A synchronous function that wraps the asynchronous _get_contract method. This function returns the contract
+        address fetched from the asynchronous _get_contract function.
 
         :return: the contract address.
         """
