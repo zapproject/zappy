@@ -345,12 +345,15 @@ class ZapRegistry(BaseContract):
     from typing import Callable
 
     async def listen(self, callback: Callable[..., None]):
+        sleep(3)
         self.contract.events.allEvents(callback)
 
     async def listen_new_provider(self, callback: TransactionCallback,
                                   filters: Filter = {}):
+        sleep(2)
         self.contract.events.NewProvider(filters, callback)
 
     async def listen_new_curve(self, callback: TransactionCallback,
                                filters: Filter):
+        sleep(2)
         self.contract.events.NewCurve(filters, callback)
