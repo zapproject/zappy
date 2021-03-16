@@ -1,9 +1,11 @@
 """
-    This module tests the different possible branches of execution within the Zap base contract.
+    This module tests the different possible branches of execution within the Zap Base Contract. The following unit
+    tests require minimal dependencies.
 
-    The following unit tests require minimal dependencies. Because the base contract embodies the constructor role for
-    the entire Python interface of Zap (Zappy), the focus here lies in testing the instantiated dynamic attributes
-    of the base contract class.
+    The Base Contract is the parent class to the Dispatch, Bondage, Arbiter, Token, and Registry classes; further, it
+    provides access to both the contract instance as well as the Web3 provider instance. Because the majority of this
+    contract is a constructor, the focus here lies in testing the instantiated dynamic attributes of the base contract
+    class.
 """
 
 from unittest.mock import MagicMock, patch
