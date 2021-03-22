@@ -1,10 +1,10 @@
 from web3 import Web3
 from asyncio import sleep
-from typing import Optional, List, Dict
+from typing import Optional, List
 
-from BaseContract.base_contract import BaseContract
-from ZapToken.Curve.curve import Curve
-from Types.types import (
+from base_contract import BaseContract
+from zap_token.curve import Curve
+from zaptypes import (
     Filter, address,
     NetworkProviderOptions, const, TransactionCallback, txid
 )
