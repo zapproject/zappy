@@ -194,35 +194,6 @@ def instance(Zap_Subscriber, contracts, funcs, subscriber):
     return Zap_Subscriber(contracts, funcs, subscriber)
 
 
-@fixture(scope="class", autouse=True)
-def prepare_tokens(instance,
-                   subscriber, owner, broker, w3):
-    bondage_owner = instance.zap_bondage.contract.address
-    instance.zap_token.contract.functions.allocate(
-        owner, 1500000000000000000000000000000).transact(
-        {"from": owner, "gas": const.DEFAULT_GAS,
-         "gasPrice": w3.eth.gas_price})
-    instance.zap_token.contract.functions.allocate(
-        subscriber, 50000000000000000000000000000).transact(
-        {"from": owner, "gas": const.DEFAULT_GAS,
-         "gasPrice": w3.eth.gas_price})
-
-    instance.zap_token.contract.functions.allocate(
-        broker, 50000000000000000000000000000).transact(
-        {"from": owner, "gas": const.DEFAULT_GAS,
-         "gasPrice": w3.eth.gas_price})
-
-    instance.zap_token.contract.functions.approve(
-        bondage_owner, 1000000000000000000000000000000).transact(
-        {"from": subscriber, "gas": const.DEFAULT_GAS,
-         "gasPrice": w3.eth.gas_price})
-
-    instance.zap_token.contract.functions.approve(
-        bondage_owner, 1000000000000000000000000000000).transact(
-        {"from": broker, "gas": const.DEFAULT_GAS,
-         "gasPrice": w3.eth.gas_price})
-
-
 # @fixture(scope="module")
 # def function():
 #     return None

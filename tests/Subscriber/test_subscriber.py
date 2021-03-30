@@ -14,7 +14,6 @@ from zaptypes import const
 """ pytest section
 """
 
-
 class TestSubscriber:
 
     query_id = ""
@@ -95,6 +94,35 @@ class TestSubscriber:
 
         instance.zap_bondage.unbond = AsyncMock()
         instance.zap_bondage.unbond.side_effect = side_effect
+
+    @fixture(scope="class", autouse=True)
+    def prepare_tokens(self, instance,
+                       subscriber, owner, broker, w3):
+        bondage_owner = instance.zap_bondage.contract.address
+        instance.zap_token.contract.functions.allocate(
+            owner, 1500000000000000000000000000000).transact(
+            {"from": owner, "gas": const.DEFAULT_GAS,
+             "gasPrice": w3.eth.gas_price})
+        instance.zap_token.contract.functions.allocate(
+            subscriber, 50000000000000000000000000000).transact(
+            {"from": owner, "gas": const.DEFAULT_GAS,
+             "gasPrice": w3.eth.gas_price})
+
+        instance.zap_token.contract.functions.allocate(
+            broker, 50000000000000000000000000000).transact(
+            {"from": owner, "gas": const.DEFAULT_GAS,
+             "gasPrice": w3.eth.gas_price})
+
+        instance.zap_token.contract.functions.approve(
+            bondage_owner, 1000000000000000000000000000000).transact(
+            {"from": subscriber, "gas": const.DEFAULT_GAS,
+             "gasPrice": w3.eth.gas_price})
+
+        instance.zap_token.contract.functions.approve(
+            bondage_owner, 1000000000000000000000000000000).transact(
+            {"from": broker, "gas": const.DEFAULT_GAS,
+             "gasPrice": w3.eth.gas_price})
+
 
     @mark.anyio
     async def test_get_zap_balance(self, instance):
