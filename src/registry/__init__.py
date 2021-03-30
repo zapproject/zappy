@@ -11,23 +11,27 @@ from zaptypes import (
 
 
 class ZapRegistry(BaseContract):
-    """This contract manages Providers and Curve registration
+    """ This contract manages Providers and Curve registration
 
-       NetworkProviderOptions -- Dictionary object containing options for
+        NetworkProviderOptions: Dictionary object containing options for
                                  BaseContract init
 
-       NetworkProviderOptions has the following keyword arguments:
+        NetworkProviderOptions has the following keyword arguments:
 
-            arifactsDir -- Directory where contract ABIs are located
-            networkId   -- Select which network the contract is located
-                           options : (mainnet, testnet, private)
-            networkProvider -- Ethereum network provider (e.g. Infura or web3)
+        :param arifactsDir: Directory where contract ABIs are located
+
+        :param networkId:
+            Select which network the contract is located
+            options - (mainnet, testnet, private)
+
+        :param networkProvider:
+            Ethereum network provider (e.g. Infura or web3)
 
         Example:
             ZapRegistry({"networkId": 42, "networkProvider": "web3"})
     """
 
-    def __init__(self, options: NetworkProviderOptions = {}):
+    def __init__(self, options: Optional[NetworkProviderOptions] = {}):
         options["artifact_name"] = "REGISTRY"
         BaseContract.__init__(self, **options)
 
@@ -35,18 +39,10 @@ class ZapRegistry(BaseContract):
         Registry storage calls for all providers
     """
 
-    # async def task(func, action, args1=[], args2=[]):
-    #     item = func(*args1).action(*args2)
-    #     sleep(5)
-
-    #     if item:
-    #         return item
-    #     return
-
     async def get_all_providers(self) -> list:
         """Get all providers in Registry Contract.
 
-           returns a list of oracles once async is fulfilled
+           :returns a list of oracles once async is fulfilled
         """
         await sleep(3)
         return self.contract.functions.getAllOracles().call()
@@ -54,7 +50,10 @@ class ZapRegistry(BaseContract):
     async def get_provider_address_by_index(self, index: int) -> str:
         """ Look up provider's address by its index in registry storage
 
-            returns address of indexed provider once async is fulfilled
+            :param index:
+                Index of the provider in the list of addresses
+
+            :returns address of indexed provider once async is fulfilled
         """
         await sleep(0.6)
         return self.contract.functions.getOracleAddress(index).call()
@@ -64,19 +63,23 @@ class ZapRegistry(BaseContract):
     """
 
     async def initiate_provider(self, public_key: str, title: str,
-                                From: address, cb: TransactionCallback = None,
-                                gas=const.DEFAULT_GAS) -> txid:
+                                From: address,
+                                gas=const.DEFAULT_GAS,
+                                cb: Optional[TransactionCallback] = None
+                                ) -> txid:
         """
             Initiates a brand endpoint in the Registry contract,
             creating an Oracle entry if need be.
 
-            Arguments:
-                public_key -- a public identifier for this oracle
-                title      -- describes what data this oracle provides
-                from       -- Ethereum address of the account that is
-                              initializing this provider
-                gas        -- Sets the fas limit for this transaction.
-                              Defaults to 4 * 10**5
+            :param public_key: a public identifier for this oracle
+
+            :param title: describes what data this oracle provides
+
+            :param from:
+                Ethereum address of the account that is
+                initializing this provider
+
+            :param gas: Sets the gas limit for this transaction.
 
         """
 
@@ -95,9 +98,9 @@ class ZapRegistry(BaseContract):
     async def get_provider_publickey(self, provider: address) -> int:
         """ Get a provider's public key from the registry contract.
 
-            provider -- The address of this provider
+            :param provider: The address of this provider
 
-            returns the public key number.
+            :returns the public key number.
         """
         await sleep(0.8)
         return self.contract.functions.getProviderPublicKey(provider).call()
@@ -105,9 +108,9 @@ class ZapRegistry(BaseContract):
     async def get_provider_title(self, provider: address) -> str:
         """ Get a provider's title from the Registry contract.
 
-            address -- The address of this provider.
+            :param address: The address of this provider.
 
-            return a future that will eventually resolve into a title string
+            :return a future that will eventually resolve into a title string
         """
         await sleep(1)
         title = Web3.toText(self.contract.functions.getProviderTitle(
@@ -116,14 +119,15 @@ class ZapRegistry(BaseContract):
         return title
 
     async def set_provider_title(self, From: address, title: str,
-                                 cb: TransactionCallback = None,
-                                 gas=const.DEFAULT_GAS) -> txid:
+                                 gas=const.DEFAULT_GAS,
+                                 cb: TransactionCallback = None) -> txid:
         """ Set the new provider's title
 
-            Arguments:
-                From  -- The address of this provider
-                title -- The new title of this provider
-                cb    -- Callback for transactionHash event
+            :param From: The address of this provider
+
+            :param title: The new title of this provider
+
+            :param cb: Callback for transactionHash event
 
         """
         try:
@@ -140,9 +144,10 @@ class ZapRegistry(BaseContract):
     async def is_provider_initiated(self, provider: address) -> bool:
         """ Gets whether this provider has already been created.
 
-            provider -- Gets whether this provider has already been created.
+            :param provider:
+                Gets whether this provider has already been created.
 
-            returns a future that will eventually resolve a true/false value.
+            :returns a future that will eventually resolve a true/false value.
         """
         await sleep(0.13)
         return self.contract.functions.isProviderInitiated(provider).call()
@@ -157,31 +162,35 @@ class ZapRegistry(BaseContract):
     async def get_provider_param(self, provider: address, key: int) -> bytes:
         """ Get a parameter from a provider
 
-            provider -- The address of the provider
-            key      -- The key you're getting
+            :param provider: The address of the provider
+            :param key: The key you're getting
 
-            returns a future that will be resolved with the value of the keys
+            :returns a future that will be resolved with the value of the keys
         """
         await sleep(0.82)
-        return self.contract.functions.getProviderParameter(provider, Web3.toBytes(key)).call()
+        return\
+            self.contract.functions.getProviderParameter(
+                provider, Web3.toBytes(key)).call()
 
     async def get_all_provider_params(self, provider: address) -> List[bytes]:
         """ Get all the parameters of a provider
 
-            provider -- The address of the provider
+            :param provider: The address of the provider
 
-            returns a future that will be resolved with all the keys
+            :returns a future that will be resolved with all the keys
         """
         await sleep(0.89)
-        return await self.contract.functions.getAllProviderParams(provider).call()
+        return await\
+            self.contract.functions.getAllProviderParams(provider).call()
 
     async def get_provider_endpoints(self, provider: address) -> List[str]:
         """ Get the endpoints of a given provider
 
-            provider -- The address of this provider
+            :param provider: The address of this provider
 
-            returns a Future that will be eventually resolved with
-                    the list of endpoints of the provider.
+            :returns
+                a Future that will be eventually resolved with
+                the list of endpoints of the provider.
         """
         await sleep(0.58)
         endpoints = self.contract.functions.getProviderEndpoints(
@@ -196,7 +205,7 @@ class ZapRegistry(BaseContract):
     """
 
     async def initiate_provider_curve(self, end_point, term,
-                                      From, gasPrice,
+                                      From, gas_price,
                                       cb: TransactionCallback = None,
                                       broker=const.NULL_ADDRESS,
                                       gas=const.DEFAULT_GAS) -> txid:
@@ -207,21 +216,21 @@ class ZapRegistry(BaseContract):
             tx_hash: txid = self.contract.functions.initiateProviderCurve(
                 Web3.toBytes(text=end_point),
                 term, broker).transact(
-                {"from": From, "gas": gas, "gasPrice": int(gasPrice)})
+                {"from": From, "gas": gas, "gasPrice": gas_price})
             if cb:
                 cb(None, tx_hash)
             return tx_hash.hex()
         except ValueError as e:
             print(str(e))
 
-    async def clear_endpoint(self, endpoint, From, gasPrice,
+    async def clear_endpoint(self, endpoint, From, gas_price,
                              cb: TransactionCallback = None,
                              gas=const.DEFAULT_GAS) -> txid:
         try:
             await sleep(1.6)
             tx_hash: txid = self.contract.functions.clearEndpoint(
                 Web3.toBytes(text=endpoint)).transact(
-                {"from": From, "gas": gas, "gasPrice": gasPrice})
+                {"from": From, "gas": gas, "gasPrice": gas_price})
             if cb:
                 cb(None, tx_hash)
             return tx_hash.hex()
@@ -240,7 +249,7 @@ class ZapRegistry(BaseContract):
         hex_params =\
             [el if el.find('0x') == 0 else Web3.toHex(text=el) for el in pars]
         bytes_params =\
-            [bytearray(Web3.toBytes(hexstr=hex_p)) for hex_p in hex_params]
+            [Web3.toBytes(hexstr=hex_p) for hex_p in hex_params]
         params = []
 
         from math import ceil
@@ -257,9 +266,8 @@ class ZapRegistry(BaseContract):
         return params
 
     def decode_params(self, raw_params: List[str] = []):
-        bytes_params = [bytearray(Web3.toBytes(hexstr=el))
-
-                        for el in raw_params]
+        bytes_params =\
+            [Web3.toBytes(hexstr=el) for el in raw_params]
         params = []
         i = 0
         length = len(bytes_params)
@@ -293,7 +301,7 @@ class ZapRegistry(BaseContract):
             print(e)
 
     async def set_endpoint_params(self, endpoint: str, From: address,
-                                  gasPrice: int,
+                                  gas_price: int,
                                   cb: Optional[TransactionCallback] = None,
                                   endpoint_params: Optional[List[str]] = [],
                                   gas: Optional[int] = const.DEFAULT_GAS
@@ -301,16 +309,21 @@ class ZapRegistry(BaseContract):
         """ Initialize endpoint params for an endpoint.
             Can only be called by the owner of this oracle.
 
-            :param str endpoint: Data endpoint of the provider
-            :param List[str] endpoint_params: The parameters that this endpoint
-                                              accepts as query arguments
-            :param address from: The address of the owner of this oracle
-            :param int gas: Sets the gas limit for this
-                                  transaction (optional)
+            :param endpoint: Data endpoint of the provider
+
+            :param endpoint_params:
+                The parameters that this endpoint accepts as query arguments
+
+            :param from: The address of the owner of this oracle
+
+            :param gas:
+                Sets the gas limit for this transaction (optional)
+
             :param  cb: Callback for transactionHash event
 
-            :returns Future(txid) Returns a Promise that will eventually
-                     resolve into a transaction hash
+            :returns
+                Future(txid) Returns a Promise that will eventually
+                resolve into a transaction hash
         """
         params = self.encode_params(endpoint_params)
 
@@ -318,7 +331,7 @@ class ZapRegistry(BaseContract):
             await sleep(0.53)
             tx_hash = self.contract.functions.setEndpointParams(
                 Web3.toBytes(text=endpoint), params).transact(
-                {"from": From, "gas": gas})
+                {"from": From, "gas": gas, "gasPrice": gas_price})
             if cb:
                 cb(None, tx_hash)
             return tx_hash.hex()

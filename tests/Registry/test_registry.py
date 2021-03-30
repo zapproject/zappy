@@ -10,7 +10,7 @@
     Fixtures are ran once the first time they're requested and their return
     values are cached for the remainder of the test.
 """
-from pytest import fixture, mark
+from pytest import mark
 
 from web3 import Web3
 
@@ -18,8 +18,8 @@ from os.path import join, realpath
 from sys import path
 path.insert(0, realpath(join(__file__, "../../../src/")))
 
-from ZapToken.Curve.curve import Curve
-from Artifacts.src.index import Artifacts
+from zap_token.curve import Curve
+from artifacts.src import Artifacts
 
 
 """ pytest section
@@ -133,7 +133,7 @@ class TestRegistry:
                                            endpoint, curve_values):
         term = curve_values
         opts = {"end_point": endpoint, "term": term,
-                "From": account, "gasPrice": int(5e4)}
+                "From": account, "gas_price": int(5e4)}
 
         curve = await instance.initiate_provider_curve(**opts)
 

@@ -7,8 +7,8 @@ from os.path import join, realpath
 from sys import path
 path.insert(0, realpath(join(__file__, "../../../src/")))
 
-from Artifacts.src.index import Artifacts
-from ZapToken.Curve.curve import Curve
+from artifacts.src import Artifacts
+from zap_token.curve import Curve
 
 w3 = Web3(Web3.HTTPProvider("http://localhost:8545"))
 abi = Artifacts["REGISTRY"]
@@ -52,7 +52,7 @@ def coor_funcs(coor):
 
 
 def _ZapRegistry(reg_contract):
-    """ WIP: Returns an object representation of ZapRegistry for testing.
+    """ Returns an object representation of ZapRegistry for testing.
 
         This ZapRegistry object has a mocked BaseContract
         used for its init phase.
@@ -84,8 +84,8 @@ def _ZapRegistry(reg_contract):
             self.address = self.artifact["networks"][self.network_id]["address"]
             self.contract = reg_contract
 
-    mp.setattr("Registry.registry.BaseContract", MockBaseContract)
-    from Registry.registry import ZapRegistry
+    mp.setattr("registry.BaseContract", MockBaseContract)
+    from registry import ZapRegistry
 
     try:
         return(ZapRegistry({"network_id": "31337"}))
