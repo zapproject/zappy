@@ -64,6 +64,7 @@ class ZapRegistry(BaseContract):
 
     async def initiate_provider(self, public_key: str, title: str,
                                 From: address,
+                                gas_price,
                                 gas=const.DEFAULT_GAS,
                                 cb: Optional[TransactionCallback] = None
                                 ) -> txid:
@@ -83,13 +84,20 @@ class ZapRegistry(BaseContract):
 
         """
 
+        payload = {"publicKey": public_key, "title": Web3.toBytes(text=title)}
+        tx_meta = {"from": From, "gas": gas, "gasPrice": gas_price}
+
         try:
             await sleep(3)
             tx_hash: txid = self.contract.functions.initiateProvider(
-                public_key, Web3.toBytes(text=title)).transact(
-                    {"from": From, "gas": gas})
+                **payload).transact(tx_meta)
             if cb:
-                cb(None, tx_hash)
+                receipt = tx_hash
+                logs = self.contract.events.NewProvider(
+                ).processReceipt(receipt)[0]
+                if "error" in logs:
+                    cb(logs["error"])
+                cb(None, logs["args"]["transactionHash"])
 
             return tx_hash.hex()
         except ValueError as e:
@@ -119,6 +127,7 @@ class ZapRegistry(BaseContract):
         return title
 
     async def set_provider_title(self, From: address, title: str,
+                                 gas_price,
                                  gas=const.DEFAULT_GAS,
                                  cb: TransactionCallback = None) -> txid:
         """ Set the new provider's title
@@ -134,7 +143,7 @@ class ZapRegistry(BaseContract):
             await sleep(1.4)
             tx_hash: txid = self.contract.functions.setProviderTitle(
                 Web3.toBytes(text=title)).transact(
-                    {"from": From, "gas": gas})
+                    {"from": From, "gas": gas, "gasPrice": gas_price})
             cb(None, tx_hash)
 
             return tx_hash.hex()
@@ -204,21 +213,27 @@ class ZapRegistry(BaseContract):
         Provider's specific endpoint calls
     """
 
-    async def initiate_provider_curve(self, end_point, term,
+    async def initiate_provider_curve(self, endpoint, term,
                                       From, gas_price,
                                       cb: TransactionCallback = None,
                                       broker=const.NULL_ADDRESS,
                                       gas=const.DEFAULT_GAS) -> txid:
         """"""
-        await sleep(0.247)
+        payload = {"endpoint": Web3.toBytes(text=endpoint),
+                   "curve": term, "broker": broker}
+        tx_meta = {"from": From, "gas": gas, "gasPrice": gas_price}
 
         try:
+            await sleep(0.247)
             tx_hash: txid = self.contract.functions.initiateProviderCurve(
-                Web3.toBytes(text=end_point),
-                term, broker).transact(
-                {"from": From, "gas": gas, "gasPrice": gas_price})
+                **payload).transact(tx_meta)
             if cb:
-                cb(None, tx_hash)
+                receipt = tx_hash
+                logs = self.contract.events.NewCurve(
+                ).processReceipt(receipt)[0]
+                if "error" in logs:
+                    cb(logs["error"])
+                cb(None, logs["args"]["transactionHash"])
             return tx_hash.hex()
         except ValueError as e:
             print(str(e))
@@ -359,7 +374,7 @@ class ZapRegistry(BaseContract):
 
     async def listen(self, callback: Callable[..., None]):
         sleep(3)
-        self.contract.events.allEvents(callback)
+        self.contract.events._events(callback)
 
     async def listen_new_provider(self, callback: TransactionCallback,
                                   filters: Filter = {}):

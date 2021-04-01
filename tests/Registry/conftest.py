@@ -10,7 +10,7 @@ path.insert(0, realpath(join(__file__, "../../../src/")))
 from artifacts.src import Artifacts
 from zap_token.curve import Curve
 
-w3 = Web3(Web3.HTTPProvider("http://localhost:8545"))
+_w3 = Web3(Web3.HTTPProvider("http://localhost:8545"))
 abi = Artifacts["REGISTRY"]
 coor_artifact = Artifacts["ZAPCOORDINATOR"]
 _address = abi["networks"]["31337"]["address"]
@@ -21,7 +21,12 @@ _address = abi["networks"]["31337"]["address"]
 
 
 @fixture(scope="module")
-def reg_contract():
+def w3():
+    return _w3
+
+
+@fixture(scope="module")
+def reg_contract(w3):
     _reg_contract = w3.eth.contract(address=_address,
                                     abi=abi["abi"])
     return _reg_contract
@@ -29,7 +34,7 @@ def reg_contract():
 
 @fixture(scope="module")
 def coor():
-    _coor = w3.eth.contract(
+    _coor = _w3.eth.contract(
         abi=coor_artifact['abi'],
         address=coor_artifact['networks']["31337"]['address'])
     return _coor
@@ -75,7 +80,7 @@ def _ZapRegistry(reg_contract):
             self.name = artifact_name
             self.artifact = Artifacts[artifact_name]
             coor_artifact = Artifacts["ZAPCOORDINATOR"]
-            self.provider = web3 or w3
+            self.provider = web3 or _w3
             self.network_id = network_id or "1"
             self.coordinator = self.provider.eth.contract(
                 abi=coor_artifact['abi'],
@@ -123,7 +128,7 @@ def oracle(functions):
 
 @fixture(scope="module")
 def account():
-    return w3.eth.accounts[11]
+    return _w3.eth.accounts[11]
 
 
 @fixture(scope="module")

@@ -56,9 +56,11 @@ class TestRegistry:
 
     # @mark.skip(reason="Provider already initialized.")
     @mark.anyio
-    async def test_initiate_provider(self, instance, pubkey, account, title):
+    async def test_initiate_provider(self, instance, pubkey,
+                                     account, title, w3):
         opt = {"public_key": pubkey, "title": title,
-               "From": account, "gas": 4 * 10**5}
+               "From": account, "gas": 4 * 10**5,
+               "gas_price": w3.eth.gas_price}
         tx = await instance.initiate_provider(**opt)
 
         assert isinstance(tx, str)
@@ -87,10 +89,10 @@ class TestRegistry:
         assert isinstance(isInit, bool)
 
     @mark.anyio
-    async def test_set_provider_title(self, instance, account):
+    async def test_set_provider_title(self, instance, account, w3):
         title_test = "REGISTRY"
 
-        tx = await instance.set_provider_title(account, title_test)
+        tx = await instance.set_provider_title(account, title_test, w3.eth.gas_price)
 
         assert tx
         print(tx)
@@ -130,10 +132,10 @@ class TestRegistry:
     # @mark.skip(reason="Possible error with python types")
     @mark.anyio
     async def test_initiate_provider_curve(self, instance, account,
-                                           endpoint, curve_values):
+                                           endpoint, curve_values, w3):
         term = curve_values
-        opts = {"end_point": endpoint, "term": term,
-                "From": account, "gas_price": int(5e4)}
+        opts = {"endpoint": endpoint, "term": term,
+                "From": account, "gas_price": w3.eth.gas_price}
 
         curve = await instance.initiate_provider_curve(**opts)
 
