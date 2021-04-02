@@ -260,6 +260,28 @@
         "payable": false,
         "stateMutability": "pure",
         "type": "function"
+      },
+      {
+        "constant": true,
+        "inputs": [],
+        "name": "getFactories",
+        "outputs": [
+          {
+            "name": "",
+            "type": "address[]"
+          },
+          {
+            "name": "",
+            "type": "uint256[]"
+          },
+          {
+            "name": "",
+            "type": "bytes32[]"
+          }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
       }
     ],
     "networks": {
@@ -274,6 +296,12 @@
         "links": {},
         "address": "0xf108237201E6EE3906f19390C699dA4d1495040F",
         "transactionHash": "0x52a4cdc19fdb99c432317d14b4b27254c430998fc8baa4c9a56bcc6e9915f1eb"
+      },
+      "31337": {
+        "events": {},
+        "links": {},
+        "address": "0x809d550fca64d94bd9f66e60752a544199cfac3d",
+        "transactionHash": "0xcf5a0d23a80b4109afdc0bce7e496c6bd7b8491c683e9e5ebadd4e173da64e6c"
       }
     }
   }
