@@ -1,43 +1,173 @@
+from asyncio import sleep
+
 from base_contract import BaseContract
-from base_contract import utils
-# from .curve import Curve
 from zaptypes import (
-    TransferType, address, txid, NetworkProviderOptions, TransactionCallback, NumType)
-# from web3._utils. import (toHex)
+    address, txid, NetworkProviderOptions,
+    TransactionCallback, const
+)
+
 
 class ZapToken(BaseContract):
+    """docstring for ZapToken"""
 
-    def __init__(self, NetworkProviderOptions):
-        super().__init__(NetworkProviderOptions or {}, {artifactName: 'ZAP_Token'})
+    def __init__(self, options: NetworkProviderOptions = None):
+        options["artifact_name"] = "ZAP_TOKEN"
+        BaseContract.__init__(self, **options)
 
-    async def balanceOf(self, address: address):
-        return await self.contract.balanceof(adddress)
+    async def balance_of(self, address: address) -> int:
 
-    # async def send({to, amount,from, gasPrice, gas = Util.DEFAULT_GAS } : TransferType, cb = TransactionCallback):
-    #     amount = toHex(amount)
-    #     promiEvent = self.contract.transfer(to, amount),send({from, gas, gasPrice})
-    #     if cb:
-    #         #Event
-    #         pass
-    #     return promiEvent
+        return self.contract.functions.balanceOf(address).call()
 
-    # async def allocate({to, amount,from, gasPrice, gas = Util.DEFAULT_GAS } : TransferType, cb = TransactionCallback):
-    #     amount = toHex(amount)
-    #     promiEvent = self.contract.allocate(to, amount),send({from, gas, gasPrice})
-    #     if cb:
-    #         #Event
-    #         pass
-    #     return promiEvent
+    async def send(self, to: address, amount: int, From: address,
+                   gas_price: int,
+                   gas: int = const.DEFAULT_GAS,
+                   cb: TransactionCallback = None,
+                   node=None) -> txid:
+        tx_meta = {"from": From, "gas": gas, "gasPrice": gas_price}
+        try:
 
-    # async def approve({to, amount,from, gasPrice, gas = Util.DEFAULT_GAS } : TransferType, cb = TransactionCallback):
-    #     amount = toHex(amount)
-    #     _success = self.contract.approve(to,ammount).send({from, gas, gasPrice})
-    #     if cd:
-    #         #Event
-    #         pass
-    #     success = await _success
+            tx_hash = self.contract.functions.transfer(
+                to, amount).transact(tx_meta)
 
-    #     if (not success):
-    #         raise Exception('Failed to approve Bondage transfer')
+            if cb and node:
+                receipt = node.getTransactionReceipt(tx_hash)
+                logs = self.contract.events.Transfer(
+                ).processReceipt(receipt)[0]
 
-    #     return success
+                if "error" in logs:
+                    cb(logs["error"])
+                cb(None, logs["args"]["transactionHash"])
+
+            return tx_hash.hex()
+        except Exception as e:
+            raise e
+
+    async def allocate(self, to, amount: int,
+                       gas_price: int,
+                       gas: int = const.DEFAULT_GAS):
+
+        tx_meta = {"gas": gas, "gasPrice": gas_price}
+        try:
+
+            tx_hash = self.contract.functions.allocate(
+                to, amount).transact(tx_meta)
+
+            return tx_hash.hex()
+        except Exception as e:
+            raise e
+
+    async def approve(self, to: address, amount: int,
+                      From: address, gas_price: int,
+                      gas: int = const.DEFAULT_GAS,
+                      cb: TransactionCallback = None,
+                      node=None) -> txid:
+
+        tx_meta = {"from": From, "gas": gas, "gasPrice": gas_price}
+        try:
+
+            tx_hash = self.contract.functions.approve(
+                to, amount).transact(tx_meta)
+
+            if cb and node:
+                receipt = node.getTransactionReceipt(tx_hash)
+                logs = self.contract.events.Approval(
+                ).processReceipt(receipt)[0]
+                if "error" in logs:
+                    cb(logs["error"])
+                cb(None, logs["args"]["transactionHash"])
+
+            return tx_hash.hex()
+        except Exception as e:
+            raise e
+
+    async def transfer_from(self, to: address, From: address, amount: int,
+                            gas_price: int,
+                            gas: int = const.DEFAULT_GAS,
+                            cb: TransactionCallback = None,
+                            node=None) -> txid:
+        tx_meta = {"from": From, "gas": gas, "gasPrice": gas_price}
+        try:
+
+            tx_hash = self.contract.functions.transferFrom(
+                From, to, amount).transact(tx_meta)
+
+            if cb and node:
+                receipt = node.getTransactionReceipt(tx_hash)
+                logs = self.contract.events.Transfer(
+                ).processReceipt(receipt)[0]
+                if "error" in logs:
+                    cb(logs["error"])
+                cb(None, logs["args"]["transactionHash"])
+
+            return tx_hash.hex()
+        except Exception as e:
+            raise e
+
+    async def allowance(self, owner: address, spender: address) -> int:
+
+        return\
+            self.contract.functions.allowance(owner, spender).call()
+
+    async def finish_minting(self, cb: TransactionCallback = None,
+                             node=None):
+        try:
+            tx_hash = self.contract.functions.finishMinting().transact()
+
+            if cb and node:
+                receipt = node.eth.getTransactionReceipt(tx_hash)
+                logs = self.contract.events.MintFinished(
+                ).processReceipt(receipt)[0]
+                if "error" in logs:
+                    cb(logs["error"])
+                cb(None, logs["args"]["transactionHash"])
+            return tx_hash.hex()
+        except Exception as e:
+            print(e)
+
+    async def increase_approval(self, spender: address, added_value: int,
+                                From: str, gas_price: int,
+                                gas: int = const.DEFAULT_GAS,
+                                cb: TransactionCallback = None,
+                                node=None) -> txid:
+
+        tx_meta = {"from": From, "gas": gas, "gasPrice": gas_price}
+        try:
+
+            tx_hash = self.contract.functions.increaseApproval(
+                spender, added_value).transact(tx_meta)
+
+            if cb and node:
+                receipt = node.getTransactionReceipt(tx_hash)
+                logs = self.contract.events.Approval(
+                ).processReceipt(receipt)[0]
+                if "error" in logs:
+                    cb(logs["error"])
+                cb(None, logs["args"]["transactionHash"])
+
+            return tx_hash.hex()
+        except Exception as e:
+            raise e
+
+    async def decrease_approval(self, spender: address, subtracted_value: int,
+                                From: str, gas_price: int,
+                                gas: int = const.DEFAULT_GAS,
+                                cb: TransactionCallback = None,
+                                node=None) -> txid:
+
+        tx_meta = {"from": From, "gas": gas, "gasPrice": gas_price}
+        try:
+
+            tx_hash = self.contract.functions.decreaseApproval(
+                spender, subtracted_value).transact(tx_meta)
+
+            if cb and node:
+                receipt = node.getTransactionReceipt(tx_hash)
+                logs = self.contract.events.Approval(
+                ).processReceipt(receipt)[0]
+                if "error" in logs:
+                    cb(logs["error"])
+                cb(None, logs["args"]["transactionHash"])
+
+            return tx_hash.hex()
+        except Exception as e:
+            raise e

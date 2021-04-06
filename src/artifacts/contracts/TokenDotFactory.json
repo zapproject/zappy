@@ -4,7 +4,7 @@
         "constant": true,
         "inputs": [
           {
-            "name": "",
+            "name": "endpoint",
             "type": "bytes32"
           }
         ],
@@ -294,7 +294,7 @@
       "42": {
         "events": {},
         "links": {},
-        "address": "0xf108237201E6EE3906f19390C699dA4d1495040F",
+        "address": "0xb0Bc8151Bcd5824359298587395655923F4c6AcB",
         "transactionHash": "0x52a4cdc19fdb99c432317d14b4b27254c430998fc8baa4c9a56bcc6e9915f1eb"
       },
       "31337": {

@@ -16,8 +16,6 @@ class ZapRegistry(BaseContract):
         NetworkProviderOptions: Dictionary object containing options for
                                  BaseContract init
 
-        NetworkProviderOptions has the following keyword arguments:
-
         :param arifactsDir: Directory where contract ABIs are located
 
         :param networkId:
