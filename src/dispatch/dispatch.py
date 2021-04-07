@@ -34,8 +34,8 @@ class ZapDispatch(BaseContract):
                          endpoint: str,
                          endpoint_params: list[str],
                          from_address: address,
-                         gas_price: int,
-                         gas: Optional[int] = const.DEFAULT_GAS) -> txid:
+                         gas: Optional[int] = const.DEFAULT_GAS,
+                         gas_price: Optional[int] = Web3().eth.gas_price) -> txid:
         """
         Queries data from a subscriber to a given provider's endpoint. This function passes in both a query string and
         a list of endpoint parameters that will be processed by the oracle.
@@ -45,7 +45,7 @@ class ZapDispatch(BaseContract):
         :param endpoint: Data endpoint of the data provider which is meant to determine how the query is handled.
         :param endpoint_params: Parameters passed to the data provider's endpoint.
         :param from_address: Address of the subscriber.
-        :param gas_price: Price per unit of gas.
+        :param gas_price: Price per unit of gas (optional).
         :param gas: The gas limit of this transaction (optional).
         """
         if len(endpoint_params) > 0:
@@ -70,7 +70,7 @@ class ZapDispatch(BaseContract):
     async def cancel_query(self,
                            query_id: str or int,
                            from_address: address,
-                           gas_price: int,
+                           gas_price: Optional[int] = Web3().eth.gas_price,
                            gas: Optional[int] = const.DEFAULT_GAS) -> str or int:
         """
         This function cancels a query_id. It will return the block number when the query was canceled. If the query
@@ -78,7 +78,7 @@ class ZapDispatch(BaseContract):
 
         :param query_id: A unique identifier for the query.
         :param from_address: Address of the subscriber.
-        :param gas_price: Price per unit of gas.
+        :param gas_price: Price per unit of gas (optional).
         :param gas: The gas limit of this transaction (optional).
         """
         try:
@@ -97,7 +97,7 @@ class ZapDispatch(BaseContract):
                       response_params: list[str],
                       dynamic: bool,
                       from_address: address,
-                      gas_price: int,
+                      gas_price: Optional[int] = Web3().eth.gas_price,
                       gas: Optional[int] = const.DEFAULT_GAS) -> txid:
         """
         This function allows a provider to respond to a subscriber's query. The length and content of the response
@@ -107,7 +107,7 @@ class ZapDispatch(BaseContract):
         :param response_params: List of responses returned by provider. Length determines the Dispatch response.
         :param dynamic: Determines if the IntArray/Bytes32Array Dispatch response should be used.
         :param from_address: Address of the subscriber.
-        :param gas_price: Price per unit of gas.
+        :param gas_price: Price per unit of gas (optional).
         :param gas: The gas limit of this transaction (optional).
         """
         if dynamic is not False:
