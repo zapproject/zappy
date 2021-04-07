@@ -1,212 +1,307 @@
-from typing import Optional, List, Dict
-from src.base_contract.base_contract import BaseContract
+from typing import Optional
+from web3 import Web3
 import asyncio
-from src.portedFiles.types import (
+
+from src.base_contract.base_contract import BaseContract
+from src.types.types import (
     Filter, address, TransactionCallback,
     NetworkProviderOptions, const, txid
 )
-from web3 import Web3
 
 
 class ZapDispatch(BaseContract):
     """
-    NetworkProviderOptions -- Dictionary object containing options for BaseContract init
-    network_id -- Select which network the contract is located
+    The ZapDispatch class provides an interface to the Dispatch contract which enables data queries and responses
+    between data providers (oracles) and subscribers. This child class inherits the properties and methods from the
+    parent BaseContract class.
+
+    :param NetworkProviderOptions: Dictionary object containing options for BaseContract init
+    :param network_id: Select which network the contract is located
                   options : (mainnet, testnet, private)
-    networkProvider -- Ethereum network provider (e.g. Infura or web3)
+    :param network_provider: Ethereum network provider (e.g. Infura or web3)
     Example:
-            ZapDispatch({"networkId": 42, "networkProvider" : "web3"})
+            ZapDispatch({"network_id": 42, "network_provider" : 'web3'})
     """
     def __init__(self, options: NetworkProviderOptions = {}):
         options["artifact_name"] = "DISPATCH"
-        BaseContract.__init__(self, **options)
+        super().__init__(**options)
 
-    """Methods"""
+    ###### Methods ######
 
-    async def query_data(self, provider: address, query: str, endpoint: str,
-                         endpoint_params: list[str], from_address: str, gas_price: Optional[int], gas: const.DEFAULT_GAS,
-                         cb: TransactionCallback = None) -> txid:
+    async def query_data(self,
+                         provider: address,
+                         query: str,
+                         endpoint: str,
+                         endpoint_params: list[str],
+                         from_address: address,
+                         gas_price: int,
+                         gas: Optional[int] = const.DEFAULT_GAS) -> txid:
         """
-        COMMENT HERE
+        Queries data from a subscriber to a given provider's endpoint. This function passes in both a query string and
+        a list of endpoint parameters that will be processed by the oracle.
 
-        :param provider:
-        :param query:
-        :param endpoint:
-        :param endpoint_params:
-        :param from_address:
-        :param gas_price:
-        :param gas:
-        :param cb:
+        :param provider: Address of the data provider (oracle).
+        :param query: Data requested from the subscriber.
+        :param endpoint: Data endpoint of the data provider which is meant to determine how the query is handled.
+        :param endpoint_params: Parameters passed to the data provider's endpoint.
+        :param from_address: Address of the subscriber.
+        :param gas_price: Price per unit of gas.
+        :param gas: The gas limit of this transaction (optional).
         """
+        if len(endpoint_params) > 0:
+            hex_params = [param if param.find('0x') == 0 else Web3.toHex(text=param) for param in endpoint_params]
+            bytes_params = [Web3.toBytes(hexstr=hex_p) for hex_p in hex_params]
+            endpoint_params = bytes_params
+
         try:
-            await asyncio.sleep(1)
-            if len(endpoint_params) > 0:
-                updated_params = [param if param.startswith('0x')
-                                  else param.encode('utf-8').hex() for param in endpoint_params]
-            else:
-                updated_params = endpoint_params
+            await asyncio.sleep(.5)
+            tx: txid = self.contract.functions.query(
+                provider, query, Web3.toBytes(text=endpoint), endpoint_params
+            ).transact(
+                {'from': from_address, 'gas': gas, 'gasPrice': gas_price}
+            )
 
-            tx_hash = self.contract.functions.query(
-                provider, query, Web3.toBytes(text=endpoint), updated_params
-            ).transact({'from': from_address, 'gas': gas, 'gasPrice': gas_price})
+            tx_hash = Web3.toHex(tx)
+            return tx_hash
 
-            if cb:
-                cb(None, tx_hash)
-            return tx_hash.hex()
         except Exception as e:
             print(e)
 
-
-    async def cancel_query(self, query_id: str or int,
-                           from_address: address, gas_price: Optional[int],
-                           gas: const.DEFAULT_GAS) -> str or int:
+    async def cancel_query(self,
+                           query_id: str or int,
+                           from_address: address,
+                           gas_price: int,
+                           gas: Optional[int] = const.DEFAULT_GAS) -> str or int:
         """
-        COMMENT HERE
+        This function cancels a query_id. It will return the block number when the query was canceled. If the query
+        does not exist, a value error exception wil occur and the returned value will be zero.
 
         :param query_id: A unique identifier for the query.
-        :param from_address:
-        :param gas_price:
-        :param gas:
+        :param from_address: Address of the subscriber.
+        :param gas_price: Price per unit of gas.
+        :param gas: The gas limit of this transaction (optional).
         """
         try:
-            await asyncio.sleep(1)
-            self.contract.functions.cancelQuery(query_id).transact({'from': from_address, 'gas': gas, 'gasPrice': gas_price})
-        except Exception as e:
-            return e # return 0?
+            await asyncio.sleep(.5)
+            self.contract.functions.cancelQuery(query_id).transact(
+                {'from': from_address, 'gas': gas, 'gasPrice': gas_price}
+            )
+        except ValueError:
+            return 0
+
         else:
-            await asyncio.sleep(1)
             return self.contract.functions.getCancel(query_id).call()
 
-    async def respond(self, query_id: str or int, response_params: list[str], dynamic: bool,
-                      from_address: address, gas_price: Optional[int], gas: const.DEFAULT_GAS):
+    async def respond(self,
+                      query_id: str or int,
+                      response_params: list[str],
+                      dynamic: bool,
+                      from_address: address,
+                      gas_price: int,
+                      gas: Optional[int] = const.DEFAULT_GAS) -> txid:
         """
-        COMMENT HERE
+        This function allows a provider to respond to a subscriber's query. The length and content of the response
+        parameters determines the type of response sent back to the subscriber.
 
         :param query_id: A unique identifier for the query.
-        :param response_params:
-        :param dynamic:
-        :param from_address:
-        :param gas_price:
-        :param gas:
+        :param response_params: List of responses returned by provider. Length determines the Dispatch response.
+        :param dynamic: Determines if the IntArray/Bytes32Array Dispatch response should be used.
+        :param from_address: Address of the subscriber.
+        :param gas_price: Price per unit of gas.
+        :param gas: The gas limit of this transaction (optional).
         """
         if dynamic is not False:
-            if type(response_params[0]) == int:
-                big_nums = 'I DONT THINK THIS APPLIES TO PYTHON. FIX ME'
-                self.contract.functions.respondIntArray(query_id, big_nums)
+            str_params = [str(param) for param in response_params]
+            hex_params = [param.encode('utf-8').hex() for param in str_params]
 
-            return self.contract.methods.respondBytes32Array(
-                    query_id, response_params).send({'from': from_address, 'gas': gas, 'gasPrice': gas_price})
+            if type(response_params[0]) == int:
+                int_params = [int(param) for param in hex_params]
+                response_params = int_params
+
+                ### Omitted conversion to locale string ###
+
+                tx = self.contract.functions.respondIntArray(
+                    query_id, response_params
+                ).transact(
+                    {'from': from_address, 'gas': gas, 'gasPrice': gas_price}
+                )
+
+                await asyncio.sleep(.5)
+                tx_hash = Web3.toHex(tx)
+                return tx_hash
+
+            else:
+                response_params = hex_params
+
+                tx = self.contract.functions.respondBytes32Array(
+                    query_id, response_params
+                ).transact(
+                    {'from': from_address, 'gas': gas, 'gasPrice': gas_price}
+                )
+                await asyncio.sleep(.5)
+                tx_hash = Web3.toHex(tx)
+                return tx_hash
 
         p_length = len(response_params)
 
         if p_length == 1:
-            return self.contract.functions.respond1(
-                query_id,
-                response_params[0]).transact({'from': from_address, 'gas': gas, 'gasPrice': gas_price})
+            tx = self.contract.functions.respond1(
+                query_id, response_params[0]
+            ).transact(
+                {'from': from_address, 'gas': gas, 'gasPrice': gas_price}
+            )
 
         elif p_length == 2:
-            return self.contract.functions.respond2(
-                query_id,
-                response_params[0],
-                response_params[1]).transact({'from': from_address, 'gas': gas})
+            tx = self.contract.functions.respond2(
+                query_id, response_params[0], response_params[1]
+            ).transact(
+                {'from': from_address, 'gas': gas}
+            )
 
         elif p_length == 3:
-            return self.contract.functions.respond3(
-                query_id,
-                response_params[0],
-                response_params[1],
-                response_params[2]).transact({'from': from_address, 'gas': gas, 'gasPrice': gas_price})
+            tx = self.contract.functions.respond3(
+                query_id, response_params[0], response_params[1], response_params[2]
+            ).transact(
+                {'from': from_address, 'gas': gas, 'gasPrice': gas_price}
+            )
 
         elif p_length == 4:
-            return self.contract.functions.respond4(
-                query_id,
-                response_params[0],
-                response_params[1],
-                response_params[2],
-                response_params[3]).transact({'from': from_address, 'gas': gas, 'gasPrice': gas_price})
+            tx = self.contract.functions.respond4(
+                query_id, response_params[0], response_params[1], response_params[2], response_params[3]
+            ).transact(
+                {'from': from_address, 'gas': gas, 'gasPrice': gas_price}
+            )
 
         else:
             raise ValueError('Invalid number of response parameters')
 
-    """GETTERS"""
+        tx_hash = Web3.toHex(tx)
+        return tx_hash
 
-    async def get_query_id_provider(self, query_id: str or int) -> str:
+    ###### Getters ######
+
+    async def get_query_id_provider(self, query_id: str or int) -> address:
         """
-        COMMENT HERE
+        Fetches the provider of specified query id.
 
         :param query_id: A unique identifier for the query.
         """
-        await asyncio.sleep(1)
+        await asyncio.sleep(.1)
         return self.contract.functions.getProvider(query_id).call()
 
-    async def get_subscriber(self, query_id: str or int) -> str:
+    async def get_subscriber(self, query_id: str or int) -> address:
         """
-        COMMENT HERE
+        Fetches the subscriber's address that submitted the query associated with the query id.
 
         :param query_id: A unique identifier for the query.
         """
-        await asyncio.sleep(1)
+        await asyncio.sleep(.1)
         return self.contract.functions.getSubscriber(query_id).call()
 
     async def get_endpoint(self, query_id: str or int) -> str:
         """
-        COMMENT HERE
+        Fetches the endpoint of the query.
 
         :param query_id: A unique identifier for the query.
         """
-        await asyncio.sleep(1)
+        await asyncio.sleep(.1)
         endpoint = self.contract.functions.getEndpoint(query_id).call()
         return Web3.toText(endpoint)
 
-    async def get_status(self, query_id: str or int):
+    async def get_status(self, query_id: str or int) -> int:
         """
-        COMMENT HERE
+        Fetches the status of a query id.
 
         :param query_id: A unique identifier for the query.
         """
-        await asyncio.sleep(1)
+        await asyncio.sleep(.1)
         return self.contract.functions.getStatus(query_id).call()
 
-    async def get_cancel(self, query_id: str or int):
+    async def get_cancel(self, query_id: str or int) -> int:
         """
-        COMMENT HERE
+        Fetches the status of a cancelled query.
 
         :param query_id: A unique identifier for the query.
         """
-        await asyncio.sleep(1)
+        await asyncio.sleep(.1)
         return self.contract.functions.getCancel(query_id).call()
 
-    async def get_user_query(self, query_id: str or int):
+    async def get_user_query(self, query_id: str or int) -> str:
         """
-        COMMENT HERE
+        Fetches the user of the specified query id.
 
         :param query_id: A unique identifier for the query.
         """
-        await asyncio.sleep(1)
+        await asyncio.sleep(.1)
         return self.contract.functions.getUserQuery(query_id).call()
 
     async def get_subscriber_onchain(self, query_id: str or int) -> bool:
         """
-        COMMENT HERE
+        Fetches information about onchain or offchain subscriber of the specified query id.
 
         :param query_id: A unique identifier for the query.
         """
-        await asyncio.sleep(1)
+        await asyncio.sleep(.1)
         return self.contract.functions.getSubscriberOnchain(query_id).call()
 
-    """EVENTS"""
+    ###### Events ######
 
-    def listen(self, filters: Filter = {}, cb: TransactionCallback = None) -> None:
+    def listen(self, filters: Filter = {},  cb: TransactionCallback = None, ) -> None:
         """
-        COMMENT HERE
+        Listens for all Dispatch contract events based on the optional filter.
+
+        :param filters: subscriber:address, provider:address, id:int|string, endpoint:bytes32,
+                        endpointParams:bytes32[], onchainSubscriber:boolean.
+        :param cb: Callback.
+        """
+
+        self.contract.events.allEvents(
+            filters, {'fromBlock': filters['fromBlock'] or 0, 'toBlock': 'latest'}, cb
+        )
+
+    async def listen_incoming(self, filters: Filter = {}, cb: TransactionCallback = None) -> None:
+        """
+        Listens for "Incoming" Dispatch contract events based on an optional filter. This event listener executes
+        a callback when the filter is matched.
+
+        :param filters: subscriber:address, provider:address, endpoint:bytes32.
+        :param cb: Callback.
+        """
+
+        self.contract.events.Incoming(filters, cb)
+
+    async def listen_fulfill_query(self, filters: Filter = {}, cb: TransactionCallback = None) -> None:
+        """
+        Listens for "FulfillQuery" Dispatch contract events based on an optional filter.
+
+        :param filters: subscriber:address, provider:address, endpoint:bytes32.
+        :param cb: Callback.
+        """
+
+        self.contract.events.FulfillQuery(filters, cb)
+
+    async def listen_offchain_response(self, filters: Filter = {}, cb: TransactionCallback = None) -> None:
+        """
+        Listens for all Offchain responses Dispatch contract events based on an optional filter.
+
+        :param filters: id:number|string, subscriber:address, provider: address, response: bytes32[]|int[],
+                        response1:string, response2:string, response3:string, response4:string.
+        :param cb: Callback.
+        """
+
+        self.contract.events.OffchainResponse(filters, cb)
+        self.contract.events.OffchainResponseInt(filters, cb)
+        self.contract.events.OffchainResult1(filters, cb)
+        self.contract.events.OffchainResult2(filters, cb)
+        self.contract.events.OffchainResult3(filters, cb)
+        self.contract.events.OffchainResult4(filters, cb)
+
+    async def listen_cancel_request(self, filters: Filter = {}, cb: TransactionCallback = None) -> None:
+        """
+        Listens for "Cancel" query events.
 
         :param filters:
-        :param cb:
+        :param cb: Callback.
         """
-        self.contract.events.
 
-
-
-
-
-
+        self.contract.events.CanceledRequest(filters, cb)
