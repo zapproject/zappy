@@ -174,7 +174,7 @@ class TestDispatch:
                                            [9999999, 8888888888888888, 3874, 1293847566, 5555555551]])
     async def test_response_dyanmic_int_array(self, dispatch_contract, query_config, w3, oracle, input_res):
         """
-        Testing that the respond function conditional runs as expected using varied cominations of integers.
+        Testing that the respond function conditional runs as expected using varied combinations of integers.
         """
         tx_hash = await dispatch_wrapper.query_data(**query_config)
         tx_receipt = w3.eth.getTransactionReceipt(tx_hash)
@@ -201,7 +201,7 @@ class TestDispatch:
                                            [9999999, 8888888888888888, 3874, 1293.847566, -5555555551]])
     async def test_response_dyanmic_int_array_should_fail(self, dispatch_contract, query_config, w3, oracle, fail_res):
         """
-        Testing that a value exception is raised for negative and floating-point integers within the response parameters.
+        Testing that a value exception is raised for negative and floating-point numbers within the response parameters.
         """
         tx_hash = await dispatch_wrapper.query_data(**query_config)
         tx_receipt = w3.eth.getTransactionReceipt(tx_hash)
