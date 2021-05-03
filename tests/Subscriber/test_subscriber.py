@@ -232,7 +232,7 @@ class TestSubscriber:
         sub = await instance.subscribe(oracle, provider["endpoint"],
                                        provider["endpoint_params"], 100,
                                        **tx_meta)
-
+        assert isinstance(sub, str)
         assert sub
 
     @mark.anyio
@@ -310,7 +310,16 @@ class TestSubscriber:
             oracle, instance.zap_bondage.contract.address,
             provider["endpoint"], 1, **tx_meta)
 
+        instance.zap_bondage.functions.unbond
+
         assert del_bounded
+        assert isinstance(del_bounded, int)
+        assert del_bounded > 0
+
+        tx_meta2 = tx_meta
+        tx_meta2["From"] = instance.zap_bondage.contract.address
+        instance.unbond(
+            oracle, provider["endpoint"], 1, **tx_meta2)
 
     @mark.anyio
     async def test_get_num_escrow(self, instance, provider, oracle):
