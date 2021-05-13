@@ -3,7 +3,21 @@ from pprint import pprint
 
 
 class Test_ZapToken:
-    """docstring for Test_ZapToken"""
+    """
+    Tests the ZapToken port.
+
+    Tests the following ZapToken Methods:
+        - increase_approval
+        - allocate
+        - allowance
+        - balance_of
+        - decrease_approval
+        - transfer
+        - transfer_from
+        - finish_minting
+
+    finish_minting can be tested once per test environment deployment.
+    """
 
     @mark.anyio
     async def test_init(self, instance, w3):
