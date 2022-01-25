@@ -37,11 +37,14 @@ class BaseContract:
             return json.load(f)
     
     def connect_to_contract(self, contract_name:str):
-        with open(f'src/artifacts/{contract_name.lower()}.json', 'r') as f:
-            artifact = json.load(f)
-        self.address = artifact[self.chainId]['address']
-        self.abi = artifact['abi']
-        self.contract = self.w3.eth.contract(address=self.address, abi=self.abi)
+        try:
+            with open(f'src/artifacts/{contract_name.lower()}.json', 'r') as f:
+                artifact = json.load(f)
+            self.address = artifact[self.chainId]['address']
+            self.abi = artifact['abi']
+            self.contract = self.w3.eth.contract(address=self.address, abi=self.abi)
+        except Exception as e:
+            raise e
     
     # def connect_to_contract(self):
     #     self.provider = web3 or Web3(network_provider or Web3.HTTPProvider("https://cloudflare-eth.com"))
