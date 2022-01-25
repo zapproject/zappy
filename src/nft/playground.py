@@ -1,7 +1,11 @@
-from . import ZapMedia
+from ZapMedia import ZapMedia
 
 params = ["signer", '31337']
+
 zap_media = ZapMedia(*params)
+num = 1
+floaty = 1.0
+
 print(zap_media.chainId)
 print(zap_media.address)
 print(zap_media.w3)

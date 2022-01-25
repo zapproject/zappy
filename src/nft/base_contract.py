@@ -23,7 +23,7 @@ class BaseContract:
     Base class contains method(s) to get contract address and abi based on chainID
    
     """
-
+ 
     def __init__(self, signer_or_wallet: any, chainId: str = '31337'):
         self.chainId = chainId
         try:
@@ -33,12 +33,14 @@ class BaseContract:
         
 
     def get_contract_info(self, contract_name:str):
-        with open(f'src/artifacts/{contract_name.lower()}.json', 'r') as f:
+        curr_dir = os.path.dirname(os.path.realpath(__file__))
+        with open(os.path.join(curr_dir, f'artifacts/{contract_name.lower()}.json'), 'r') as f:
             return json.load(f)
     
     def connect_to_contract(self, contract_name:str):
         try:
-            with open(f'src/artifacts/{contract_name.lower()}.json', 'r') as f:
+            curr_dir = os.path.dirname(os.path.realpath(__file__))
+            with open(os.path.join(curr_dir, f'artifacts/{contract_name.lower()}.json'), 'r') as f:
                 artifact = json.load(f)
             self.address = artifact[self.chainId]['address']
             self.abi = artifact['abi']

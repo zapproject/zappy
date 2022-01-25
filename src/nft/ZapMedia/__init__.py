@@ -1,5 +1,4 @@
-from ..base_contract import BaseContract
-
+from base_contract import BaseContract
 
 class ZapMedia(BaseContract):
 
