@@ -2,14 +2,14 @@ import os
 import sys
 from tokenize import Number
 
-import web3
+# import web3
 sys.path.insert(0, os.path.dirname(os.path.abspath("./__file__")))
-import asyncio
+# import asyncio
 import json
 
-from typing import Any
+# from typing import Any
 from web3 import Web3
-from providers import provider_uri
+from src.nft.providers import provider_uri
 
 # from src.BaseContract.utils import Utils
 # from src.Artifacts.src.index import Artifacts
