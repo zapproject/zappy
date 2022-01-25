@@ -1,7 +1,14 @@
 {
-  "_format": "hh-sol-artifact-1",
   "contractName": "MediaFactory",
-  "sourceName": "contracts/nft/MediaFactory.sol",
+  "31337": {
+    "address": "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e"
+  },
+  "1": {
+    "address": "0xETHEREUM_MAINNETADDRESS"
+  },
+  "56": {
+    "address": "0xBSC_MAINNETADDRESS"
+  },
   "abi": [
     {
       "anonymous": false,
