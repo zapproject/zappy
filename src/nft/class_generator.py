@@ -14,7 +14,7 @@ class ClassGenerator():
         pass
 
     def get_ABI(self, contract_name:str):
-            with open(f'src/artifacts/{contract_name.lower()}.json', 'r') as f:
+            with open(f'src/nft/artifacts/{contract_name.lower()}.json', 'r') as f:
                 artifact = json.load(f)
             self.abi = artifact['abi']
             
@@ -79,9 +79,9 @@ class {self.contract_name}(BaseContract):
         return self.contract.functions.{function_name}({function_params})
             """
 
-zap_media = ClassGenerator("ZapMedia")
-zap_media.create_file()  
-zap_media.generate_functions()
+# zap_media = ClassGenerator("ZapMedia")
+# zap_media.create_file()  
+# zap_media.generate_functions()
 
 
 auction_house = ClassGenerator("AuctionHouse")
