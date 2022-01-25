@@ -79,11 +79,18 @@ class {self.contract_name}(BaseContract):
         return self.contract.functions.{function_name}({function_params})
             """
 
-# zap_media = ClassGenerator("ZapMedia")
-# zap_media.create_file()  
-# zap_media.generate_functions()
+zap_media = ClassGenerator("ZapMedia")
+zap_media.create_file()  
+zap_media.generate_functions()
 
+zap_market = ClassGenerator("ZapMarket")
+zap_market.create_file()  
+zap_market.generate_functions()
 
 auction_house = ClassGenerator("AuctionHouse")
 auction_house.create_file()  
 auction_house.generate_functions()
+
+mf = ClassGenerator("MediaFactory")
+mf.create_file()  
+mf.generate_functions()

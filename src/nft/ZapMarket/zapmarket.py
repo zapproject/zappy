@@ -1,11 +1,11 @@
 from base_contract import BaseContract
 
-class ZapMedia(BaseContract):
+class ZapMarket(BaseContract):
 
     def __init__(self, chainId):
         super().__init__(chainId)
         try:
-            self.connect_to_contract(ZapMedia.__name__)
+            self.connect_to_contract(ZapMarket.__name__)
         except Exception as e:
             print(e)
         
