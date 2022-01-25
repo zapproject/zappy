@@ -30,14 +30,23 @@ class BaseContract:
             self.w3 = Web3(Web3.HTTPProvider(provider_uri[chainId]))
         except Exception as e:
             print(e)
-            
+        
+
+    def get_contract_info(self, contract_name:str):
+        curr_dir = os.path.dirname(os.path.realpath(__file__))
+        with open(os.path.join(curr_dir, f'artifacts/{contract_name.lower()}.json'), 'r') as f:
+            return json.load(f)
+    
     def connect_to_contract(self, contract_name:str):
-        with open(f'src/artifacts/{contract_name.lower()}.json', 'r') as f:
-            artifact = json.load(f)
-        self.address = artifact[self.chainId]['address']
-        self.abi = artifact['abi']
-        self.contract = self.w3.eth.contract(address=self.address, abi=self.abi)
-        # self.name = self.contract.functions.name().call()
+        try:
+            curr_dir = os.path.dirname(os.path.realpath(__file__))
+            with open(os.path.join(curr_dir, f'artifacts/{contract_name.lower()}.json'), 'r') as f:
+                artifact = json.load(f)
+            self.address = artifact[self.chainId]['address']
+            self.abi = artifact['abi']
+            self.contract = self.w3.eth.contract(address=self.address, abi=self.abi)
+        except Exception as e:
+            raise e
     
 
 
