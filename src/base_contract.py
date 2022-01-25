@@ -37,7 +37,7 @@ class BaseContract:
         self.address = artifact[self.chainId]['address']
         self.abi = artifact['abi']
         self.contract = self.w3.eth.contract(address=self.address, abi=self.abi)
-        self.name = self.contract.functions.name().call()
+        # self.name = self.contract.functions.name().call()
     
 
 

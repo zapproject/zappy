@@ -1,7 +1,14 @@
 {
-  "_format": "hh-sol-artifact-1",
   "contractName": "AuctionHouse",
-  "sourceName": "contracts/nft/AuctionHouse.sol",
+  "31337": {
+    "address": "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6"
+  },
+  "1": {
+    "address": "0xETHEREUM_MAINNETADDRESS"
+  },
+  "56": {
+    "address": "0xBSC_MAINNETADDRESS"
+  },
   "abi": [
     {
       "anonymous": false,
