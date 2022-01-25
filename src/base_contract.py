@@ -24,28 +24,22 @@ class BaseContract:
    
     """
 
-    def __init__(self, signer_or_wallet: any, chainId: str = '31337'):
+    def __init__(self, chainId: str = '31337'):
         self.chainId = chainId
         try:
             self.w3 = Web3(Web3.HTTPProvider(provider_uri[chainId]))
         except Exception as e:
             print(e)
-        
-
-    def get_contract_info(self, contract_name:str):
-        with open(f'src/artifacts/{contract_name.lower()}.json', 'r') as f:
-            return json.load(f)
-    
+            
     def connect_to_contract(self, contract_name:str):
         with open(f'src/artifacts/{contract_name.lower()}.json', 'r') as f:
             artifact = json.load(f)
         self.address = artifact[self.chainId]['address']
         self.abi = artifact['abi']
         self.contract = self.w3.eth.contract(address=self.address, abi=self.abi)
+        self.name = self.contract.functions.name().call()
     
-    # def connect_to_contract(self):
-    #     self.provider = web3 or Web3(network_provider or Web3.HTTPProvider("https://cloudflare-eth.com"))
-    #     self.w3 = web3 or Web3(network_provider or Web3.HTTPProvider("https://cloudflare-eth.com"))
+
 
 
 
