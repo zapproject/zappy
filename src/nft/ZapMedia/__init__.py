@@ -1,11 +1,14 @@
-from src.nft.base_contract import BaseContract
+# from src.nft.base_contract import BaseContract
 
-class ZapMedia(BaseContract):
+# class ZapMedia(BaseContract):
 
-    def __init__(self, chainId):
-        super().__init__(chainId)
+#     def __init__(self, chainId):
+#         super().__init__(chainId)
 
-        self.connect_to_contract("ZapMedia")
+#         self.connect_to_contract("ZapMedia")
 
-    def hello(self):
-        print("hello")
+#     def hello(self):
+#         print("hello")
+
+
+from src.nft.ZapMedia.zapmedia import ZapMedia

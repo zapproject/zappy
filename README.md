@@ -23,6 +23,16 @@ source ./venv/bin/activate
 pip3 install -r requirements.txt
 ```
 
+### Setup
+Create a `config.json` file in the root of the project./
+Add your private key to the property `privateKey`/
+For example:
+```
+{
+    "privateKey": "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+}
+```
+
 ## Running build and tests
 pytest
 

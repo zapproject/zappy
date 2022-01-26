@@ -1,4 +1,4 @@
-from base_contract import BaseContract
+from src.nft.base_contract import BaseContract
 
 class ZapMedia(BaseContract):
 
@@ -76,7 +76,8 @@ class ZapMedia(BaseContract):
         return self.contract.functions.marketContract()
             
     def mint(self, data, bidShares):
-        return self.contract.functions.mint(data, bidShares)
+        tx = self.buildTransaction(self.contract.functions.mint(data, bidShares))
+        return self.sendTransaction(tx, self.privateKey)
             
     def mintWithSig(self, creator, data, bidShares, sig):
         return self.contract.functions.mintWithSig(creator, data, bidShares, sig)
@@ -148,7 +149,7 @@ class ZapMedia(BaseContract):
         return self.contract.functions.updateTokenURI(tokenId, tokenURILocal)
             
     ## Helper function that builds a dict representing IMedia.MediaData
-    def makeMediaData(tokenURI, metadataURI, contentHash, metadataHash):
+    def makeMediaData(self, tokenURI, metadataURI, contentHash, metadataHash):
         return {
             "tokenURI": tokenURI,
             "metadataURI": metadataURI,
@@ -157,7 +158,7 @@ class ZapMedia(BaseContract):
         }
 
     ## Helper function that build a dict representing IMarket.BidShares
-    def makeBidShares(creator, owner, collaborators, collabShares):
+    def makeBidShares(self, creator, owner, collaborators, collabShares):
         return {
             "creator": {"value": creator},
             "owner": {"value": owner},
@@ -166,7 +167,7 @@ class ZapMedia(BaseContract):
         }
 
     ## Helper function that builds a dict representing IMedia.EIP712Signature
-    def makeEIP712Sig(deadline, v, r, s):
+    def makeEIP712Sig(self, deadline, v, r, s):
         return {
             "deadline": deadline,
             "v": v,
@@ -175,14 +176,14 @@ class ZapMedia(BaseContract):
         }
 
     ## Helper function that builds a dict representing IMarket.Ask
-    def makeAsk(amount, currency):
+    def makeAsk(self, amount, currency):
         return {
             "amount": amount,
             "currency": currency
         }
 
     ## Helper function that builds a dict representing IMarket.Bid
-    def makeBid(amount, currency, bidder, recipient, sellOnShare):
+    def makeBid(self, amount, currency, bidder, recipient, sellOnShare):
         return {
             "amount": amount,
             "currency": currency,

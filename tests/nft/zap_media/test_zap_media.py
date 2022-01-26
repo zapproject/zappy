@@ -11,7 +11,15 @@ def test_zap_media():
     assert zap_media.address == "0x3Ca8f9C04c7e3E1624Ac2008F92f6F366A869444"
 
 
+def test_media_mint():
+    mediaData = zap_media.makeMediaData("token-uri", "metadata-uri", b"content-hash", b"metadata-hash")
+    bidShares = zap_media.makeBidShares(95000000000000000000, 0, [], [])
 
+    result = zap_media.mint(mediaData, bidShares)
+    tx_receipt = zap_media.w3.eth.getTransactionReceipt(result)
+    print(tx_receipt)
+
+test_media_mint()
 # from unittest.mock import MagicMock, patch
 
 # from src.BaseContract.base_contract import BaseContract
