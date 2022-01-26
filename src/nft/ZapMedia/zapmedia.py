@@ -125,7 +125,7 @@ class ZapMedia(BaseContract):
         return self.contract.functions.symbol()
             
     def tokenByIndex(self, index):
-        return self.contract.functions.tokenByIndex(index)
+        return self.contract.functions.tokenByIndex(index).call()
             
     def tokenMetadataURI(self, tokenId):
         return self.contract.functions.tokenMetadataURI(tokenId)
