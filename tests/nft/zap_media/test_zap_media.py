@@ -30,12 +30,24 @@ def test_address_matches_deployed_address():
 
 
 
+
+def test_media_mint():
+    mediaData = zap_media.makeMediaData("token-uri", "metadata-uri", b"content-hash", b"metadata-hash")
+    bidShares = zap_media.makeBidShares(95000000000000000000, 0, [], [])
+
+    result = zap_media.mint(mediaData, bidShares)
+    tx_receipt = zap_media.w3.eth.getTransactionReceipt(result)
+    print(tx_receipt)
+
+test_media_mint()
+
+
+
 # ====================================
 # ====================================
 # LEGACY CODE BELOW - prob can delete
 # ====================================
 # ====================================
-
 # from unittest.mock import MagicMock, patch
 
 # from src.BaseContract.base_contract import BaseContract

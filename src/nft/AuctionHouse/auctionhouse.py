@@ -46,7 +46,7 @@ class AuctionHouse(BaseContract):
         return self.contract.functions.wethAddress()
             
     ## Helper function that builds a dict representing IAuctionHouse.TokenDetails
-    def makeTokenDetails(tokenId, mediaContract):
+    def makeTokenDetails(self, tokenId, mediaContract):
         return {
             "tokenId": tokenId,
             "mediaContract": mediaContract

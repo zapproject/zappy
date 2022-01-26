@@ -11,6 +11,7 @@ import json
 from web3 import Web3
 from src.nft.providers import provider_uri
 
+import json
 # from src.BaseContract.utils import Utils
 # from src.Artifacts.src.index import Artifacts
 #from portedFiles.types import base_contract_type
@@ -28,6 +29,10 @@ class BaseContract:
         self.chainId = chainId
         try:
             self.w3 = Web3(Web3.HTTPProvider(provider_uri[chainId]))
+
+            f = open("config.json", "r")
+            data = json.load(f)
+            self.privateKey = data["privateKey"]
         except Exception as e:
             print(e)
         
