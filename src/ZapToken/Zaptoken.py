@@ -3,7 +3,7 @@ from BaseContract import utils
 from portedFiles.types import (TransferType, address, txid, NetworkProviderOptions, TransactionCallback, NumType)
 #from web3._utils. import (toHex)
 
-class ZapToken(BaseConstract):
+class ZapToken(BaseContract):
 
     def __init__(self, NetworkProviderOptions):
         super().__init__(NetworkProviderOptions or {}, { artifactName: 'ZAP_Token'})
