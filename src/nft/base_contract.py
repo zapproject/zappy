@@ -49,10 +49,6 @@ class BaseContract:
             raise e
     
 
-
-
-
-
     # Async class methods
     async def get_contract(self):
         contract_address = await self.coordinator.functions.getContract(self.name.upper()).call()
@@ -67,6 +63,22 @@ class BaseContract:
         contract_owner = await self.contract.functions.owner().call()
         return contract_owner
 
+    # Builds transactions for write contract calls
+    def buildTransaction(self, function):
+        nonce = self.w3.eth.getTransactionCount("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266")
+
+        return function.buildTransaction({
+            'chainId': 31337,
+            'gas': 1400000,
+            'gasPrice': self.w3.eth.gas_price,
+            'nonce': nonce,
+        })
+
+    # Bundles sending transaction
+    def sendTransaction(self, transaction, privateKey):
+        signed_txn = self.w3.eth.account.sign_transaction(transaction, privateKey)
+
+        return self.w3.eth.send_raw_transaction(signed_txn.rawTransaction)
 
 # base_contract = BaseContract("signer")
 
