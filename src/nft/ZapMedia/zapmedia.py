@@ -147,3 +147,46 @@ class ZapMedia(BaseContract):
     def updateTokenURI(self, tokenId, tokenURILocal):
         return self.contract.functions.updateTokenURI(tokenId, tokenURILocal)
             
+    ## Helper function that builds a dict representing IMedia.MediaData
+    def makeMediaData(tokenURI, metadataURI, contentHash, metadataHash):
+        return {
+            "tokenURI": tokenURI,
+            "metadataURI": metadataURI,
+            "contentHash": contentHash,
+            "metadataHash": metadataHash
+        }
+
+    ## Helper function that build a dict representing IMarket.BidShares
+    def makeBidShares(creator, owner, collaborators, collabShares):
+        return {
+            "creator": {"value": creator},
+            "owner": {"value": owner},
+            "collaborators": collaborators,
+            "collabShares": collabShares
+        }
+
+    ## Helper function that builds a dict representing IMedia.EIP712Signature
+    def makeEIP712Sig(deadline, v, r, s):
+        return {
+            "deadline": deadline,
+            "v": v,
+            "r": r,
+            "s": s
+        }
+
+    ## Helper function that builds a dict representing IMarket.Ask
+    def makeAsk(amount, currency):
+        return {
+            "amount": amount,
+            "currency": currency
+        }
+
+    ## Helper function that builds a dict representing IMarket.Bid
+    def makeBid(amount, currency, bidder, recipient, sellOnShare):
+        return {
+            "amount": amount,
+            "currency": currency,
+            "bidder": bidder,
+            "recipient": recipient,
+            "sellOnShare": {"value": sellOnShare}
+        }
