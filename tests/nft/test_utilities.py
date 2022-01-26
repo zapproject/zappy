@@ -1,6 +1,8 @@
 from web3 import Web3
 from web3.types import GethWallet
 import web3
+import os
+import json
 
 hh_private_keys = [
 "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
@@ -26,3 +28,14 @@ hh_private_keys = [
 ]
 
 wallets = [web3.Account.from_key(pk) for pk in hh_private_keys]
+
+
+def get_ABI_Bytecode(contract_name:str):
+    curr_dir = os.path.dirname(os.path.realpath("src/nft/artifacts"))
+
+    with open(os.path.join(curr_dir, f'artifacts/{contract_name.lower()}.json'), 'r') as f:
+        artifact = json.load(f)
+        return {
+            'abi':artifact['abi'],
+            'bytecode':artifact['bytecode'],
+            }
