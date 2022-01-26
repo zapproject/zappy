@@ -1,16 +1,40 @@
 import os
 import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath("./__file__")))
-from src.nft.ZapMedia import ZapMedia
 
+from src.nft.ZapMedia import ZapMedia
+from tests.nft.test_utilities import wallets
+
+
+# ====================================
+# SETUP
+# ====================================
 
 # create Zap Media
 zap_media = ZapMedia('31337')
 
-def test_zap_media():
-    assert zap_media.address == "0x3Ca8f9C04c7e3E1624Ac2008F92f6F366A869444"
+# ====================================
+# END SETUP
+# ====================================
 
 
+
+def test_connected_to_node():
+    assert zap_media.w3.isConnected()
+
+def test_address_matches_deployed_address():
+    deployed_zap_media_contract_hardhat_address = "0x3Ca8f9C04c7e3E1624Ac2008F92f6F366A869444"
+    assert zap_media.address == deployed_zap_media_contract_hardhat_address
+
+
+
+
+
+# ====================================
+# ====================================
+# LEGACY CODE BELOW - prob can delete
+# ====================================
+# ====================================
 
 # from unittest.mock import MagicMock, patch
 
