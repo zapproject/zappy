@@ -135,3 +135,6 @@ pip-wheel-metadata/
 
 # jupyter notebook files
 *.ipynb
+
+# config file
+config.json
