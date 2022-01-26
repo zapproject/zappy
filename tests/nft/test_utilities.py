@@ -39,3 +39,9 @@ def get_ABI_Bytecode(contract_name:str):
             'abi':artifact['abi'],
             'bytecode':artifact['bytecode'],
             }
+            
+def get_artifact(contract_name:str):
+    curr_dir = os.path.dirname(os.path.realpath("src/nft/artifacts"))
+
+    with open(os.path.join(curr_dir, f'artifacts/{contract_name.lower()}.json'), 'r') as f:
+      return json.load(f)
