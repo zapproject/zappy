@@ -65,7 +65,7 @@ class BaseContract:
 
     # Builds transactions for write contract calls
     def buildTransaction(self, function):
-        nonce = self.w3.eth.getTransactionCount("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266")
+        nonce = self.w3.eth.get_transaction_count("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266")
 
         return function.buildTransaction({
             'chainId': 31337,
