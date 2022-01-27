@@ -73,7 +73,7 @@ class BaseContract:
         nonce = self.w3.eth.get_transaction_count("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266")
 
         return function.buildTransaction({
-            'chainId': 31337,
+            'chainId': int(self.chainId),
             'gas': 1400000,
             'gasPrice': self.w3.eth.gas_price,
             'nonce': nonce,
