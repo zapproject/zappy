@@ -80,10 +80,11 @@ class ZapMedia(BaseContract):
         return self.sendTransaction(tx, self.privateKey)
             
     def mintWithSig(self, creator, data, bidShares, sig):
-        return self.contract.functions.mintWithSig(creator, data, bidShares, sig)
+        tx = self.buildTransaction(self.contract.functions.mintWithSig(creator, data, bidShares, sig))
+        return self.sendTransaction(tx, self.privateKey)
             
     def name(self, ):
-        return self.contract.functions.name()
+        return self.contract.functions.name().call()
             
     def ownerOf(self, tokenId):
         return self.contract.functions.ownerOf(tokenId)
