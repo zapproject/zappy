@@ -72,7 +72,7 @@ class ZapMedia(BaseContract):
     def isApprovedForAll(self, owner, operator):
         return self.contract.functions.isApprovedForAll(owner, operator)
             
-    def marketContract(self, ):
+    def marketContract(self):
         return self.contract.functions.marketContract()
             
     def mint(self, data, bidShares):
@@ -82,8 +82,8 @@ class ZapMedia(BaseContract):
     def mintWithSig(self, creator, data, bidShares, sig):
         return self.contract.functions.mintWithSig(creator, data, bidShares, sig)
             
-    def name(self, ):
-        return self.contract.functions.name()
+    def name(self):
+        return self.contract.functions.name().call()
             
     def ownerOf(self, tokenId):
         return self.contract.functions.ownerOf(tokenId)
@@ -122,7 +122,7 @@ class ZapMedia(BaseContract):
         return self.contract.functions.supportsInterface(interfaceId)
             
     def symbol(self, ):
-        return self.contract.functions.symbol()
+        return self.contract.functions.symbol().call()
             
     def tokenByIndex(self, index):
         return self.contract.functions.tokenByIndex(index)

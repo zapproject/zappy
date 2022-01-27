@@ -26,7 +26,9 @@ def test_address_matches_deployed_address():
     deployed_zap_media_contract_hardhat_address = "0x3Ca8f9C04c7e3E1624Ac2008F92f6F366A869444"
     assert zap_media.address == deployed_zap_media_contract_hardhat_address
 
-
+def test_name():
+    name = zap_media.name()
+    assert name == 'Zap Collection'
 
 
 
@@ -39,7 +41,7 @@ def test_media_mint():
     tx_receipt = zap_media.w3.eth.getTransactionReceipt(result)
     print(tx_receipt)
 
-test_media_mint()
+# test_media_mint()
 
 
 
