@@ -47,4 +47,4 @@ def test_media_mint():
 
 
 
-test_media_mint()
+# test_media_mint()
