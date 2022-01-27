@@ -334,5 +334,45 @@ def test_media_mint(w3, wallets, zap_media):
     after_mint = zap_media.totalSupply().call()
     assert after_mint == before_mint + 1
 
+def test_media_mint2(w3, wallets, zap_media):
+    # assert w3.eth.accounts[1] == utils.wallets[0].address
+    before_mint = zap_media.totalSupply().call()
+    assert before_mint == 0
+
+    tokenURI = "Test CarZ"
+    metadataURI = "Test CarMZ"
+
+    mediaData = {
+        "tokenURI": tokenURI,
+        "metadataURI": metadataURI,
+        "contentHash": Web3.toBytes(text=tokenURI),
+        "metadataHash": Web3.toBytes(text=metadataURI)
+    };
+    bidShares = {
+        "creator" : {"value":90000000000000000000},
+        "owner" : {"value":5000000000000000000},
+        "collaborators": [],
+        "collabShares": []
+    }
+
+
+    zap_media.privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+    nonce = zap_media.w3.eth.getTransactionCount(wallets[0].address)
+
+    assert zap_media.chainId
+
+    tx = {
+        'chainId':61,
+        'nonce': nonce,
+        'gas': 2000000,
+        'gasPrice': zap_media.w3.toWei('50', 'gwei'),
+    }
+
+    tx_hash = zap_media.mint(mediaData, bidShares)
+    w3.eth.wait_for_transaction_receipt(tx_hash, 180)
+
+    after_mint = zap_media.totalSupply().call()
+    assert after_mint == before_mint + 1
+
 # 0xF2E246BB76DF876Cef8b38ae84130F4F55De395b
 # 0xF2E246BB76DF876Cef8b38ae84130F4F55De395b
