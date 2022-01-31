@@ -73,15 +73,15 @@ class BaseContract:
         nonce = self.w3.eth.get_transaction_count("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266")
 
         return function.buildTransaction({
-            'chainId': 31337,
+            'chainId': int(self.chainId),
             'gas': 1400000,
             'gasPrice': self.w3.eth.gas_price,
             'nonce': nonce,
         })
 
     # Bundles sending transaction
-    def sendTransaction(self, transaction, privateKey):
-        signed_txn = self.w3.eth.account.sign_transaction(transaction, privateKey)
+    def sendTransaction(self, transaction):
+        signed_txn = self.w3.eth.account.sign_transaction(transaction, self.privateKey)
 
         return self.w3.eth.send_raw_transaction(signed_txn.rawTransaction)
 

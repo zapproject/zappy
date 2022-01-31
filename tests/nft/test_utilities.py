@@ -1,6 +1,8 @@
 from web3 import Web3
 from web3.types import GethWallet
 import web3
+import os
+import json
 
 hh_private_keys = [
 "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
@@ -13,16 +15,23 @@ hh_private_keys = [
 "0x4bbbf85ce3377467afe5d46f804f221813b2bb87f24d81f60f1fcdbf7cbf4356",
 "0xdbda1821b80551c9d65939329250298aa3472ba22feea921c0cf5d620ea67b97",
 "0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6",
-"0xf214f2b2cd398c806f84e317254e0f0b801d0643303237d97a22a48e01628897",
-"0x701b615bbdfb9de65240bc28bd21bbc0d996645a3dd57e7b12bc2bdf6f192c82",
-"0xa267530f49f8280200edf313ee7af6b827f2a8bce2897751d06a843f644967b1",
-"0x47c99abed3324a2707c28affff1267e45918ec8c3f20b8aa892e8b065d2942dd",
-"0xc526ee95bf44d8fc405a158bb884d9d1238d99f0612e9f33d006bb0789009aaa",
-"0x8166f546bab6da521a8369cab06c5d2b9e46670292d85c875ee9ec20e84ffb61",
-"0xea6c44ac03bff858b476bba40716402b03e41b8e97e276d1baec7c37d42484a0",
-"0x689af8efa8c651a91ad287602527f3af2fe9f6501a7ac4b061667b5a93e037fd",
-"0xde9be858da4a475276426320d5e9262ecfc3ba460bfac56360bfa6c4c28b4ee0",
-"0xdf57089febbacf7ba0bc227dafbffa9fc08a93fdc68e1e42411a14efcf23656e"
 ]
 
 wallets = [web3.Account.from_key(pk) for pk in hh_private_keys]
+
+
+def get_ABI_Bytecode(contract_name:str):
+    curr_dir = os.path.dirname(os.path.realpath("src/nft/artifacts"))
+
+    with open(os.path.join(curr_dir, f'artifacts/{contract_name.lower()}.json'), 'r') as f:
+        artifact = json.load(f)
+        return {
+            'abi':artifact['abi'],
+            'bytecode':artifact['bytecode'],
+            }
+            
+def get_artifact(contract_name:str):
+    curr_dir = os.path.dirname(os.path.realpath("src/nft/artifacts"))
+
+    with open(os.path.join(curr_dir, f'artifacts/{contract_name.lower()}.json'), 'r') as f:
+      return json.load(f)

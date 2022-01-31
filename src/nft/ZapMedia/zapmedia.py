@@ -49,7 +49,7 @@ class ZapMedia(BaseContract):
         return self.contract.functions.getPreviousTokenOwners(_tokenId)
             
     def getSigNonces(self, _minter):
-        return self.contract.functions.getSigNonces(_minter)
+        return self.contract.functions.getSigNonces(_minter).call()
             
     def getTokenContentHashes(self, _tokenId):
         return self.contract.functions.getTokenContentHashes(_tokenId)
@@ -72,18 +72,18 @@ class ZapMedia(BaseContract):
     def isApprovedForAll(self, owner, operator):
         return self.contract.functions.isApprovedForAll(owner, operator)
             
-    def marketContract(self, ):
+    def marketContract(self):
         return self.contract.functions.marketContract()
             
     def mint(self, data, bidShares):
         tx = self.buildTransaction(self.contract.functions.mint(data, bidShares))
-        return self.sendTransaction(tx, self.privateKey)
+        return self.sendTransaction(tx)
             
     def mintWithSig(self, creator, data, bidShares, sig):
         tx = self.buildTransaction(self.contract.functions.mintWithSig(creator, data, bidShares, sig))
-        return self.sendTransaction(tx, self.privateKey)
+        return self.sendTransaction(tx)
             
-    def name(self, ):
+    def name(self):
         return self.contract.functions.name().call()
             
     def ownerOf(self, tokenId):
@@ -123,7 +123,7 @@ class ZapMedia(BaseContract):
         return self.contract.functions.supportsInterface(interfaceId)
             
     def symbol(self, ):
-        return self.contract.functions.symbol()
+        return self.contract.functions.symbol().call()
             
     def tokenByIndex(self, index):
         return self.contract.functions.tokenByIndex(index).call()

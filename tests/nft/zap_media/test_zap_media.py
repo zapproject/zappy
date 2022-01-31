@@ -7,8 +7,14 @@ sys.path.insert(0, os.path.dirname(os.path.abspath("./__file__")))
 from src.nft.ZapMedia import ZapMedia
 from src.nft.ZapMarket import ZapMarket
 from tests.nft.test_utilities import wallets
+from src.nft.utils.signature import encode_structured_data
 
-from eth_account.messages import encode_structured_data
+from py_eth_sig_utils.signing import (sign_typed_data, recover_typed_data)
+from py_eth_sig_utils.utils import normalize_key
+
+from hexbytes import HexBytes
+
+# from eth_account.messages import encode_structured_data
 
 # ====================================
 # SETUP
@@ -49,23 +55,26 @@ def test_media_mint():
     assert zap_media.tokenByIndex(0) == 0
 
 def test_media_mint_w_sig():
-    media_data = zap_media.makeMediaData("token-uri", "metadata-uri", b"content-hash2", b"metadata-hash")
+    media_data = zap_media.makeMediaData(
+        "https://content-uri", 
+        "https://metadata-uri", 
+        'content-hash'.encode('utf-8'),  
+        'metadata-hash'.encode('utf-8'))
     bid_shares = zap_media.makeBidShares(95000000000000000000, 0, [], [])
+    print(media_data["contentHash"])
+    account = zap_media.w3.eth.account.privateKeyToAccount(zap_media.privateKey)
 
-    # account = zap_media.w3.account.privateKeyToAccount(zap_media.privateKey)
-
-    deadline = time.time() + 60 * 60 * 24
+    deadline = int(time.time() + 60 * 60 * 24)
     name = zap_media.name()
     chain_id = zap_media.chainId
-    nonce = zap_media.w3.eth.get_transaction_count("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266")
-    
+    nonce = zap_media.getSigNonces(account.address)
     data = {
         "types": {
             "EIP712Domain": [
-                {"name": "name", "type": "string"},
-                {"name": "version", "type": "string"},
-                {"name": "chain_id", "type": "uint256"},
-                {"name": "verifyingContract", "type": "address"}
+                { "name": "name", "type": "string" },
+                { "name": "version", "type": "string" },
+                { "name": "chainId", "type": "uint256" },
+                { "name": "verifyingContract", "type": "address" }
             ],
             "MintWithSig": [
                 { "name": 'contentHash', "type": 'bytes32' },
@@ -79,31 +88,48 @@ def test_media_mint_w_sig():
         "domain": {
             "name": name,
             "version": "1",
-            "chain_id": int(chain_id),
+            "chainId": int(chain_id),
             "verifyingContract": zap_media.address
         },
         "message": {
-            'contentHash': 'content-hash',
-            'metadataHash': 'metadata-hash',
-            'creatorShare': 95000000000000000000,
-            'nonce': nonce,
+            'contentHash': media_data["contentHash"],
+            'metadataHash': media_data["metadataHash"],
+            'creatorShare': bid_shares["creator"]["value"],
+            'nonce': nonce+1,
             'deadline': deadline
         }
     }
+  
+    # eip191data = encode_structured_data(data)
+    # print("EIP191: ", eip191data)
+    # sig_data2 = zap_media.w3.eth.account.sign_message(eip191data, zap_media.privateKey)
+    sig_data = sign_typed_data(data, normalize_key(zap_media.privateKey))
+    
+    print("sig data: ", sig_data)
+    # print("sig data 2: ", sig_data2)
 
-    eip191data = encode_structured_data(data)
-    sig_data = zap_media.w3.eth.account.sign_message(eip191data, "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266")
+    recovered = recover_typed_data(data, sig_data[0], sig_data[1], sig_data[2])
+    print("RECOVERED: ", recovered)
 
-    sig = zap_media.makeEIP712Sig(deadline, sig_data.v, sig_data.r, sig_data.s)
+    # recovered2 = zap_media.w3.eth.account.recover_message(eip191data, signature=sig_data2.signature)
+    # print("RECOVERED2: ", recovered2)
 
-    media_data = zap_media.makeMediaData("token-uri", "metadata-uri", b"content-hash", b"metadata-hash")
-    bid_shares = zap_media.makeBidShares(95000000000000000000, 0, [], [])
+    sig = zap_media.makeEIP712Sig(
+        deadline, 
+        sig_data[0], 
+        # sig_data2[1].to_bytes(32, 'big'),
+        # sig_data2[2].to_bytes(32, 'big')
+        zap_media.w3.toBytes(sig_data[1]),
+        zap_media.w3.toBytes(sig_data[2]),
+    )
+    print("sig: ", sig)
 
-    result = zap_media.mintWithSig("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", media_data, bid_shares, sig)
+
+    result = zap_media.mintWithSig(account.address, media_data, bid_shares, sig)
+    print(result)
 
 def toHex(val):
-    return zap_media.w3.toHex(zap_media.w3.toBytes(val).rjust(32, b'\0'))
+    return zap_media.w3.toHex(zap_media.w3.toBytes(text=val).rjust(32, b'\0'))
 
-# test_media_mint()
 
 test_media_mint_w_sig()
