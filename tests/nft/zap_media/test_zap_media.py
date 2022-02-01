@@ -94,11 +94,13 @@ def test_media_set_bid():
     assert current_bid[3] == '0x0000000000000000000000000000000000000000'
     assert current_bid[4][0] == 0
 
-    tx = zap_token.transfer(wallets[1].address, 100)
+    tx = zap_token.transfer(wallets[1].address, 300)
     receipt = zap_token.w3.eth.wait_for_transaction_receipt(tx, 180)
 
     zap_token.privateKey = wallets[1].key.hex()
     zap_token.publicAddress = wallets[1].address
+    
+    # First bid 
     tx = zap_token.approve(zap_market.address, 100)
     receipt = zap_token.w3.eth.wait_for_transaction_receipt(tx, 180)
     assert receipt is not None
@@ -113,6 +115,25 @@ def test_media_set_bid():
     assert new_bid[2] == bid["bidder"]
     assert new_bid[3] == bid["recipient"]
     assert new_bid[4][0] == bid["sellOnShare"]["value"]
+
+    # 2nd bid - should overwrite previous one
+    bid["amount"] = 200
+
+    tx = zap_token.approve(zap_market.address, 200)
+    receipt = zap_token.w3.eth.wait_for_transaction_receipt(tx, 180)
+    assert receipt is not None
+
+    tx = zap_media.setBid(token_id, bid)
+    receipt = zap_media.w3.eth.wait_for_transaction_receipt(tx, 180)
+    assert receipt is not None
+
+    new_bid = zap_market.bidForTokenBidder(zap_media.address, token_id, bidder)
+    assert new_bid[0] == bid["amount"]
+    assert new_bid[1] == bid["currency"]
+    assert new_bid[2] == bid["bidder"]
+    assert new_bid[3] == bid["recipient"]
+    assert new_bid[4][0] == bid["sellOnShare"]["value"]
+
 
 # test_media_mint()
 test_media_set_bid()
