@@ -34,8 +34,8 @@ class BaseContract:
             data = json.load(f)
             self.privateKey = data["privateKey"]
 
-            wallet = self.w3.Account.privateKeyToAccount(self.privateKey)
-            self.publicAddress = wallet.getPublicAddress()
+            wallet = self.w3.eth.account.from_key(self.privateKey)
+            self.publicAddress = wallet.address
         except Exception as e:
             print(e)
         
@@ -72,21 +72,20 @@ class BaseContract:
         return contract_owner
 
     # Builds transactions for write contract calls
-    def buildTransaction(self, function):
+    def sendTransaction(self, function):
         nonce = self.w3.eth.get_transaction_count(self.publicAddress)
 
-        return function.buildTransaction({
+        tx = function.buildTransaction({
             'chainId': int(self.chainId),
             'gas': 1400000,
             'gasPrice': self.w3.eth.gas_price,
             'nonce': nonce,
         })
 
-    # Bundles sending transaction
-    def sendTransaction(self, transaction, privateKey):
-        signed_txn = self.w3.eth.account.sign_transaction(transaction, privateKey)
+        signed_txn = self.w3.eth.account.sign_transaction(tx, self.privateKey)
 
         return self.w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+        
 
 # base_contract = BaseContract("signer")
 

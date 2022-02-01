@@ -2,6 +2,15 @@
   "_format": "hh-sol-artifact-1",
   "contractName": "ZapTokenBSC",
   "sourceName": "contracts/token/ZapTokenBSC.sol",
+  "31337": {
+    "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+  },
+  "1": {
+    "address": "0xETHEREUM_MAINNETADDRESS"
+  },
+  "56": {
+    "address": "0xBSC_MAINNETADDRESS"
+  },
   "abi": [
     {
       "inputs": [],

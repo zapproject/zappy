@@ -76,8 +76,7 @@ class ZapMedia(BaseContract):
         return self.contract.functions.marketContract()
             
     def mint(self, data, bidShares):
-        tx = self.buildTransaction(self.contract.functions.mint(data, bidShares))
-        return self.sendTransaction(tx, self.privateKey)
+        return self.sendTransaction(self.contract.functions.mint(data, bidShares))
             
     def mintWithSig(self, creator, data, bidShares, sig):
         return self.contract.functions.mintWithSig(creator, data, bidShares, sig)
@@ -116,8 +115,7 @@ class ZapMedia(BaseContract):
         return self.contract.functions.setAsk(tokenId, ask)
             
     def setBid(self, tokenId, bid):
-        tx = self.buildTransaction(self.contract.functions.setBid(tokenId, bid))
-        return self.sendTransaction(tx, self.privateKey)
+        return self.sendTransaction(self.contract.functions.setBid(tokenId, bid))
             
     def supportsInterface(self, interfaceId):
         return self.contract.functions.supportsInterface(interfaceId)

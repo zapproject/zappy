@@ -380,15 +380,15 @@ def test_media_mint2(w3, wallets, zap_media):
     after_mint = zap_media.totalSupply()
     assert after_mint == before_mint + 1
 
-def test_media_set_bid(w3, wallets, zap_media, zap_market, zap_token_contract, zap_token):
-    tokenURI = "https://test1"
-    metadataURI = "http://test1"
+def test_media_set_bid(w3, wallets, zap_media, zap_market, zap_token):
+    tokenURI = "https://test"
+    metadataURI = "http://test"
 
     mediaData = {
         "tokenURI": tokenURI,
         "metadataURI": metadataURI,
-        "contentHash": Web3.toBytes(text=tokenURI),
-        "metadataHash": Web3.toBytes(text=metadataURI)
+        "contentHash": w3.toBytes(text=tokenURI),
+        "metadataHash": w3.toBytes(text=metadataURI)
     }
 
     bidShares = {
@@ -398,18 +398,17 @@ def test_media_set_bid(w3, wallets, zap_media, zap_market, zap_token_contract, z
         "collabShares": []
     }
 
-    # nonce @ 0 ! 0
     tx_hash = zap_media.mint(mediaData, bidShares)
     receipt = w3.eth.wait_for_transaction_receipt(tx_hash, 180)
     assert receipt is not None
-    print("Mint: ", receipt)
+
 
     zap_media.privateKey = wallets[1].key.hex()
-    bidder = wallets[1].address
-
+    zap_media.publicAddress = wallets[1].address
+    bidder = zap_media.publicAddress
     bid = zap_media.makeBid(
         100,
-        zap_token_contract.address,
+        "0x5FbDB2315678afecb367f032d93F642f64180aa3",
         bidder,
         wallets[0].address,
         10
@@ -418,25 +417,29 @@ def test_media_set_bid(w3, wallets, zap_media, zap_market, zap_token_contract, z
     token_id = zap_media.totalSupply() - 1
 
     current_bid = zap_market.bidForTokenBidder(zap_media.address, token_id, bidder)
-    print(current_bid)
     assert current_bid[0] == 0
     assert current_bid[1] == '0x0000000000000000000000000000000000000000'
     assert current_bid[2] == '0x0000000000000000000000000000000000000000'
     assert current_bid[3] == '0x0000000000000000000000000000000000000000'
     assert current_bid[4][0] == 0
 
-    # nonce @ 1 ! 1
-    tx = zap_token.approve(zap_market.address, 100000000000000000000)
+    tx = zap_token.transfer(wallets[1].address, 100)
+    receipt = w3.eth.wait_for_transaction_receipt(tx, 180)
+
+    zap_token.privateKey = wallets[1].key.hex()
+    zap_token.publicAddress = wallets[1].address
+    tx = zap_token.approve(zap_market.address, 100)
     receipt = w3.eth.wait_for_transaction_receipt(tx, 180)
     assert receipt is not None
-    print("Approve: ", receipt)
 
-    # nonce @ 2 ! 0
     tx = zap_media.setBid(token_id, bid)
     receipt = w3.eth.wait_for_transaction_receipt(tx, 180)
     assert receipt is not None
-    print("Set BID: ",receipt)
 
     new_bid = zap_market.bidForTokenBidder(zap_media.address, token_id, bidder)
-    print(new_bid)
     assert new_bid[0] == bid["amount"]
+    assert new_bid[1] == bid["currency"]
+    assert new_bid[2] == bid["bidder"]
+    assert new_bid[3] == bid["recipient"]
+    assert new_bid[4][0] == bid["sellOnShare"]["value"]
+
