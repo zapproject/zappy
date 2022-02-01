@@ -18,6 +18,7 @@ from unittest.mock import patch
 import tests.nft.test_utilities as utils
 from src.nft.ZapMedia import ZapMedia
 from src.nft.ZapMarket import ZapMarket
+from src.nft.ZapToken import ZapTokenBSC
 
 import pprint
 pp = pprint.PrettyPrinter(indent=4)
@@ -267,24 +268,11 @@ def zap_media(mock_json, w3, zap_media_proxy_contract):
 
     zap_media = ZapMedia(str(w3.eth.chain_id))
     zap_media.privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+    zap_media.publicAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
     zap_media.w3 = w3
     zap_media.contract = w3.eth.contract(address=zap_media_address, abi=abi)
     return zap_media
     
-# @pytest.fixture
-# @patch('src.nft.base_contract.json', autospec=True)
-# def zap_market(mock_json, w3, zap_market_contract):
-#     artifact = utils.get_artifact('zapmarket')
-#     artifact[str(w3.eth.chain_id)] = {'address': zap_market_contract.address}
-#     mock_json.load.return_value = artifact
-
-#     abi = artifact['abi']
-
-#     zap_market = ZapMarket(str(w3.eth.chain_id))
-#     zap_market.privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
-#     zap_market.w3 = w3
-#     zap_market.contract = w3.eth.contract(address=zap_market_contract.address, abi=abi)
-#     return zap_market
 
 @pytest.fixture
 @patch('src.nft.base_contract.json', autospec=True)
@@ -297,9 +285,28 @@ def zap_market(mock_json, w3, zap_market_contract):
     abi = artifact['abi']
 
     zap_market = ZapMarket(str(w3.eth.chain_id))
+    zap_market.privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+    zap_market.publicAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
     zap_market.w3 = w3
     zap_market.contract = w3.eth.contract(address=zap_market_address, abi=abi)
     return zap_market
+
+@pytest.fixture
+@patch('src.nft.base_contract.json', autospec=True)
+def zap_token(mock_json, w3, zap_token_contract):
+    zap_token_address = zap_token_contract.address
+    artifact = utils.get_artifact('zaptokenbsc')
+    artifact[str(w3.eth.chain_id)] = {'address': zap_token_address}
+    mock_json.load.return_value = artifact
+
+    abi = artifact['abi']
+
+    zap_token = ZapTokenBSC(str(w3.eth.chain_id))
+    zap_token.privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+    zap_token.publicAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+    zap_token.w3 = w3
+    zap_token.contract = w3.eth.contract(address=zap_token_address, abi=abi)
+    return zap_token
 
 def test_initial_connection(zap_media):
     assert zap_media.w3.isConnected()
@@ -307,7 +314,7 @@ def test_initial_connection(zap_media):
 def test_chainId_connection(zap_media):
     assert zap_media.chainId == "61"
 
-def test_zap_media_address(zap_media, zap_media_proxy_contraczap_markett):
+def test_zap_media_address(zap_media, zap_media_proxy_contract):
     assert zap_media.address == zap_media_proxy_contract.address
 
 def test_name(zap_media):
@@ -318,9 +325,6 @@ def test_symbol(zap_media):
 
 def test_total_supply(zap_media):
     assert zap_media.totalSupply() == 0
-
-def test_market_medias(zap_market, wallets):
-    assert zap_market.mediaContracts(wallets[0].address, 0)
 
 def test_media_mint(w3, wallets, zap_media):
     # assert w3.eth.accounts[1] == utils.wallets[0].address
@@ -376,7 +380,7 @@ def test_media_mint2(w3, wallets, zap_media):
     after_mint = zap_media.totalSupply()
     assert after_mint == before_mint + 1
 
-def test_media_set_bid(w3, wallets, zap_media, zap_market, zap_token_contract):
+def test_media_set_bid(w3, wallets, zap_media, zap_market, zap_token_contract, zap_token):
     tokenURI = "https://test1"
     metadataURI = "http://test1"
 
@@ -394,8 +398,11 @@ def test_media_set_bid(w3, wallets, zap_media, zap_market, zap_token_contract):
         "collabShares": []
     }
 
+    # nonce @ 0 ! 0
     tx_hash = zap_media.mint(mediaData, bidShares)
-    w3.eth.wait_for_transaction_receipt(tx_hash, 180)
+    receipt = w3.eth.wait_for_transaction_receipt(tx_hash, 180)
+    assert receipt is not None
+    print("Mint: ", receipt)
 
     zap_media.privateKey = wallets[1].key.hex()
     bidder = wallets[1].address
@@ -407,7 +414,7 @@ def test_media_set_bid(w3, wallets, zap_media, zap_market, zap_token_contract):
         wallets[0].address,
         10
     )
-    print("total supply: ", dir(zap_market))
+    
     token_id = zap_media.totalSupply() - 1
 
     current_bid = zap_market.bidForTokenBidder(zap_media.address, token_id, bidder)
@@ -418,8 +425,17 @@ def test_media_set_bid(w3, wallets, zap_media, zap_market, zap_token_contract):
     assert current_bid[3] == '0x0000000000000000000000000000000000000000'
     assert current_bid[4][0] == 0
 
+    # nonce @ 1 ! 1
+    tx = zap_token.approve(zap_market.address, 100000000000000000000)
+    receipt = w3.eth.wait_for_transaction_receipt(tx, 180)
+    assert receipt is not None
+    print("Approve: ", receipt)
+
+    # nonce @ 2 ! 0
     tx = zap_media.setBid(token_id, bid)
-    w3.eth.wait_for_transaction_receipt(tx, 180)
+    receipt = w3.eth.wait_for_transaction_receipt(tx, 180)
+    assert receipt is not None
+    print("Set BID: ",receipt)
 
     new_bid = zap_market.bidForTokenBidder(zap_media.address, token_id, bidder)
     print(new_bid)

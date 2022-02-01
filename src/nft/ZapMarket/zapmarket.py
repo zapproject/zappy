@@ -31,7 +31,7 @@ class ZapMarket(BaseContract):
         return self.contract.functions.currentAskForToken(mediaContractAddress, tokenId)
             
     def getOwner(self, ):
-        return self.contract.functions.getOwner()
+        return self.contract.functions.getOwner().call()
             
     def initTransferOwnership(self, newOwner):
         return self.contract.functions.initTransferOwnership(newOwner)
@@ -46,7 +46,7 @@ class ZapMarket(BaseContract):
         return self.contract.functions.isConfigured()
             
     def isRegistered(self, mediaContractAddress):
-        return self.contract.functions.isRegistered(mediaContractAddress)
+        return self.contract.functions.isRegistered(mediaContractAddress).call()
             
     def isValidBid(self, mediaContractAddress, tokenId, bidAmount):
         return self.contract.functions.isValidBid(mediaContractAddress, tokenId, bidAmount).call()
