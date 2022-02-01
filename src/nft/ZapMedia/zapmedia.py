@@ -112,7 +112,7 @@ class ZapMedia(BaseContract):
         return self.contract.functions.setApprovalForAll(operator, approved)
             
     def setAsk(self, tokenId, ask):
-        return self.contract.functions.setAsk(tokenId, ask)
+        return self.sendTransaction(self.contract.functions.setAsk(tokenId, ask))
             
     def setBid(self, tokenId, bid):
         return self.sendTransaction(self.contract.functions.setBid(tokenId, bid))

@@ -28,7 +28,7 @@ class ZapMarket(BaseContract):
         return self.contract.functions.configure(deployer, mediaContract, name, symbol)
             
     def currentAskForToken(self, mediaContractAddress, tokenId):
-        return self.contract.functions.currentAskForToken(mediaContractAddress, tokenId)
+        return self.contract.functions.currentAskForToken(mediaContractAddress, tokenId).call()
             
     def getOwner(self, ):
         return self.contract.functions.getOwner().call()
