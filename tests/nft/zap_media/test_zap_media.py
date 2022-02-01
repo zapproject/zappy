@@ -47,6 +47,8 @@ def test_media_mint():
 
     assert events[0]["args"]["token"] == 0
 
+    assert events[0]["args"]["mediaContract"] == zap_media.address
+
     assert zap_media.tokenByIndex(0) == 0
 
     assert zap_media.totalSupply() == 1
@@ -73,13 +75,12 @@ def test_media_set_bid():
     receipt = zap_media.w3.eth.wait_for_transaction_receipt(tx_hash, 180)
     assert receipt is not None
 
-
     zap_media.privateKey = wallets[1].key.hex()
     zap_media.publicAddress = wallets[1].address
     bidder = zap_media.publicAddress
     bid = zap_media.makeBid(
         100,
-        "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+        zap_token.address,
         bidder,
         wallets[0].address,
         10
@@ -134,6 +135,79 @@ def test_media_set_bid():
     assert new_bid[3] == bid["recipient"]
     assert new_bid[4][0] == bid["sellOnShare"]["value"]
 
+    ### For events that return a struct, current open issue https://github.com/ethereum/web3.py/pull/2211
+    #skipping event test until resolved
+    # # filter for mint event
+    # event_filter = zap_market.contract.events.BidCreated.createFilter(fromBlock="earliest")
+    # # list of minted events ranged from ealiest to latest
+    # events = event_filter.get_all_entries()
+
+    # events = events[0]["args"]
+
+    # restore wallet to first account
+    zap_token.privateKey = wallets[0].key.hex()
+    zap_token.publicAddress = wallets[0].address
+
+    zap_media.privateKey = wallets[0].key.hex()
+    zap_media.publicAddress = wallets[0].address
+
+def test_media_set_ask():
+    tokenURI = "https://test2"
+    metadataURI = "http://test2"
+
+    mediaData = {
+        "tokenURI": tokenURI,
+        "metadataURI": metadataURI,
+        "contentHash": zap_media.w3.toBytes(text=tokenURI),
+        "metadataHash": zap_media.w3.toBytes(text=metadataURI)
+    }
+
+    bidShares = {
+        "creator" : {"value":90000000000000000000},
+        "owner" : {"value":5000000000000000000},
+        "collaborators": [],
+        "collabShares": []
+    }
+
+    tx_hash = zap_media.mint(mediaData, bidShares)
+    receipt = zap_media.w3.eth.wait_for_transaction_receipt(tx_hash, 180)
+    assert receipt is not None
+
+    token_id = zap_media.totalSupply() - 1
+
+    ask = zap_media.makeAsk(
+        100,
+        zap_token.address
+    )
+
+    tx = zap_media.setAsk(token_id, ask)
+    receipt = zap_media.w3.eth.wait_for_transaction_receipt(tx_hash, 180)
+    assert receipt is not None
+
+    current_ask = zap_market.currentAskForToken(zap_media.address, token_id)
+
+    assert current_ask[0] == ask["amount"]
+
+    assert current_ask[1] == ask["currency"]
+
+    #### For events that return a struct, there exists an open issue regarding this https://github.com/ethereum/web3.py/pull/2211
+    ## skipping event test until resolved
+    # # filter for mint event
+    # event_filter = zap_market.contract.events.AskCreated.createFilter(fromBlock="earliest")
+    # # list of minted events ranged from ealiest to latest
+    # events = event_filter.get_all_entries()
+    # print(events)
+
+    # events = events[0]["args"]
+
+    # assert events["mediaContract"] == zap_media.address
+
+    # assert events["tokenId"] == token_id
+
+    # assert events["ask"]["amount"] == ask["amount"]
+
+    # assert events["ask"]["currency"] == ask["currency"]
 
 # test_media_mint()
-test_media_set_bid()
+# test_media_set_bid()
+test_media_set_ask()
