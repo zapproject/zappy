@@ -76,7 +76,7 @@ class BaseContract:
             'chainId': int(self.chainId),
             'gas': 1400000,
             'gasPrice': self.w3.eth.gas_price,
-            'nonce': nonce,
+            'nonce': 0,
         })
 
     # Bundles sending transaction

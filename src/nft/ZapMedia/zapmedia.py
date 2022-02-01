@@ -116,7 +116,8 @@ class ZapMedia(BaseContract):
         return self.contract.functions.setAsk(tokenId, ask)
             
     def setBid(self, tokenId, bid):
-        return self.contract.functions.setBid(tokenId, bid)
+        tx = self.buildTransaction(self.contract.functions.setBid(tokenId, bid))
+        return self.sendTransaction(tx, self.privateKey)
             
     def supportsInterface(self, interfaceId):
         return self.contract.functions.supportsInterface(interfaceId)
@@ -137,7 +138,7 @@ class ZapMedia(BaseContract):
         return self.contract.functions.tokenURI(tokenId)
             
     def totalSupply(self, ):
-        return self.contract.functions.totalSupply()
+        return self.contract.functions.totalSupply().call()
             
     def transferFrom(self, _from, _to, tokenId):
         return self.contract.functions.transferFrom(_from, _to, tokenId)
