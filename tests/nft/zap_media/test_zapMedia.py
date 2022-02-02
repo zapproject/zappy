@@ -362,6 +362,9 @@ def test_media_mint(w3, wallets, zap_media):
     metadataURI = zap_media.getTokenMetadataURIs(before_mint)
     assert metadataURI == mediaData["metadataURI"]
 
+    metadataHash = zap_media.getTokenMetadataHashes(before_mint)
+    assert metadataHash == mediaData["metadataHash"].ljust(32, b'\x00')
+
     contentURI = zap_media.tokenURI(before_mint)
     assert contentURI == mediaData["tokenURI"]
 
@@ -404,6 +407,9 @@ def test_media_mint2(w3, wallets, zap_media):
 
     metadataURI = zap_media.getTokenMetadataURIs(before_mint)
     assert metadataURI == mediaData["metadataURI"]
+
+    metadataHash = zap_media.getTokenMetadataHashes(before_mint)
+    assert metadataHash == mediaData["metadataHash"].ljust(32, b'\x00')
 
     contentURI = zap_media.tokenURI(before_mint)
     assert contentURI == mediaData["tokenURI"]

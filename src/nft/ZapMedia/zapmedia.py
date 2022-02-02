@@ -58,7 +58,7 @@ class ZapMedia(BaseContract):
         return self.contract.functions.getTokenCreators(_tokenId)
             
     def getTokenMetadataHashes(self, _tokenId):
-        return self.contract.functions.getTokenMetadataHashes(_tokenId)
+        return self.contract.functions.getTokenMetadataHashes(_tokenId).call()
             
     def getTokenMetadataURIs(self, _tokenId):
         return self.contract.functions.getTokenMetadataURIs(_tokenId).call()
