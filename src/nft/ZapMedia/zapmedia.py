@@ -85,7 +85,7 @@ class ZapMedia(BaseContract):
         return self.contract.functions.name().call()
             
     def ownerOf(self, tokenId):
-        return self.contract.functions.ownerOf(tokenId)
+        return self.contract.functions.ownerOf(tokenId).call()
             
     def permit(self, spender, tokenId, sig):
         return self.contract.functions.permit(spender, tokenId, sig)
