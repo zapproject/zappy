@@ -133,7 +133,7 @@ class ZapMedia(BaseContract):
         return self.contract.functions.tokenOfOwnerByIndex(owner, index)
             
     def tokenURI(self, tokenId):
-        return self.contract.functions.tokenURI(tokenId)
+        return self.contract.functions.tokenURI(tokenId).call()
             
     def totalSupply(self, ):
         return self.contract.functions.totalSupply().call()
