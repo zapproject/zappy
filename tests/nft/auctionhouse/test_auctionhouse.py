@@ -349,3 +349,39 @@ def test_chainId_connection(auctionhouse):
 def test_auctionhouse_address(auctionhouse, auction_house_contract):
     assert auctionhouse.address == auction_house_contract.address
 
+def test_create_auction(auctionhouse:AuctionHouse, zap_media:ZapMedia, mint_token0):
+    assert auctionhouse.w3.isConnected()
+    assert zap_media.w3.isConnected()
+
+    duration = 60 * 60 * 24 # sec * min * hours = number of seconds in 24 hours
+    reservePrice = 5e18 # 5
+
+    zap_media.approve(auctionhouse.address, 0);
+    approved_address = zap_media.getApproved(0)
+    assert approved_address == auctionhouse.address
+
+
+    # await auctionHouse.createAuction(
+    # 0,
+    # mediaAddress,
+    # duration,
+    # reservePrice,
+    # "0x0000000000000000000000000000000000000000",
+    # 0,
+    # token.address
+    # );
+
+    # const createdAuction = await auctionHouse.fetchAuction(0);
+
+    # expect(parseInt(createdAuction.token.tokenId.toString())).to.equal(0);
+
+    # expect(createdAuction.token.mediaContract).to.equal(mediaAddress);
+    # expect(createdAuction.approved).to.be.true;
+    # expect(parseInt(createdAuction.duration._hex)).to.equal(60 * 60 * 24);
+    # expect(createdAuction.curatorFeePercentage).to.equal(0);
+    # expect(parseInt(createdAuction.reservePrice._hex)).to.equal(
+    # parseInt(reservePrice._hex)
+    # );
+    # expect(createdAuction.tokenOwner).to.equal(await signer.getAddress());
+    # expect(createdAuction.curator).to.equal(ethers.constants.AddressZero);
+    # expect(createdAuction.auctionCurrency).to.equal(token.address);

@@ -700,7 +700,7 @@ def test_updateTokenURI(zap_media: ZapMedia, mint_token0):
     assert new_tokenURI_of_0 == newURI
 
 def test_approve(zap_media:ZapMedia, wallets, mint_token0):
-    #     // Return the address approved for token id 0 before approval
+    # Return the address approved for token id 0 before approval
     preApprovedAddr = zap_media.getApproved(0)
     
     # Expect the address to equal a zero address
