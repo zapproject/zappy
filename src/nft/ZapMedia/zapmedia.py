@@ -130,7 +130,7 @@ class ZapMedia(BaseContract):
         return self.contract.functions.tokenMetadataURI(tokenId)
             
     def tokenOfOwnerByIndex(self, owner, index):
-        return self.contract.functions.tokenOfOwnerByIndex(owner, index)
+        return self.contract.functions.tokenOfOwnerByIndex(owner, index).call()
             
     def tokenURI(self, tokenId):
         return self.contract.functions.tokenURI(tokenId).call()
