@@ -516,7 +516,7 @@ def test_media_set_bid(w3, wallets, zap_media, zap_market, zap_token):
         100,
         zap_token.address,
         bidder,
-        wallets[0],
+        wallets[1],
         10
     )
     
@@ -549,6 +549,72 @@ def test_media_set_bid(w3, wallets, zap_media, zap_market, zap_token):
     assert new_bid[2] == bid["bidder"]
     assert new_bid[3] == bid["recipient"]
     assert new_bid[4][0] == bid["sellOnShare"]["value"]
+
+
+def test_media_remove_bid(w3, wallets, zap_media, zap_market, zap_token):
+    tokenURI = "https://test"
+    metadataURI = "http://test"
+
+    mediaData = {
+        "tokenURI": tokenURI,
+        "metadataURI": metadataURI,
+        "contentHash": w3.toBytes(text=tokenURI),
+        "metadataHash": w3.toBytes(text=metadataURI)
+    }
+
+    bidShares = {
+        "creator" : {"value":90000000000000000000},
+        "owner" : {"value":5000000000000000000},
+        "collaborators": [],
+        "collabShares": []
+    }
+
+    tx_hash = zap_media.mint(mediaData, bidShares)
+    receipt = w3.eth.wait_for_transaction_receipt(tx_hash, 180)
+    assert receipt is not None
+
+    zap_media.privateKey = utils.hh_private_keys[1]
+    # zap_media.public_address
+    bidder = wallets[1]
+
+    # zap_media.privateKey = wallets[1].key.hex()
+    zap_media.publicAddress = wallets[1]
+    # bidder = zap_media.publicAddress
+    bid = zap_media.makeBid(
+        100,
+        zap_token.address,
+        bidder,
+        wallets[1],
+        10
+    )
+    
+    token_id = zap_media.totalSupply() - 1
+
+    tx = zap_token.transfer(wallets[1], 100)
+    receipt = w3.eth.wait_for_transaction_receipt(tx, 180)
+
+    zap_token.privateKey = utils.hh_private_keys[1]
+    zap_token.publicAddress = wallets[1]
+
+    tx = zap_token.approve(zap_market.address, 100)
+    receipt = w3.eth.wait_for_transaction_receipt(tx, 180)
+    assert receipt is not None
+
+    tx = zap_media.setBid(token_id, bid)
+    receipt = w3.eth.wait_for_transaction_receipt(tx, 180)
+    assert receipt is not None
+
+    tx = zap_media.removeBid(token_id)
+    receipt = w3.eth.wait_for_transaction_receipt(tx, 180)
+    assert receipt is not None
+
+    current_bid = zap_market.bidForTokenBidder(zap_media.address, token_id, bidder)
+    assert current_bid[0] == 0
+    assert current_bid[1] == '0x0000000000000000000000000000000000000000'
+    assert current_bid[2] == '0x0000000000000000000000000000000000000000'
+    assert current_bid[3] == '0x0000000000000000000000000000000000000000'
+    assert current_bid[4][0] == 0
+
 
 def test_media_set_ask(w3, wallets, zap_media, zap_market, zap_token):
     tokenURI = "https://test2"
@@ -791,7 +857,7 @@ def test_approve(zap_media:ZapMedia, wallets, mint_token0):
     assert preApprovedAddr == web3.constants.ADDRESS_ZERO
     
     # The owner (signers[0]) approves signerOne for token id 0
-    zap_media.approve(wallets[1], 0);
+    zap_media.approve(wallets[1], 0)
 
     # Returns the address approved for token id  0 after approval
     postApprovedStatus = zap_media.getApproved(0)
