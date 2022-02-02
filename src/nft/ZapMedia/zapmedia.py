@@ -61,7 +61,7 @@ class ZapMedia(BaseContract):
         return self.contract.functions.getTokenMetadataHashes(_tokenId)
             
     def getTokenMetadataURIs(self, _tokenId):
-        return self.contract.functions.getTokenMetadataURIs(_tokenId)
+        return self.contract.functions.getTokenMetadataURIs(_tokenId).call()
             
     def initTransferOwnership(self, newOwner):
         return self.contract.functions.initTransferOwnership(newOwner)

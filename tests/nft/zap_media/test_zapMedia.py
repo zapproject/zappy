@@ -359,6 +359,9 @@ def test_media_mint(w3, wallets, zap_media):
     after_balance = zap_media.balanceOf(zap_media.publicAddress)
     assert after_balance == before_balance + 1
 
+    metadataURI = zap_media.getTokenMetadataURIs(before_mint)
+    assert metadataURI == Web3.toText(mediaData["metadataHash"])
+
 
 def test_media_mint2(w3, wallets, zap_media):
     # assert w3.eth.accounts[1] == utils.wallets[0].address
@@ -392,6 +395,9 @@ def test_media_mint2(w3, wallets, zap_media):
 
     after_balance = zap_media.balanceOf(zap_media.publicAddress)
     assert after_balance == before_balance + 1
+
+    metadataURI = zap_media.getTokenMetadataURIs(before_mint)
+    assert metadataURI == Web3.toText(mediaData["metadataHash"])
 
 
 def test_media_set_bid(w3, wallets, zap_media, zap_market, zap_token):
