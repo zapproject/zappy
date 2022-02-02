@@ -9,143 +9,95 @@ class ZapMarket(BaseContract):
         except Exception as e:
             print(e)
         
-    def acceptBid(self, tokenId, bid):
-        return self.contract.functions.acceptBid(tokenId, bid)
+    def acceptBid(self, mediaContractAddress, tokenId, expectedBid):
+        return self.contract.functions.acceptBid(mediaContractAddress, tokenId, expectedBid)
             
     def appointedOwner(self, ):
         return self.contract.functions.appointedOwner()
             
-    def approve(self, _to, tokenId):
-        return self.contract.functions.approve(_to, tokenId)
+    def bidForTokenBidder(self, mediaContractAddress, tokenId, bidder):
+        return self.contract.functions.bidForTokenBidder(mediaContractAddress, tokenId, bidder).call()
             
-    def approveToMint(self, toApprove):
-        return self.contract.functions.approveToMint(toApprove)
-            
-    def auctionTransfer(self, tokenId, recipient):
-        return self.contract.functions.auctionTransfer(tokenId, recipient)
-            
-    def balanceOf(self, owner):
-        return self.contract.functions.balanceOf(owner)
-            
-    def burn(self, tokenId):
-        return self.contract.functions.burn(tokenId)
+    def bidSharesForToken(self, mediaContractAddress, tokenId):
+        return self.contract.functions.bidSharesForToken(mediaContractAddress, tokenId)
             
     def claimTransferOwnership(self, ):
         return self.contract.functions.claimTransferOwnership()
             
-    def contractURI(self, ):
-        return self.contract.functions.contractURI()
+    def configure(self, deployer, mediaContract, name, symbol):
+        return self.contract.functions.configure(deployer, mediaContract, name, symbol)
             
-    def getApproved(self, tokenId):
-        return self.contract.functions.getApproved(tokenId)
+    def currentAskForToken(self, mediaContractAddress, tokenId):
+        return self.contract.functions.currentAskForToken(mediaContractAddress, tokenId).call()
             
     def getOwner(self, ):
-        return self.contract.functions.getOwner()
-            
-    def getPermitNonce(self, _user, _tokenId):
-        return self.contract.functions.getPermitNonce(_user, _tokenId)
-            
-    def getPreviousTokenOwners(self, _tokenId):
-        return self.contract.functions.getPreviousTokenOwners(_tokenId)
-            
-    def getSigNonces(self, _minter):
-        return self.contract.functions.getSigNonces(_minter)
-            
-    def getTokenContentHashes(self, _tokenId):
-        return self.contract.functions.getTokenContentHashes(_tokenId)
-            
-    def getTokenCreators(self, _tokenId):
-        return self.contract.functions.getTokenCreators(_tokenId)
-            
-    def getTokenMetadataHashes(self, _tokenId):
-        return self.contract.functions.getTokenMetadataHashes(_tokenId)
-            
-    def getTokenMetadataURIs(self, _tokenId):
-        return self.contract.functions.getTokenMetadataURIs(_tokenId)
+        return self.contract.functions.getOwner().call()
             
     def initTransferOwnership(self, newOwner):
         return self.contract.functions.initTransferOwnership(newOwner)
             
-    def initialize(self, name, symbol, marketContractAddr, permissive, collectionURI):
-        return self.contract.functions.initialize(name, symbol, marketContractAddr, permissive, collectionURI)
+    def initialize(self, ):
+        return self.contract.functions.initialize()
             
-    def isApprovedForAll(self, owner, operator):
-        return self.contract.functions.isApprovedForAll(owner, operator)
+    def initializeMarket(self, _platformAddress):
+        return self.contract.functions.initializeMarket(_platformAddress)
             
-    def marketContract(self, ):
-        return self.contract.functions.marketContract()
+    def isConfigured(self, ):
+        return self.contract.functions.isConfigured()
             
-    def mint(self, data, bidShares):
-        return self.contract.functions.mint(data, bidShares)
+    def isRegistered(self, mediaContractAddress):
+        return self.contract.functions.isRegistered(mediaContractAddress).call()
             
-    def mintWithSig(self, creator, data, bidShares, sig):
-        return self.contract.functions.mintWithSig(creator, data, bidShares, sig)
+    def isValidBid(self, mediaContractAddress, tokenId, bidAmount):
+        return self.contract.functions.isValidBid(mediaContractAddress, tokenId, bidAmount).call()
             
-    def name(self, ):
-        return self.contract.functions.name()
+    def isValidBidShares(self, bidShares):
+        return self.contract.functions.isValidBidShares(bidShares)
             
-    def ownerOf(self, tokenId):
-        return self.contract.functions.ownerOf(tokenId)
+    def mediaContracts(self, deployerAddress, index):
+        return self.contract.functions.mediaContracts(deployerAddress, index).call()
             
-    def permit(self, spender, tokenId, sig):
-        return self.contract.functions.permit(spender, tokenId, sig)
+    def mintOrBurn(self, isMint, tokenId, mediaContract):
+        return self.contract.functions.mintOrBurn(isMint, tokenId, mediaContract)
+            
+    def registerMedia(self, mediaContract):
+        return self.contract.functions.registerMedia(mediaContract)
+            
+    def registeredMedias(self, ):
+        return self.contract.functions.registeredMedias()
             
     def removeAsk(self, tokenId):
         return self.contract.functions.removeAsk(tokenId)
             
-    def removeBid(self, tokenId):
-        return self.contract.functions.removeBid(tokenId)
+    def removeBid(self, tokenId, bidder):
+        return self.contract.functions.removeBid(tokenId, bidder)
             
-    def revokeApproval(self, tokenId):
-        return self.contract.functions.revokeApproval(tokenId)
+    def revokeRegistration(self, mediaContract):
+        return self.contract.functions.revokeRegistration(mediaContract)
             
     def revokeTransferOwnership(self, ):
         return self.contract.functions.revokeTransferOwnership()
             
-    def safeTransferFrom(self, _from, _to, tokenId):
-        return self.contract.functions.safeTransferFrom(_from, _to, tokenId)
-            
-    def safeTransferFrom(self, _from, _to, tokenId, _data):
-        return self.contract.functions.safeTransferFrom(_from, _to, tokenId, _data)
-            
-    def setApprovalForAll(self, operator, approved):
-        return self.contract.functions.setApprovalForAll(operator, approved)
-            
     def setAsk(self, tokenId, ask):
         return self.contract.functions.setAsk(tokenId, ask)
             
-    def setBid(self, tokenId, bid):
-        return self.contract.functions.setBid(tokenId, bid)
+    def setBid(self, tokenId, bid, spender):
+        return self.contract.functions.setBid(tokenId, bid, spender)
             
-    def supportsInterface(self, interfaceId):
-        return self.contract.functions.supportsInterface(interfaceId)
+    def setBidShares(self, tokenId, bidShares):
+        return self.contract.functions.setBidShares(tokenId, bidShares)
             
-    def symbol(self, ):
-        return self.contract.functions.symbol()
+    def setFee(self, newFee):
+        return self.contract.functions.setFee(newFee)
             
-    def tokenByIndex(self, index):
-        return self.contract.functions.tokenByIndex(index)
+    def setMediaFactory(self, _mediaFactory):
+        return self.contract.functions.setMediaFactory(_mediaFactory)
             
-    def tokenMetadataURI(self, tokenId):
-        return self.contract.functions.tokenMetadataURI(tokenId)
+    def splitShare(self, sharePercentage, amount):
+        return self.contract.functions.splitShare(sharePercentage, amount)
             
-    def tokenOfOwnerByIndex(self, owner, index):
-        return self.contract.functions.tokenOfOwnerByIndex(owner, index)
-            
-    def tokenURI(self, tokenId):
-        return self.contract.functions.tokenURI(tokenId)
-            
-    def totalSupply(self, ):
-        return self.contract.functions.totalSupply()
-            
-    def transferFrom(self, _from, _to, tokenId):
-        return self.contract.functions.transferFrom(_from, _to, tokenId)
-            
-    def updateTokenMetadataURI(self, tokenId, metadataURI):
-        return self.contract.functions.updateTokenMetadataURI(tokenId, metadataURI)
-            
-    def updateTokenURI(self, tokenId, tokenURILocal):
-        return self.contract.functions.updateTokenURI(tokenId, tokenURILocal)
+    def viewFee(self, ):
+        return self.contract.functions.viewFee()
             
     ## Helper function that builds a dict representing IMedia.MediaData
     def makeMediaData(self, tokenURI, metadataURI, contentHash, metadataHash):
