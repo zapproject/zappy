@@ -568,6 +568,19 @@ def test_media_set_ask(w3, wallets, zap_media, zap_market, zap_token):
 
     assert current_ask[1] == ask["currency"]
 
+    # overwrite current ask
+    new_ask = zap_media.makeAsk(200, zap_token.address)
+
+    tx = zap_media.setAsk(token_id, new_ask)
+    receipt = w3.eth.wait_for_transaction_receipt(tx_hash, 180)
+    assert receipt is not None
+
+    current_ask = zap_market.currentAskForToken(zap_media.address, token_id)
+
+    assert current_ask[0] == new_ask["amount"]
+
+    assert current_ask[1] == new_ask["currency"]
+
 
 def test_media_update_metadata_uri(w3, wallets, zap_media, zap_market):
     tokenURI = "Test CarZ"
