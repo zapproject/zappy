@@ -367,7 +367,7 @@ def test_market_owner(zap_market, wallets, w3):
 def test_market_medias(zap_media, zap_market, wallets):
     assert zap_market.mediaContracts(wallets[0], 0)
 
-def test_media_mint(w3, wallets, zap_media):
+def test_media_mint(w3, wallets, zap_media, zap_market):
     # assert w3.eth.accounts[1] == utils.wallets[0].address
     before_mint = zap_media.totalSupply()
     assert before_mint == 0
@@ -418,8 +418,14 @@ def test_media_mint(w3, wallets, zap_media):
     token = zap_media.tokenOfOwnerByIndex(zap_media.publicAddress, 0)
     assert token == before_mint
 
+    current_bid_shares = zap_market.bidSharesForToken(zap_media.address, before_mint)
+    assert current_bid_shares[0][0] == bidShares["creator"]["value"]
+    assert current_bid_shares[1][0] == bidShares["owner"]["value"]
+    assert current_bid_shares[2] == bidShares["collaborators"]
+    assert current_bid_shares[3] == bidShares["collabShares"]
 
-def test_media_mint2(w3, wallets, zap_media):
+
+def test_media_mint2(w3, wallets, zap_media, zap_market):
     # assert w3.eth.accounts[1] == utils.wallets[0].address
     before_mint = zap_media.totalSupply()
     assert before_mint == 0
@@ -470,6 +476,11 @@ def test_media_mint2(w3, wallets, zap_media):
     token = zap_media.tokenOfOwnerByIndex(zap_media.publicAddress, 0)
     assert token == before_mint
 
+    current_bid_shares = zap_market.bidSharesForToken(zap_media.address, before_mint)
+    assert current_bid_shares[0][0] == bidShares["creator"]["value"]
+    assert current_bid_shares[1][0] == bidShares["owner"]["value"]
+    assert current_bid_shares[2] == bidShares["collaborators"]
+    assert current_bid_shares[3] == bidShares["collabShares"]
 
 
 def test_media_set_bid(w3, wallets, zap_media, zap_market, zap_token):
@@ -568,7 +579,7 @@ def test_media_set_ask(w3, wallets, zap_media, zap_market, zap_token):
         zap_token.address
     )
 
-    tx = zap_media.setAsk(token_id, ask)
+    tx_hash = zap_media.setAsk(token_id, ask)
     receipt = w3.eth.wait_for_transaction_receipt(tx_hash, 180)
     assert receipt is not None
 
@@ -578,6 +589,103 @@ def test_media_set_ask(w3, wallets, zap_media, zap_market, zap_token):
 
     assert current_ask[1] == ask["currency"]
 
+    # overwrite current ask
+    new_ask = zap_media.makeAsk(200, zap_token.address)
+
+    tx_hash = zap_media.setAsk(token_id, new_ask)
+    receipt = w3.eth.wait_for_transaction_receipt(tx_hash, 180)
+    assert receipt is not None
+
+    current_ask = zap_market.currentAskForToken(zap_media.address, token_id)
+
+    assert current_ask[0] == new_ask["amount"]
+
+    assert current_ask[1] == new_ask["currency"]
+
+
+def test_media_remove_ask(w3, wallets, zap_media, zap_market, zap_token):
+    tokenURI = "https://test2"
+    metadataURI = "http://test2"
+
+    mediaData = {
+        "tokenURI": tokenURI,
+        "metadataURI": metadataURI,
+        "contentHash": w3.toBytes(text=tokenURI),
+        "metadataHash": w3.toBytes(text=metadataURI)
+    }
+
+    bidShares = {
+        "creator" : {"value":90000000000000000000},
+        "owner" : {"value":5000000000000000000},
+        "collaborators": [],
+        "collabShares": []
+    }
+
+    tx_hash = zap_media.mint(mediaData, bidShares)
+    receipt = w3.eth.wait_for_transaction_receipt(tx_hash, 180)
+    assert receipt is not None
+
+    token_id = zap_media.totalSupply() - 1
+
+    ask = zap_media.makeAsk(
+        100,
+        zap_token.address
+    )
+
+    tx_hash = zap_media.setAsk(token_id, ask)
+    receipt = w3.eth.wait_for_transaction_receipt(tx_hash, 180)
+    assert receipt is not None
+
+    tx_hash = zap_media.removeAsk(token_id)
+    receipt = w3.eth.wait_for_transaction_receipt(tx_hash, 180)
+    assert receipt is not None
+
+    current_ask = zap_market.currentAskForToken(zap_media.address, token_id)
+    assert current_ask[0] == 0
+    assert current_ask[1] == "0x0000000000000000000000000000000000000000"
+    
+    # overwrite current ask
+    new_ask = zap_media.makeAsk(200, zap_token.address)
+
+    tx_hash = zap_media.setAsk(token_id, new_ask)
+    receipt = w3.eth.wait_for_transaction_receipt(tx_hash, 180)
+    assert receipt is not None
+
+    current_ask = zap_market.currentAskForToken(zap_media.address, token_id)
+
+    assert current_ask[0] == new_ask["amount"]
+
+    assert current_ask[1] == new_ask["currency"]
+
+
+def test_media_update_metadata_uri(w3, wallets, zap_media, zap_market):
+    tokenURI = "Test CarZ"
+    metadataURI = "Test CarMZ"
+
+    mediaData = {
+        "tokenURI": tokenURI,
+        "metadataURI": metadataURI,
+        "contentHash": Web3.toBytes(text=tokenURI),
+        "metadataHash": Web3.toBytes(text=metadataURI)
+    }
+    bidShares = {
+        "creator" : {"value":90000000000000000000},
+        "owner" : {"value":5000000000000000000},
+        "collaborators": [],
+        "collabShares": []
+    }
+
+    tx_hash = zap_media.mint(mediaData, bidShares)
+    w3.eth.wait_for_transaction_receipt(tx_hash, 180)
+
+    token_id = zap_media.totalSupply() - 1
+
+    new_metadata_uri = "new Test metadata uri"
+    tx_hash = zap_media.updateTokenMetadataURI(token_id, new_metadata_uri)
+    w3.eth.wait_for_transaction_receipt(tx_hash, 180)
+
+    metadata = zap_media.getTokenMetadataURIs(token_id)
+    assert metadata == new_metadata_uri
 
 
 def test_updateTokenURI(zap_media: ZapMedia, mint_token0):

@@ -94,7 +94,7 @@ class ZapMedia(BaseContract):
         return self.contract.functions.permit(spender, tokenId, sig)
             
     def removeAsk(self, tokenId):
-        return self.contract.functions.removeAsk(tokenId)
+        return self.sendTransaction(self.contract.functions.removeAsk(tokenId))
             
     def removeBid(self, tokenId):
         return self.contract.functions.removeBid(tokenId)
@@ -145,7 +145,7 @@ class ZapMedia(BaseContract):
         return self.contract.functions.transferFrom(_from, _to, tokenId)
             
     def updateTokenMetadataURI(self, tokenId, metadataURI):
-        return self.contract.functions.updateTokenMetadataURI(tokenId, metadataURI)
+        return self.sendTransaction(self.contract.functions.updateTokenMetadataURI(tokenId, metadataURI))
             
     def updateTokenURI(self, tokenId, tokenURILocal):
         return self.sendTransaction(self.contract.functions.updateTokenURI(tokenId, tokenURILocal))
