@@ -10,7 +10,7 @@ class ZapMedia(BaseContract):
             print(e)
         
     def acceptBid(self, tokenId, bid):
-        return self.contract.functions.acceptBid(tokenId, bid)
+        return self.sendTransaction(self.contract.functions.acceptBid(tokenId, bid))
             
     def appointedOwner(self, ):
         return self.contract.functions.appointedOwner()
