@@ -42,27 +42,38 @@ def w3(tester_provider):
 
 @pytest.fixture
 def wallets(w3, eth_tester):
-    wallets = [w3.eth.account.from_key(pk) for pk in utils.hh_private_keys]
+    for pk in utils.hh_private_keys:
+        eth_tester.add_account(pk)
+
+    all_wallets = eth_tester.get_accounts()
+    wallets = all_wallets[10:]
 
     for i, wallet in enumerate(wallets):
         w3.eth.send_transaction({
-            'to': wallet.address,
-            'from': eth_tester.get_accounts()[i],
+            'to': wallet,
+            'from': all_wallets[i],
             'value': 100000000000000000000
         })
     return wallets
 
 
 def test_accounts(w3, eth_tester, wallets):
-    wallet = wallets[0]
-    assert w3.eth.get_balance(wallet.address) == 100000000000000000000
-    assert (wallet.key).hex() == "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
-    # assert account1.privateKey
+    # print(wallets)
+
+    account10 = eth_tester.get_accounts()[10]
+    account10_2 = wallets[0]
+
+
+    # account0 = wallets[0]
+    assert w3.eth.get_balance(wallets[0]) == 100000000000000000000
+    # print(dir(wallets[0]))
+    # assert (wallet.key).hex() == "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+    # # assert account1.privateKey
 
 
 @pytest.fixture
-def zap_token_contract(eth_tester,w3):
-    deploy_address = eth_tester.get_accounts()[0]
+def zap_token_contract(eth_tester,w3, wallets):
+    deploy_address = wallets[0]
     artifacts = utils.get_ABI_Bytecode('zaptokenbsc')
     abi = artifacts['abi']
     bytecode = artifacts['bytecode']
@@ -79,8 +90,8 @@ def zap_token_contract(eth_tester,w3):
     return ZapTokenBSC(tx_receipt.contractAddress)
 
 @pytest.fixture
-def zap_vault_contract(eth_tester,w3, zap_token_contract):
-    deploy_address = eth_tester.get_accounts()[0]
+def zap_vault_contract(eth_tester,w3, zap_token_contract, wallets):
+    deploy_address = wallets[0]
     artifacts = utils.get_ABI_Bytecode('zapvault')
     abi = artifacts['abi']
     bytecode = artifacts['bytecode']
@@ -101,8 +112,8 @@ def zap_vault_contract(eth_tester,w3, zap_token_contract):
     return zapVault
 
 @pytest.fixture
-def zap_market_contract(eth_tester,w3, zap_vault_contract):
-    deploy_address = eth_tester.get_accounts()[0]
+def zap_market_contract(eth_tester,w3, zap_vault_contract, wallets):
+    deploy_address = wallets[0]
     artifacts = utils.get_ABI_Bytecode('zapmarket')
     abi = artifacts['abi']
     bytecode = artifacts['bytecode']
@@ -134,8 +145,8 @@ def zap_market_contract(eth_tester,w3, zap_vault_contract):
 
 
 @pytest.fixture
-def auction_house_contract(eth_tester,w3, zap_token_contract, zap_market_contract):
-    deploy_address = eth_tester.get_accounts()[0]
+def auction_house_contract(eth_tester,w3, zap_token_contract, zap_market_contract, wallets):
+    deploy_address = wallets[0]
     artifacts = utils.get_ABI_Bytecode('auctionhouse')
     abi = artifacts['abi']
     bytecode = artifacts['bytecode']
@@ -157,14 +168,13 @@ def auction_house_contract(eth_tester,w3, zap_token_contract, zap_market_contrac
     return ah
 
 @pytest.fixture
-def zap_media_contract(eth_tester, w3):
+def zap_media_contract(eth_tester, w3, wallets):
     """
     Deploy contract using web3py EthereumTesterProvider.
     Don't need to separately run a local node.
     """
 
-    deploy_address = eth_tester.get_accounts()[0]
-    # assert wallet.address == deploy_address
+    deploy_address = wallets[0]
     artifacts = utils.get_ABI_Bytecode('zapmedia')
     abi = artifacts['abi']
     bytecode = artifacts['bytecode']   
@@ -185,14 +195,13 @@ def zap_media_contract(eth_tester, w3):
     return zapMedia
 
 @pytest.fixture
-def media_factory_contract(eth_tester, w3, zap_market_contract, zap_media_contract):
+def media_factory_contract(eth_tester, w3, zap_market_contract, zap_media_contract, wallets):
     """
     Deploy contract using web3py EthereumTesterProvider.
     Don't need to separately run a local node.
     """
 
-    deploy_address = eth_tester.get_accounts()[0]
-    # assert wallet.address == deploy_address
+    deploy_address = wallets[0]
     artifacts = utils.get_ABI_Bytecode('mediafactory')
     abi = artifacts['abi']
     bytecode = artifacts['bytecode']   
@@ -217,13 +226,13 @@ def media_factory_contract(eth_tester, w3, zap_market_contract, zap_media_contra
 
 
 @pytest.fixture
-def zap_media_proxy_contract(eth_tester, w3, zap_market_contract, media_factory_contract):
+def zap_media_proxy_contract(eth_tester, w3, zap_market_contract, media_factory_contract, wallets):
     """
     Deploy contract using web3py EthereumTesterProvider.
     Don't need to separately run a local node.
     """
 
-    deploy_address = eth_tester.get_accounts()[0]
+    deploy_address = wallets[0]
 
     tx_hash_setMediaFactory = zap_market_contract.functions.setMediaFactory(media_factory_contract.address).transact({
     'from': deploy_address
@@ -232,7 +241,7 @@ def zap_media_proxy_contract(eth_tester, w3, zap_market_contract, media_factory_
 
     args = ['TEST COLLECTION', 'TC', zap_market_contract.address, True, 'https://testing.com']
 
-    tx_deploy_media = media_factory_contract.functions.deployMedia(*args).transact({'from': deploy_address})
+    tx_deploy_media = media_factory_contract.functions.deployMedia(*args).transact({'from': wallets[0]})
     tx_receipt = w3.eth.wait_for_transaction_receipt(tx_deploy_media, 180)
     # pp.pprint(tx_receipt)
 
@@ -249,9 +258,9 @@ def zap_media_proxy_contract(eth_tester, w3, zap_market_contract, media_factory_
 
     # Create our contract class.
     zapMedia = w3.eth.contract(address=zap_media_proxy_address, abi=abi)
-
-    tx_claim = zapMedia.functions.claimTransferOwnership().transact({'from': deploy_address})
+    tx_claim = zapMedia.functions.claimTransferOwnership().transact({'from': wallets[0]})
     w3.eth.wait_for_transaction_receipt(tx_claim, 180)
+
 
     return zapMedia
 
@@ -271,6 +280,9 @@ def zap_media(mock_json, w3, zap_media_proxy_contract):
     zap_media.publicAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
     zap_media.w3 = w3
     zap_media.contract = w3.eth.contract(address=zap_media_address, abi=abi)
+    nonce = zap_media.w3.eth.get_transaction_count("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266")
+    print("NONCE:", nonce)
+
     return zap_media
     
 
@@ -325,6 +337,14 @@ def test_symbol(zap_media):
 
 def test_total_supply(zap_media):
     assert zap_media.totalSupply() == 0
+
+def test_market_owner(zap_market, wallets, w3):
+    assert zap_market.getOwner() == wallets[0]
+    assert zap_market.w3 == w3
+    # assert zap_market.mediaContracts(wallets[0], 0)
+
+def test_market_medias(zap_media, zap_market, wallets):
+    assert zap_market.mediaContracts(wallets[0], 0)
 
 def test_media_mint(w3, wallets, zap_media):
     # assert w3.eth.accounts[1] == utils.wallets[0].address
@@ -453,15 +473,18 @@ def test_media_set_bid(w3, wallets, zap_media, zap_market, zap_token):
     receipt = w3.eth.wait_for_transaction_receipt(tx_hash, 180)
     assert receipt is not None
 
+    zap_media.privateKey = utils.hh_private_keys[1]
+    # zap_media.public_address
+    bidder = wallets[1]
 
-    zap_media.privateKey = wallets[1].key.hex()
-    zap_media.publicAddress = wallets[1].address
-    bidder = zap_media.publicAddress
+    # zap_media.privateKey = wallets[1].key.hex()
+    zap_media.publicAddress = wallets[1]
+    # bidder = zap_media.publicAddress
     bid = zap_media.makeBid(
         100,
-        "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+        zap_token.address,
         bidder,
-        wallets[0].address,
+        wallets[0],
         10
     )
     
@@ -474,11 +497,11 @@ def test_media_set_bid(w3, wallets, zap_media, zap_market, zap_token):
     assert current_bid[3] == '0x0000000000000000000000000000000000000000'
     assert current_bid[4][0] == 0
 
-    tx = zap_token.transfer(wallets[1].address, 100)
+    tx = zap_token.transfer(wallets[1], 100)
     receipt = w3.eth.wait_for_transaction_receipt(tx, 180)
 
-    zap_token.privateKey = wallets[1].key.hex()
-    zap_token.publicAddress = wallets[1].address
+    zap_token.privateKey = utils.hh_private_keys[1]
+    zap_token.publicAddress = wallets[1]
     tx = zap_token.approve(zap_market.address, 100)
     receipt = w3.eth.wait_for_transaction_receipt(tx, 180)
     assert receipt is not None
@@ -488,9 +511,48 @@ def test_media_set_bid(w3, wallets, zap_media, zap_market, zap_token):
     assert receipt is not None
 
     new_bid = zap_market.bidForTokenBidder(zap_media.address, token_id, bidder)
+    print(new_bid)
     assert new_bid[0] == bid["amount"]
     assert new_bid[1] == bid["currency"]
     assert new_bid[2] == bid["bidder"]
     assert new_bid[3] == bid["recipient"]
     assert new_bid[4][0] == bid["sellOnShare"]["value"]
 
+def test_media_set_ask(w3, wallets, zap_media, zap_market, zap_token):
+    tokenURI = "https://test2"
+    metadataURI = "http://test2"
+
+    mediaData = {
+        "tokenURI": tokenURI,
+        "metadataURI": metadataURI,
+        "contentHash": w3.toBytes(text=tokenURI),
+        "metadataHash": w3.toBytes(text=metadataURI)
+    }
+
+    bidShares = {
+        "creator" : {"value":90000000000000000000},
+        "owner" : {"value":5000000000000000000},
+        "collaborators": [],
+        "collabShares": []
+    }
+
+    tx_hash = zap_media.mint(mediaData, bidShares)
+    receipt = w3.eth.wait_for_transaction_receipt(tx_hash, 180)
+    assert receipt is not None
+
+    token_id = zap_media.totalSupply() - 1
+
+    ask = zap_media.makeAsk(
+        100,
+        zap_token.address
+    )
+
+    tx = zap_media.setAsk(token_id, ask)
+    receipt = w3.eth.wait_for_transaction_receipt(tx_hash, 180)
+    assert receipt is not None
+
+    current_ask = zap_market.currentAskForToken(zap_media.address, token_id)
+
+    assert current_ask[0] == ask["amount"]
+
+    assert current_ask[1] == ask["currency"]
