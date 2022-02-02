@@ -25,7 +25,7 @@ class ZapMedia(BaseContract):
         return self.contract.functions.auctionTransfer(tokenId, recipient)
             
     def balanceOf(self, owner):
-        return self.contract.functions.balanceOf(owner)
+        return self.contract.functions.balanceOf(owner).call()
             
     def burn(self, tokenId):
         return self.contract.functions.burn(tokenId)
@@ -52,7 +52,7 @@ class ZapMedia(BaseContract):
         return self.contract.functions.getSigNonces(_minter)
             
     def getTokenContentHashes(self, _tokenId):
-        return self.contract.functions.getTokenContentHashes(_tokenId)
+        return self.contract.functions.getTokenContentHashes(_tokenId).call()
             
     def getTokenCreators(self, _tokenId):
         return self.contract.functions.getTokenCreators(_tokenId)
@@ -61,7 +61,7 @@ class ZapMedia(BaseContract):
         return self.contract.functions.getTokenMetadataHashes(_tokenId)
             
     def getTokenMetadataURIs(self, _tokenId):
-        return self.contract.functions.getTokenMetadataURIs(_tokenId)
+        return self.contract.functions.getTokenMetadataURIs(_tokenId).call()
             
     def initTransferOwnership(self, newOwner):
         return self.contract.functions.initTransferOwnership(newOwner)
@@ -136,7 +136,7 @@ class ZapMedia(BaseContract):
         return self.contract.functions.tokenOfOwnerByIndex(owner, index)
             
     def tokenURI(self, tokenId):
-        return self.contract.functions.tokenURI(tokenId)
+        return self.contract.functions.tokenURI(tokenId).call()
             
     def totalSupply(self, ):
         return self.contract.functions.totalSupply().call()
