@@ -79,8 +79,11 @@ class ZapMedia(BaseContract):
         return self.sendTransaction(self.contract.functions.mint(data, bidShares))
             
     def mintWithSig(self, creator, data, bidShares, sig):
-        return self.sendTransaction(self.contract.functions.mintWithSig(creator, data, bidShares, sig))
-            
+        try:
+            return self.sendTransaction(self.contract.functions.mintWithSig(creator, data, bidShares, sig))
+        except Exception as e:
+            print(e)
+
     def name(self):
         return self.contract.functions.name().call()
             

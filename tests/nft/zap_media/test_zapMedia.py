@@ -448,9 +448,9 @@ def test_media_set_bid(w3, wallets, zap_media, zap_market, zap_token):
     assert new_bid[4][0] == bid["sellOnShare"]["value"]
 
 
-def test_media_mint_w_sig(w3, wallets, eth_tester ,zap_media):
+def test_media_mint_w_sig(w3, wallets, eth_tester, zap_media, zap_market):
     zap_media.privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
-    before_mint = zap_media.totalSupply().call()
+    before_mint = zap_media.totalSupply()
     media_data = zap_media.makeMediaData(
         "https://content-uri", 
         "https://metadata-uri", 
@@ -525,6 +525,8 @@ def test_media_mint_w_sig(w3, wallets, eth_tester ,zap_media):
 
     result = zap_media.mintWithSig(account.address, media_data, bid_shares, sig)
     w3.eth.wait_for_transaction_receipt(result, 180)
-    after_mint = zap_media.totalSupply().call()
+    print(result)
+
+    after_mint = zap_media.totalSupply()
     assert account.address == "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
     assert after_mint == before_mint + 1
