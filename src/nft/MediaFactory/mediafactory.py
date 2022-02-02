@@ -43,16 +43,13 @@ class MediaFactory(BaseContract):
         """
         return self.sendTransaction(self.contract.functions.deployMedia(name, symbol, marketContractAddr, permissive, _collectionMetadata))
             
-    def initialize(self, _zapMarket, zapMediaInterface):
-        return self.contract.functions.initialize(_zapMarket, zapMediaInterface)
-            
-    def owner(self, ):
+    def owner(self, ) -> ContractFunction:
         return self.contract.functions.owner()
-            
-    def renounceOwnership(self, ):
+
+    def renounceOwnership(self, ) -> ContractFunction:
         return self.contract.functions.renounceOwnership()
             
-    def transferOwnership(self, newOwner):
+    def transferOwnership(self, newOwner: str) -> ContractFunction:
         return self.contract.functions.transferOwnership(newOwner)
             
     def upgradeMedia(self, newInterface: str) -> ContractFunction:
@@ -68,4 +65,3 @@ class MediaFactory(BaseContract):
             The Address of the the new ZapMedia Interface
         """
         return self.contract.functions.upgradeMedia(newInterface)
-            
