@@ -346,7 +346,7 @@ def test_market_owner(zap_market, wallets, w3):
 def test_market_medias(zap_media, zap_market, wallets):
     assert zap_market.mediaContracts(wallets[0], 0)
 
-def test_media_mint(w3, wallets, zap_media):
+def test_media_mint(w3, wallets, zap_media, zap_market):
     # assert w3.eth.accounts[1] == utils.wallets[0].address
     before_mint = zap_media.totalSupply()
     assert before_mint == 0
@@ -397,8 +397,14 @@ def test_media_mint(w3, wallets, zap_media):
     token = zap_media.tokenOfOwnerByIndex(zap_media.publicAddress, 0)
     assert token == before_mint
 
+    current_bid_shares = zap_market.bidSharesForToken(zap_media.address, before_mint)
+    assert current_bid_shares[0][0] == bidShares["creator"]["value"]
+    assert current_bid_shares[1][0] == bidShares["owner"]["value"]
+    assert current_bid_shares[2] == bidShares["collaborators"]
+    assert current_bid_shares[3] == bidShares["collabShares"]
 
-def test_media_mint2(w3, wallets, zap_media):
+
+def test_media_mint2(w3, wallets, zap_media, zap_market):
     # assert w3.eth.accounts[1] == utils.wallets[0].address
     before_mint = zap_media.totalSupply()
     assert before_mint == 0
@@ -449,6 +455,11 @@ def test_media_mint2(w3, wallets, zap_media):
     token = zap_media.tokenOfOwnerByIndex(zap_media.publicAddress, 0)
     assert token == before_mint
 
+    current_bid_shares = zap_market.bidSharesForToken(zap_media.address, before_mint)
+    assert current_bid_shares[0][0] == bidShares["creator"]["value"]
+    assert current_bid_shares[1][0] == bidShares["owner"]["value"]
+    assert current_bid_shares[2] == bidShares["collaborators"]
+    assert current_bid_shares[3] == bidShares["collabShares"]
 
 
 def test_media_set_bid(w3, wallets, zap_media, zap_market, zap_token):
