@@ -567,3 +567,33 @@ def test_media_set_ask(w3, wallets, zap_media, zap_market, zap_token):
     assert current_ask[0] == ask["amount"]
 
     assert current_ask[1] == ask["currency"]
+
+
+def test_media_update_metadata_uri(w3, wallets, zap_media, zap_market):
+    tokenURI = "Test CarZ"
+    metadataURI = "Test CarMZ"
+
+    mediaData = {
+        "tokenURI": tokenURI,
+        "metadataURI": metadataURI,
+        "contentHash": Web3.toBytes(text=tokenURI),
+        "metadataHash": Web3.toBytes(text=metadataURI)
+    }
+    bidShares = {
+        "creator" : {"value":90000000000000000000},
+        "owner" : {"value":5000000000000000000},
+        "collaborators": [],
+        "collabShares": []
+    }
+
+    tx_hash = zap_media.mint(mediaData, bidShares)
+    w3.eth.wait_for_transaction_receipt(tx_hash, 180)
+
+    token_id = zap_media.totalSupply() - 1
+
+    new_metadata_uri = "new Test metadata uri"
+    tx_hash = zap_media.updateTokenMetadataURI(token_id, new_metadata_uri)
+    w3.eth.wait_for_transaction_receipt(tx_hash, 180)
+
+    metadata = zap_media.getTokenMetadataURIs(token_id)
+    assert metadata == new_metadata_uri
