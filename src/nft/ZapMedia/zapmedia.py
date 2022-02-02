@@ -94,7 +94,7 @@ class ZapMedia(BaseContract):
         return self.contract.functions.permit(spender, tokenId, sig)
             
     def removeAsk(self, tokenId):
-        return self.contract.functions.removeAsk(tokenId)
+        return self.sendTransaction(self.contract.functions.removeAsk(tokenId))
             
     def removeBid(self, tokenId):
         return self.contract.functions.removeBid(tokenId)

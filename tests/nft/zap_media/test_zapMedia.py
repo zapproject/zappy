@@ -558,7 +558,7 @@ def test_media_set_ask(w3, wallets, zap_media, zap_market, zap_token):
         zap_token.address
     )
 
-    tx = zap_media.setAsk(token_id, ask)
+    tx_hash = zap_media.setAsk(token_id, ask)
     receipt = w3.eth.wait_for_transaction_receipt(tx_hash, 180)
     assert receipt is not None
 
@@ -571,7 +571,62 @@ def test_media_set_ask(w3, wallets, zap_media, zap_market, zap_token):
     # overwrite current ask
     new_ask = zap_media.makeAsk(200, zap_token.address)
 
-    tx = zap_media.setAsk(token_id, new_ask)
+    tx_hash = zap_media.setAsk(token_id, new_ask)
+    receipt = w3.eth.wait_for_transaction_receipt(tx_hash, 180)
+    assert receipt is not None
+
+    current_ask = zap_market.currentAskForToken(zap_media.address, token_id)
+
+    assert current_ask[0] == new_ask["amount"]
+
+    assert current_ask[1] == new_ask["currency"]
+
+
+def test_media_remove_ask(w3, wallets, zap_media, zap_market, zap_token):
+    tokenURI = "https://test2"
+    metadataURI = "http://test2"
+
+    mediaData = {
+        "tokenURI": tokenURI,
+        "metadataURI": metadataURI,
+        "contentHash": w3.toBytes(text=tokenURI),
+        "metadataHash": w3.toBytes(text=metadataURI)
+    }
+
+    bidShares = {
+        "creator" : {"value":90000000000000000000},
+        "owner" : {"value":5000000000000000000},
+        "collaborators": [],
+        "collabShares": []
+    }
+
+    tx_hash = zap_media.mint(mediaData, bidShares)
+    receipt = w3.eth.wait_for_transaction_receipt(tx_hash, 180)
+    assert receipt is not None
+
+    token_id = zap_media.totalSupply() - 1
+
+    ask = zap_media.makeAsk(
+        100,
+        zap_token.address
+    )
+
+    tx_hash = zap_media.setAsk(token_id, ask)
+    receipt = w3.eth.wait_for_transaction_receipt(tx_hash, 180)
+    assert receipt is not None
+
+    tx_hash = zap_media.removeAsk(token_id)
+    receipt = w3.eth.wait_for_transaction_receipt(tx_hash, 180)
+    assert receipt is not None
+
+    current_ask = zap_market.currentAskForToken(zap_media.address, token_id)
+    assert current_ask[0] == 0
+    assert current_ask[1] == "0x0000000000000000000000000000000000000000"
+    
+    # overwrite current ask
+    new_ask = zap_media.makeAsk(200, zap_token.address)
+
+    tx_hash = zap_media.setAsk(token_id, new_ask)
     receipt = w3.eth.wait_for_transaction_receipt(tx_hash, 180)
     assert receipt is not None
 
