@@ -148,8 +148,8 @@ class ZapMedia(BaseContract):
         return self.contract.functions.updateTokenMetadataURI(tokenId, metadataURI)
             
     def updateTokenURI(self, tokenId, tokenURILocal):
-        return self.contract.functions.updateTokenURI(tokenId, tokenURILocal)
-            
+        return self.sendTransaction(self.contract.functions.updateTokenURI(tokenId, tokenURILocal))
+
     ## Helper function that builds a dict representing IMedia.MediaData
     def makeMediaData(self, tokenURI, metadataURI, contentHash, metadataHash):
         return {

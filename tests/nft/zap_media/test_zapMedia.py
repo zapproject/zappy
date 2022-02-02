@@ -267,7 +267,7 @@ def zap_media_proxy_contract(eth_tester, w3, zap_market_contract, media_factory_
 
 @pytest.fixture
 @patch('src.nft.base_contract.json', autospec=True)
-def zap_media(mock_json, w3, zap_media_proxy_contract):
+def zap_media(mock_json, w3, zap_media_proxy_contract) -> ZapMedia:
     zap_media_address = zap_media_proxy_contract.address
     artifact = utils.get_artifact('zapmedia')
     artifact[str(w3.eth.chain_id)] = {'address': zap_media_address}
@@ -280,9 +280,7 @@ def zap_media(mock_json, w3, zap_media_proxy_contract):
     zap_media.publicAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
     zap_media.w3 = w3
     zap_media.contract = w3.eth.contract(address=zap_media_address, abi=abi)
-    nonce = zap_media.w3.eth.get_transaction_count("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266")
-    print("NONCE:", nonce)
-
+    
     return zap_media
     
 
@@ -319,6 +317,29 @@ def zap_token(mock_json, w3, zap_token_contract):
     zap_token.w3 = w3
     zap_token.contract = w3.eth.contract(address=zap_token_address, abi=abi)
     return zap_token
+
+
+@pytest.fixture
+def mint_token0(w3, zap_media):
+    tokenURI = "https://tokenURI.com"
+    metadataURI = "https://metadataURI.com"
+
+    mediaData = {
+        "tokenURI": tokenURI,
+        "metadataURI": metadataURI,
+        "contentHash": Web3.toBytes(text=tokenURI),
+        "metadataHash": Web3.toBytes(text=metadataURI)
+    }
+    bidShares = {
+        "creator" : {"value":90000000000000000000},
+        "owner" : {"value":5000000000000000000},
+        "collaborators": [],
+        "collabShares": []
+    }
+
+    tx_hash = zap_media.mint(mediaData, bidShares)
+    w3.eth.wait_for_transaction_receipt(tx_hash, 180)
+
 
 def test_initial_connection(zap_media):
     assert zap_media.w3.isConnected()
@@ -556,3 +577,16 @@ def test_media_set_ask(w3, wallets, zap_media, zap_market, zap_token):
     assert current_ask[0] == ask["amount"]
 
     assert current_ask[1] == ask["currency"]
+
+
+
+def test_updateTokenURI(zap_media: ZapMedia, mint_token0):
+    tokenURI = "https://tokenURI.com"
+    newURI = "https://www.newURI.com"
+
+    original_tokenURI_of_0 = zap_media.tokenURI(0)
+    assert original_tokenURI_of_0 == tokenURI
+
+    zap_media.updateTokenURI(0, newURI)
+    new_tokenURI_of_0 = zap_media.tokenURI(0)
+    assert new_tokenURI_of_0 == newURI
