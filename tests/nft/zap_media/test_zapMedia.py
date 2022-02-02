@@ -658,6 +658,90 @@ def test_media_remove_ask(w3, wallets, zap_media, zap_market, zap_token):
     assert current_ask[1] == new_ask["currency"]
 
 
+def test_media_accept_bid(w3, wallets, zap_media, zap_market, zap_token):
+    tokenURI = "https://test2"
+    metadataURI = "http://test2"
+
+    mediaData = {
+        "tokenURI": tokenURI,
+        "metadataURI": metadataURI,
+        "contentHash": w3.toBytes(text=tokenURI),
+        "metadataHash": w3.toBytes(text=metadataURI)
+    }
+
+    bidShares = {
+        "creator" : {"value":90000000000000000000},
+        "owner" : {"value":5000000000000000000},
+        "collaborators": [],
+        "collabShares": []
+    }
+    
+    tx_hash = zap_media.mint(mediaData, bidShares)
+    receipt = w3.eth.wait_for_transaction_receipt(tx_hash, 180)
+    assert receipt is not None
+
+    token_id = zap_media.totalSupply() - 1
+
+    zap_media.privateKey = utils.hh_private_keys[1]
+    zap_media.publicAddress = wallets[1]
+    bidder = wallets[1]
+
+    bid = zap_media.makeBid(
+        100,
+        zap_token.address,
+        bidder,
+        wallets[1],
+        10
+    )
+    
+    token_id = zap_media.totalSupply() - 1
+
+    tx = zap_token.transfer(wallets[1], 100)
+    receipt = w3.eth.wait_for_transaction_receipt(tx, 180)
+
+    creator_before_bal = zap_token.balanceOf(wallets[0])
+    bidder_before_bal = zap_token.balanceOf(wallets[1])
+    creator_before_token_bal = zap_media.balanceOf(wallets[0])
+    bidder_before_token_bal = zap_media.balanceOf(wallets[1])
+
+    zap_token.privateKey = utils.hh_private_keys[1]
+    zap_token.publicAddress = wallets[1]
+    tx = zap_token.approve(zap_market.address, 100)
+    receipt = w3.eth.wait_for_transaction_receipt(tx, 180)
+    assert receipt is not None
+
+    tx = zap_media.setBid(token_id, bid)
+    receipt = w3.eth.wait_for_transaction_receipt(tx, 180)
+    assert receipt is not None
+
+    # restore private and public keys
+    zap_token.privateKey = utils.hh_private_keys[0]
+    zap_token.publicAddress = wallets[0]
+    zap_media.privateKey = utils.hh_private_keys[0]
+    zap_media.publicAddress = wallets[0]
+
+    tx = zap_media.acceptBid(token_id, bid)
+    receipt = w3.eth.wait_for_transaction_receipt(tx, 180)
+    assert receipt is not None
+
+    # check balance of creator
+    creator_after_bal = zap_token.balanceOf(wallets[0])
+    assert creator_after_bal == creator_before_bal + int(
+        bid["amount"] * (bidShares["creator"]["value"] / 100000000000000000000)) + int(
+            bid["amount"] * (bidShares["owner"]["value"] / 100000000000000000000)
+        )
+
+    creator_after_token_bal = zap_media.balanceOf(wallets[0])
+    assert creator_after_token_bal == creator_before_token_bal - 1
+
+    # check if the new owner is the bidder
+    new_owner = zap_media.ownerOf(token_id)
+    assert new_owner == wallets[1]
+
+    bidder_after_token_bal = zap_media.balanceOf(wallets[1])
+    assert bidder_after_token_bal == bidder_before_token_bal + 1
+
+
 def test_media_update_metadata_uri(w3, wallets, zap_media, zap_market):
     tokenURI = "Test CarZ"
     metadataURI = "Test CarMZ"
