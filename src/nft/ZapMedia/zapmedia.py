@@ -52,7 +52,7 @@ class ZapMedia(BaseContract):
         return self.contract.functions.getSigNonces(_minter)
             
     def getTokenContentHashes(self, _tokenId):
-        return self.contract.functions.getTokenContentHashes(_tokenId)
+        return self.contract.functions.getTokenContentHashes(_tokenId).call()
             
     def getTokenCreators(self, _tokenId):
         return self.contract.functions.getTokenCreators(_tokenId)

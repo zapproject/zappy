@@ -365,6 +365,9 @@ def test_media_mint(w3, wallets, zap_media):
     contentURI = zap_media.tokenURI(before_mint)
     assert contentURI == mediaData["tokenURI"]
 
+    contentHash = zap_media.getTokenContentHashes(before_mint)
+    assert contentHash == mediaData["contentHash"].ljust(32, b'\x00')
+
 
 def test_media_mint2(w3, wallets, zap_media):
     # assert w3.eth.accounts[1] == utils.wallets[0].address
@@ -404,6 +407,9 @@ def test_media_mint2(w3, wallets, zap_media):
 
     contentURI = zap_media.tokenURI(before_mint)
     assert contentURI == mediaData["tokenURI"]
+
+    contentHash = zap_media.getTokenContentHashes(before_mint)
+    assert contentHash == mediaData["contentHash"].ljust(32, b'\x00')
 
 
 def test_media_set_bid(w3, wallets, zap_media, zap_market, zap_token):
