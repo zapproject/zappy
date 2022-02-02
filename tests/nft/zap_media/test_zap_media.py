@@ -132,7 +132,6 @@ def test_media_mint_w_sig():
 
 
     result = zap_media.mintWithSig(account.address, media_data, bid_shares, sig)
-    print(result)
 
 def toHex(val):
     return zap_media.w3.toHex(zap_media.w3.toBytes(text=val).rjust(32, b'\0'))

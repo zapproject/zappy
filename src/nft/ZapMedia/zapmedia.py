@@ -1,4 +1,5 @@
 from src.nft.base_contract import BaseContract
+import traceback
 
 class ZapMedia(BaseContract):
 
@@ -25,7 +26,7 @@ class ZapMedia(BaseContract):
         return self.contract.functions.auctionTransfer(tokenId, recipient)
             
     def balanceOf(self, owner):
-        return self.contract.functions.balanceOf(owner)
+        return self.contract.functions.balanceOf(owner).call()
             
     def burn(self, tokenId):
         return self.contract.functions.burn(tokenId)
@@ -52,16 +53,16 @@ class ZapMedia(BaseContract):
         return self.contract.functions.getSigNonces(_minter).call()
             
     def getTokenContentHashes(self, _tokenId):
-        return self.contract.functions.getTokenContentHashes(_tokenId)
+        return self.contract.functions.getTokenContentHashes(_tokenId).call()
             
     def getTokenCreators(self, _tokenId):
         return self.contract.functions.getTokenCreators(_tokenId)
             
     def getTokenMetadataHashes(self, _tokenId):
-        return self.contract.functions.getTokenMetadataHashes(_tokenId)
+        return self.contract.functions.getTokenMetadataHashes(_tokenId).call()
             
     def getTokenMetadataURIs(self, _tokenId):
-        return self.contract.functions.getTokenMetadataURIs(_tokenId)
+        return self.contract.functions.getTokenMetadataURIs(_tokenId).call()
             
     def initTransferOwnership(self, newOwner):
         return self.contract.functions.initTransferOwnership(newOwner)
@@ -79,17 +80,17 @@ class ZapMedia(BaseContract):
         return self.sendTransaction(self.contract.functions.mint(data, bidShares))
             
     def mintWithSig(self, creator, data, bidShares, sig):
-        try:
-            return self.sendTransaction(self.contract.functions.mintWithSig(creator, data, bidShares, sig))
-        except Exception as e:
-            print(e)
+        return self.sendTransaction(self.contract.functions.mintWithSig(creator, data, bidShares, sig))
 
     def name(self):
         return self.contract.functions.name().call()
             
     def ownerOf(self, tokenId):
-        return self.contract.functions.ownerOf(tokenId)
-            
+        try:
+            return self.contract.functions.ownerOf(tokenId).call()
+        except Exception as e:
+            print(e)
+
     def permit(self, spender, tokenId, sig):
         return self.contract.functions.permit(spender, tokenId, sig)
             
@@ -102,7 +103,7 @@ class ZapMedia(BaseContract):
     def revokeApproval(self, tokenId):
         return self.contract.functions.revokeApproval(tokenId)
             
-    def revokeTransferOwnership(self, ):
+    def revokeTransferOwnership(self):
         return self.contract.functions.revokeTransferOwnership()
             
     def safeTransferFrom(self, _from, _to, tokenId):
@@ -123,7 +124,7 @@ class ZapMedia(BaseContract):
     def supportsInterface(self, interfaceId):
         return self.contract.functions.supportsInterface(interfaceId)
             
-    def symbol(self, ):
+    def symbol(self):
         return self.contract.functions.symbol().call()
             
     def tokenByIndex(self, index):
@@ -133,10 +134,10 @@ class ZapMedia(BaseContract):
         return self.contract.functions.tokenMetadataURI(tokenId)
             
     def tokenOfOwnerByIndex(self, owner, index):
-        return self.contract.functions.tokenOfOwnerByIndex(owner, index)
+        return self.contract.functions.tokenOfOwnerByIndex(owner, index).call()
             
     def tokenURI(self, tokenId):
-        return self.contract.functions.tokenURI(tokenId)
+        return self.contract.functions.tokenURI(tokenId).call()
             
     def totalSupply(self, ):
         return self.contract.functions.totalSupply().call()
