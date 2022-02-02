@@ -28,17 +28,16 @@ class BaseContract:
     def __init__(self, chainId: str = '31337'):
         self.chainId = chainId
         try:
-            self.w3 = Web3(Web3.HTTPProvider(provider_uri[chainId]))
-
-            f = open("config.json", "r")
-            data = json.load(f)
+            self.w3 = Web3(Web3.HTTPProvider(provider_uri[chainId]))    
+            with open("config.json", "r") as f:
+                data = json.load(f)
             self.privateKey = data["privateKey"]
 
             wallet = self.w3.eth.account.from_key(self.privateKey)
-            self.publicAddress = wallet.address
+            self.publicAddress = wallet.address        
         except Exception as e:
-            print(e)
-        
+            print(e)            
+
 
     def get_contract_info(self, contract_name:str):
         curr_dir = os.path.dirname(os.path.realpath(__file__))

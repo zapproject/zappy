@@ -210,4 +210,4 @@ def test_media_set_ask():
 
 # test_media_mint()
 # test_media_set_bid()
-test_media_set_ask()
+# test_media_set_ask()
