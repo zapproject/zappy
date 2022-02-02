@@ -5,7 +5,7 @@ import eth_account
 sys.path.insert(0, os.path.dirname(os.path.abspath("./__file__")))
 
 import pytest
-
+import web3
 from web3 import (
     EthereumTesterProvider,
     Web3,
@@ -782,3 +782,17 @@ def test_updateTokenURI(zap_media: ZapMedia, mint_token0):
     zap_media.updateTokenURI(0, newURI)
     new_tokenURI_of_0 = zap_media.tokenURI(0)
     assert new_tokenURI_of_0 == newURI
+
+def test_approve(zap_media:ZapMedia, wallets, mint_token0):
+    # Return the address approved for token id 0 before approval
+    preApprovedAddr = zap_media.getApproved(0)
+    
+    # Expect the address to equal a zero address
+    assert preApprovedAddr == web3.constants.ADDRESS_ZERO
+    
+    # The owner (signers[0]) approves signerOne for token id 0
+    zap_media.approve(wallets[1], 0);
+
+    # Returns the address approved for token id  0 after approval
+    postApprovedStatus = zap_media.getApproved(0)
+    assert postApprovedStatus == wallets[1]

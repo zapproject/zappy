@@ -16,7 +16,7 @@ class ZapMedia(BaseContract):
         return self.contract.functions.appointedOwner()
             
     def approve(self, _to, tokenId):
-        return self.contract.functions.approve(_to, tokenId)
+        return self.sendTransaction(self.contract.functions.approve(_to, tokenId))
             
     def approveToMint(self, toApprove):
         return self.contract.functions.approveToMint(toApprove)
@@ -36,8 +36,8 @@ class ZapMedia(BaseContract):
     def contractURI(self, ):
         return self.contract.functions.contractURI()
             
-    def getApproved(self, tokenId):
-        return self.contract.functions.getApproved(tokenId)
+    def getApproved(self, tokenId:int) -> str:
+        return self.contract.functions.getApproved(tokenId).call()
             
     def getOwner(self, ):
         return self.contract.functions.getOwner()
