@@ -97,7 +97,7 @@ class ZapMedia(BaseContract):
         return self.sendTransaction(self.contract.functions.removeAsk(tokenId))
             
     def removeBid(self, tokenId):
-        return self.contract.functions.removeBid(tokenId)
+        return self.sendTransaction(self.contract.functions.removeBid(tokenId))
             
     def revokeApproval(self, tokenId):
         return self.contract.functions.revokeApproval(tokenId)
