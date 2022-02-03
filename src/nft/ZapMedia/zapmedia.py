@@ -107,14 +107,8 @@ class ZapMedia(BaseContract):
             
     # Mints a new token with ECDSA compliant signatures
     def mintWithSig(self, creator, data, bidShares, sig):
-<<<<<<< HEAD
         return self.sendTransaction(self.contract.functions.mintWithSig(creator, data, bidShares, sig))
 
-=======
-        return self.contract.functions.mintWithSig(creator, data, bidShares, sig)
-            
-    # Retreives the name of the collection / Media
->>>>>>> develop
     def name(self):
         try:
             return self.contract.functions.name().call()
