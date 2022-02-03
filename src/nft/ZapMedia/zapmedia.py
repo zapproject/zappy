@@ -28,7 +28,7 @@ class ZapMedia(BaseContract):
         return self.contract.functions.balanceOf(owner).call()
             
     def burn(self, tokenId):
-        return self.contract.functions.burn(tokenId)
+        return self.sendTransaction(self.contract.functions.burn(tokenId))
             
     def claimTransferOwnership(self, ):
         return self.contract.functions.claimTransferOwnership()

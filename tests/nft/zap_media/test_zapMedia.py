@@ -862,3 +862,20 @@ def test_approve(zap_media:ZapMedia, wallets, mint_token0):
     # Returns the address approved for token id  0 after approval
     postApprovedStatus = zap_media.getApproved(0)
     assert postApprovedStatus == wallets[1]
+
+
+def test_media_burn(w3, wallets, zap_media, mint_token0):
+    before_bal = zap_media.balanceOf(zap_media.publicAddress)
+    token_id = zap_media.totalSupply() - 1
+
+    tx = zap_media.burn(token_id)
+    w3.eth.wait_for_transaction_receipt(tx, 180)
+
+    after_bal = zap_media.balanceOf(zap_media.publicAddress)
+    assert after_bal == before_bal - 1
+    assert after_bal == 0
+
+    assert zap_media.totalSupply() == 0
+
+    total_supply = zap_media.ownerOf(token_id)
+    assert total_supply is None
