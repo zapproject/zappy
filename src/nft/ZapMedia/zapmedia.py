@@ -21,9 +21,6 @@ class ZapMedia(BaseContract):
     def approveToMint(self, toApprove):
         return self.contract.functions.approveToMint(toApprove)
             
-    def auctionTransfer(self, tokenId, recipient):
-        return self.contract.functions.auctionTransfer(tokenId, recipient)
-            
     def balanceOf(self, owner):
         try:
             return self.contract.functions.balanceOf(owner).call()
@@ -121,7 +118,7 @@ class ZapMedia(BaseContract):
         return self.sendTransaction(self.contract.functions.removeBid(tokenId))
             
     def revokeApproval(self, tokenId):
-        return self.contract.functions.revokeApproval(tokenId)
+        return self.sendTransaction(self.contract.functions.revokeApproval(tokenId))
             
     def revokeTransferOwnership(self):
         return self.contract.functions.revokeTransferOwnership()
