@@ -370,15 +370,86 @@ def test_create_auction(wallets, zap_token:ZapTokenBSC, auctionhouse:AuctionHous
         0, 
         zap_token.address
         ]
-    auctionhouse.createAuction(*params)
+    auctionhouse.create_auction(*params)
 
-    createdAuction = auctionhouse.auctions(0);
-    assert createdAuction.token_details.token_id == 0
-    assert createdAuction.token_details.media_contract == zap_media.address
-    assert createdAuction.approved == True
-    assert createdAuction.duration == duration
-    assert createdAuction.curator_fee_percentage == 0
-    assert createdAuction.reserve_price == reservePrice
-    assert createdAuction.token_owner == wallets[0]
-    assert createdAuction.curator == web3.constants.ADDRESS_ZERO
-    assert createdAuction.auction_currency == zap_token.address
+    # if curator is zero address, auction automatically starts.
+    # if curator is the token owner, auction automatically starts.
+    # if curator neither zero or token owner, the curator has to manually start the auction auctionhouse.startAuction().
+
+
+    auction_info = auctionhouse.auctions(0);
+    assert auction_info.token_details.token_id == 0
+    assert auction_info.token_details.media_contract == zap_media.address
+    assert auction_info.approved == True
+    assert auction_info.duration == duration
+    assert auction_info.curator_fee_percentage == 0
+    assert auction_info.reserve_price == reservePrice
+    assert auction_info.token_owner == wallets[0]
+    assert auction_info.curator == web3.constants.ADDRESS_ZERO
+    assert auction_info.auction_currency == zap_token.address
+
+
+def test_create_auction_with_diff_curator(wallets, zap_token:ZapTokenBSC, auctionhouse:AuctionHouse, zap_media:ZapMedia, mint_token0):
+    duration = 86400 #  number of seconds in 24 hours
+    reservePrice = Web3.toWei(5, 'ether')
+
+    zap_media.approve(auctionhouse.address, 0)
+
+    params = [
+        0, 
+        zap_media.address, 
+        duration, 
+        reservePrice, 
+        wallets[9], 
+        0, 
+        zap_token.address
+        ]
+    auctionhouse.create_auction(*params)
+
+    auctionhouse.start_auction(0, True)
+
+    auction_info = auctionhouse.auctions(0);
+    assert auction_info.token_details.token_id == 0
+    assert auction_info.token_details.media_contract == zap_media.address
+    assert auction_info.approved == False
+    assert auction_info.duration == duration
+    assert auction_info.curator_fee_percentage == 0
+    assert auction_info.reserve_price == reservePrice
+    assert auction_info.token_owner == wallets[0]
+    assert auction_info.curator == wallets[9]
+    assert auction_info.auction_currency == zap_token.address
+
+def test_start_auction(wallets, zap_token:ZapTokenBSC, auctionhouse:AuctionHouse, zap_media:ZapMedia, mint_token0):
+    
+    """
+    Should start auction if the curator is not a zero address or token owner.
+    If auction was created with curator == Zero Address or the curator is the token owner, the auction is automatically started.
+    We are mainly testing auction_info.approved == False, then assert auction_info.approved == True after starting the auction
+    """
+
+    duration = 86400 #  number of seconds in 24 hours
+    reservePrice = Web3.toWei(5, 'ether')
+    curator = wallets[9]
+
+    zap_media.approve(auctionhouse.address, 0)
+
+    params = [
+        0, 
+        zap_media.address, 
+        duration, 
+        reservePrice, 
+        curator, 
+        0, 
+        zap_token.address
+        ]
+    auctionhouse.create_auction(*params)
+    auction_info = auctionhouse.auctions(0);
+    assert auction_info.approved == False
+
+    assert auction_info.curator == wallets[9]
+    assert auction_info.curator != web3.constants.ADDRESS_ZERO
+    assert auction_info.auction_currency == zap_token.address
+    
+    auctionhouse.start_auction(0, True)
+    auction_info = auctionhouse.auctions(0);
+    assert auction_info.approved == True

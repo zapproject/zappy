@@ -36,7 +36,7 @@ class AuctionHouse(BaseContract):
     def cancelAuction(self, auctionId):
         return self.contract.functions.cancelAuction(auctionId)
             
-    def createAuction(self, tokenId, mediaContract, duration, reservePrice, curator, curatorFeePercentage, auctionCurrency):
+    def create_auction(self, tokenId, mediaContract, duration, reservePrice, curator, curatorFeePercentage, auctionCurrency):
         return self.sendTransaction(self.contract.functions.createAuction(tokenId, mediaContract, duration, reservePrice, curator, curatorFeePercentage, auctionCurrency))
             
     def createBid(self, auctionId, amount, mediaContract):
@@ -57,8 +57,8 @@ class AuctionHouse(BaseContract):
     def setAuctionReservePrice(self, auctionId, reservePrice):
         return self.contract.functions.setAuctionReservePrice(auctionId, reservePrice)
             
-    def startAuction(self, auctionId, approved):
-        return self.contract.functions.startAuction(auctionId, approved)
+    def start_auction(self, auctionId, approved):
+        return self.sendTransaction(self.contract.functions.startAuction(auctionId, approved))
             
     def timeBuffer(self, ):
         return self.contract.functions.timeBuffer()
