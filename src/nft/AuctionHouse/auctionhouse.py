@@ -1,4 +1,5 @@
-from base_contract import BaseContract
+from src.nft.base_contract import BaseContract
+
 
 class AuctionHouse(BaseContract):
 

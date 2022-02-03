@@ -19,7 +19,7 @@ class ZapMarket(BaseContract):
         return self.contract.functions.bidForTokenBidder(mediaContractAddress, tokenId, bidder).call()
             
     def bidSharesForToken(self, mediaContractAddress, tokenId):
-        return self.contract.functions.bidSharesForToken(mediaContractAddress, tokenId)
+        return self.contract.functions.bidSharesForToken(mediaContractAddress, tokenId).call()
             
     def claimTransferOwnership(self, ):
         return self.contract.functions.claimTransferOwnership()
