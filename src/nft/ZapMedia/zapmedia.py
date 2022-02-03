@@ -37,7 +37,10 @@ class ZapMedia(BaseContract):
         return self.contract.functions.claimTransferOwnership()
             
     def contractURI(self, ):
-        return self.contract.functions.contractURI()
+        try:
+            return self.contract.functions.contractURI().call()
+        except Exception as e:
+            print(e)
             
     def getApproved(self, tokenId:int) -> str:
         try:

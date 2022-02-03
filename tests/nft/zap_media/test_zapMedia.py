@@ -359,13 +359,8 @@ def test_symbol(zap_media):
 def test_total_supply(zap_media):
     assert zap_media.totalSupply() == 0
 
-def test_market_owner(zap_market, wallets, w3):
-    assert zap_market.getOwner() == wallets[0]
-    assert zap_market.w3 == w3
-    # assert zap_market.mediaContracts(wallets[0], 0)
-
-def test_market_medias(zap_media, zap_market, wallets):
-    assert zap_market.mediaContracts(wallets[0], 0)
+def test_contract_uri(zap_media):
+    assert zap_media.contractURI() == b"https://testing.com"
 
 def test_media_mint(w3, wallets, zap_media, zap_market):
     # assert w3.eth.accounts[1] == utils.wallets[0].address
