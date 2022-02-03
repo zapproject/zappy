@@ -6,6 +6,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath("./__file__")))
 
 import pytest
 
+import web3
 from web3 import (
     EthereumTesterProvider,
     Web3,
@@ -349,39 +350,35 @@ def test_chainId_connection(auctionhouse):
 def test_auctionhouse_address(auctionhouse, auction_house_contract):
     assert auctionhouse.address == auction_house_contract.address
 
-def test_create_auction(auctionhouse:AuctionHouse, zap_media:ZapMedia, mint_token0):
+def test_create_auction(wallets, zap_token:ZapTokenBSC, auctionhouse:AuctionHouse, zap_media:ZapMedia, mint_token0):
     assert auctionhouse.w3.isConnected()
     assert zap_media.w3.isConnected()
 
-    duration = 60 * 60 * 24 # sec * min * hours = number of seconds in 24 hours
-    reservePrice = 5e18 # 5
+    duration = 86400 #  number of seconds in 24 hours
+    reservePrice = Web3.toWei(5, 'ether')
 
-    zap_media.approve(auctionhouse.address, 0);
+    zap_media.approve(auctionhouse.address, 0)
     approved_address = zap_media.getApproved(0)
     assert approved_address == auctionhouse.address
 
+    params = [
+        0, 
+        zap_media.address, 
+        duration, 
+        reservePrice, 
+        web3.constants.ADDRESS_ZERO, 
+        0, 
+        zap_token.address
+        ]
+    auctionhouse.createAuction(*params)
 
-    # await auctionHouse.createAuction(
-    # 0,
-    # mediaAddress,
-    # duration,
-    # reservePrice,
-    # "0x0000000000000000000000000000000000000000",
-    # 0,
-    # token.address
-    # );
-
-    # const createdAuction = await auctionHouse.fetchAuction(0);
-
-    # expect(parseInt(createdAuction.token.tokenId.toString())).to.equal(0);
-
-    # expect(createdAuction.token.mediaContract).to.equal(mediaAddress);
-    # expect(createdAuction.approved).to.be.true;
-    # expect(parseInt(createdAuction.duration._hex)).to.equal(60 * 60 * 24);
-    # expect(createdAuction.curatorFeePercentage).to.equal(0);
-    # expect(parseInt(createdAuction.reservePrice._hex)).to.equal(
-    # parseInt(reservePrice._hex)
-    # );
-    # expect(createdAuction.tokenOwner).to.equal(await signer.getAddress());
-    # expect(createdAuction.curator).to.equal(ethers.constants.AddressZero);
-    # expect(createdAuction.auctionCurrency).to.equal(token.address);
+    createdAuction = auctionhouse.auctions(0);
+    assert createdAuction.token_details.token_id == 0
+    assert createdAuction.token_details.media_contract == zap_media.address
+    assert createdAuction.approved == True
+    assert createdAuction.duration == duration
+    assert createdAuction.curator_fee_percentage == 0
+    assert createdAuction.reserve_price == reservePrice
+    assert createdAuction.token_owner == wallets[0]
+    assert createdAuction.curator == web3.constants.ADDRESS_ZERO
+    assert createdAuction.auction_currency == zap_token.address
