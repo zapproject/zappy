@@ -874,3 +874,18 @@ def test_media_burn(w3, wallets, zap_media, mint_token0):
 
     total_supply = zap_media.ownerOf(token_id)
     assert total_supply is None
+
+
+def test_media_revoke_approval(w3, wallets, zap_media, mint_token0):
+    token_id = zap_media.totalSupply() - 1
+
+    tx = zap_media.approve(wallets[1], token_id)
+    w3.eth.wait_for_transaction_receipt(tx, 180)
+
+    postApprovedStatus = zap_media.getApproved(token_id)
+    assert postApprovedStatus == wallets[1]
+
+    tx = zap_media.revokeApproval(token_id)
+    w3.eth.wait_for_transaction_receipt(tx, 180)
+
+    assert zap_media.getApproved(token_id) == "0x0000000000000000000000000000000000000000"
