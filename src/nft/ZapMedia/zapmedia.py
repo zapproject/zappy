@@ -1,5 +1,7 @@
 from src.nft.base_contract import BaseContract
-import traceback
+from py_eth_sig_utils.signing import sign_typed_data
+from py_eth_sig_utils.utils import normalize_key
+
 
 class ZapMedia(BaseContract):
 
@@ -253,3 +255,49 @@ class ZapMedia(BaseContract):
             "recipient": recipient,
             "sellOnShare": {"value": sellOnShare}
         }
+
+    # Creates the ECDSA compliant signature 
+    def getSignature(self, media_data, bid_share, deadline):
+        # EIP191 data structure which specifies EIP712 versioning
+        data = {
+            "types": {
+                "EIP712Domain": [
+                    { "name": "name", "type": "string" },
+                    { "name": "version", "type": "string" },
+                    { "name": "chainId", "type": "uint256" },
+                    { "name": "verifyingContract", "type": "address" }
+                ],
+                "MintWithSig": [
+                    { "name": 'contentHash', "type": 'bytes32' },
+                    { "name": 'metadataHash', "type": 'bytes32' },
+                    { "name": 'creatorShare', "type": 'uint256' },
+                    { "name": 'nonce', "type": 'uint256' },
+                    { "name": 'deadline', "type": 'uint256' }
+                ]
+            },
+            "primaryType": "MintWithSig",
+            "domain": {
+                "name": self.name(),
+                "version": "1",
+                "chainId": int(self.chainId),
+                "verifyingContract": self.address
+            },
+            "message": {
+                'contentHash': media_data["contentHash"],
+                'metadataHash': media_data["metadataHash"],
+                'creatorShare': bid_share["creator"]["value"],
+                'nonce': self.getSigNonces(self.publicAddress),
+                'deadline': deadline
+            }
+        }
+
+        # signs the data
+        sig_data = sign_typed_data(data, normalize_key(self.privateKey))
+
+        # builds the signature struct for solidity
+        return self.makeEIP712Sig(
+            deadline, 
+            sig_data[0], 
+            self.w3.toHex(sig_data[1]),
+            self.w3.toHex(sig_data[2]),
+        )

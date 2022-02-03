@@ -1,24 +1,18 @@
 import os
 from platform import platform
 import sys
+import time
+import pytest
+import web3
+
 sys.path.insert(0, os.path.dirname(os.path.abspath("./__file__")))
 
-import pytest
-<<<<<<< HEAD
-import time
-
-from eth_account.messages import encode_structured_data
-=======
-import web3
->>>>>>> develop
 from web3 import (
     EthereumTesterProvider,
     Web3,
 )
 from eth_tester import EthereumTester
-
 from unittest.mock import patch
-
 
 import tests.nft.test_utilities as utils
 from src.nft.ZapMedia import ZapMedia
@@ -28,9 +22,6 @@ from src.nft.ZapToken import ZapTokenBSC
 import pprint
 pp = pprint.PrettyPrinter(indent=4)
 
-from src.nft.utils.signature import encode_structured_data
-from py_eth_sig_utils.signing import (sign_typed_data, recover_typed_data)
-from py_eth_sig_utils.utils import normalize_key
 
 @pytest.fixture
 def tester_provider():
@@ -332,18 +323,18 @@ def mint_token0(w3, zap_media):
     tokenURI = "https://tokenURI.com"
     metadataURI = "https://metadataURI.com"
 
-    mediaData = {
-        "tokenURI": tokenURI,
-        "metadataURI": metadataURI,
-        "contentHash": Web3.toBytes(text=tokenURI),
-        "metadataHash": Web3.toBytes(text=metadataURI)
-    }
-    bidShares = {
-        "creator" : {"value":90000000000000000000},
-        "owner" : {"value":5000000000000000000},
-        "collaborators": [],
-        "collabShares": []
-    }
+    mediaData = zap_media.makeMediaData(
+        tokenURI, 
+        metadataURI,
+        Web3.toBytes(text=tokenURI),
+        Web3.toBytes(text=metadataURI)
+    )
+    bidShares = zap_media.makeBidShares(
+        90000000000000000000,
+        5000000000000000000,
+        [],
+        []
+    )
 
     tx_hash = zap_media.mint(mediaData, bidShares)
     w3.eth.wait_for_transaction_receipt(tx_hash, 180)
@@ -384,18 +375,18 @@ def test_media_mint(w3, wallets, zap_media, zap_market):
     tokenURI = "Test CarZ"
     metadataURI = "Test CarMZ"
 
-    mediaData = {
-        "tokenURI": tokenURI,
-        "metadataURI": metadataURI,
-        "contentHash": Web3.toBytes(text=tokenURI),
-        "metadataHash": Web3.toBytes(text=metadataURI)
-    }
-    bidShares = {
-        "creator" : {"value":90000000000000000000},
-        "owner" : {"value":5000000000000000000},
-        "collaborators": [],
-        "collabShares": []
-    }
+    mediaData = zap_media.makeMediaData(
+        tokenURI, 
+        metadataURI,
+        Web3.toBytes(text=tokenURI),
+        Web3.toBytes(text=metadataURI)
+    )
+    bidShares = zap_media.makeBidShares(
+        90000000000000000000,
+        5000000000000000000,
+        [],
+        []
+    )
 
     tx_hash = zap_media.mint(mediaData, bidShares)
     w3.eth.wait_for_transaction_receipt(tx_hash, 180)
@@ -442,18 +433,18 @@ def test_media_mint2(w3, wallets, zap_media, zap_market):
     tokenURI = "Test CarZ"
     metadataURI = "Test CarMZ"
 
-    mediaData = {
-        "tokenURI": tokenURI,
-        "metadataURI": metadataURI,
-        "contentHash": Web3.toBytes(text=tokenURI),
-        "metadataHash": Web3.toBytes(text=metadataURI)
-    }
-    bidShares = {
-        "creator" : {"value":90000000000000000000},
-        "owner" : {"value":5000000000000000000},
-        "collaborators": [],
-        "collabShares": []
-    }
+    mediaData = zap_media.makeMediaData(
+        tokenURI, 
+        metadataURI,
+        Web3.toBytes(text=tokenURI),
+        Web3.toBytes(text=metadataURI)
+    )
+    bidShares = zap_media.makeBidShares(
+        90000000000000000000,
+        5000000000000000000,
+        [],
+        []
+    )
 
     tx_hash = zap_media.mint(mediaData, bidShares)
     w3.eth.wait_for_transaction_receipt(tx_hash, 180)
@@ -493,31 +484,28 @@ def test_media_set_bid(w3, wallets, zap_media, zap_market, zap_token):
     tokenURI = "https://test"
     metadataURI = "http://test"
 
-    mediaData = {
-        "tokenURI": tokenURI,
-        "metadataURI": metadataURI,
-        "contentHash": w3.toBytes(text=tokenURI),
-        "metadataHash": w3.toBytes(text=metadataURI)
-    }
-
-    bidShares = {
-        "creator" : {"value":90000000000000000000},
-        "owner" : {"value":5000000000000000000},
-        "collaborators": [],
-        "collabShares": []
-    }
+    mediaData = zap_media.makeMediaData(
+        tokenURI, 
+        metadataURI,
+        Web3.toBytes(text=tokenURI),
+        Web3.toBytes(text=metadataURI)
+    )
+    bidShares = zap_media.makeBidShares(
+        90000000000000000000,
+        5000000000000000000,
+        [],
+        []
+    )
 
     tx_hash = zap_media.mint(mediaData, bidShares)
     receipt = w3.eth.wait_for_transaction_receipt(tx_hash, 180)
     assert receipt is not None
 
     zap_media.privateKey = utils.hh_private_keys[1]
-    # zap_media.public_address
+    zap_media.publicAddress = wallets[1]
+   
     bidder = wallets[1]
 
-    # zap_media.privateKey = wallets[1].key.hex()
-    zap_media.publicAddress = wallets[1]
-    # bidder = zap_media.publicAddress
     bid = zap_media.makeBid(
         100,
         zap_token.address,
@@ -557,105 +545,53 @@ def test_media_set_bid(w3, wallets, zap_media, zap_market, zap_token):
     assert new_bid[4][0] == bid["sellOnShare"]["value"]
 
 
-def test_media_mint_w_sig(w3, wallets, eth_tester, zap_media, zap_market):
-    zap_media.privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
-    before_mint = zap_media.totalSupply()
+def test_media_mint_w_sig(w3, wallets, zap_media, zap_market, zap_token):
+    tokenURI = "https://test"
+    metadataURI = "http://test"
+
     media_data = zap_media.makeMediaData(
-        "https://content-uri", 
-        "https://metadata-uri", 
-        "content-hash".encode('utf-8'), 
-        "metadata-hash".encode('utf-8'))
-    bid_shares = zap_media.makeBidShares(95000000000000000000, 0, [], [])
-
-    account = wallets[0]
-
-    deadline = int(time.time() + 60 * 60 * 24)
-    name = zap_media.name()
-    chain_id = zap_media.chainId
-    nonce = zap_media.getSigNonces(account)
-    data = {
-        "types": {
-            "EIP712Domain": [
-                { "name": "name", "type": "string" },
-                { "name": "version", "type": "string" },
-                { "name": "chainId", "type": "uint256" },
-                { "name": "verifyingContract", "type": "address" }
-            ],
-            "MintWithSig": [
-                { "name": 'contentHash', "type": 'bytes32' },
-                { "name": 'metadataHash', "type": 'bytes32' },
-                { "name": 'creatorShare', "type": 'uint256' },
-                { "name": 'nonce', "type": 'uint256' },
-                { "name": 'deadline', "type": 'uint256' }
-            ]
-        },
-        "primaryType": "MintWithSig",
-        "domain": {
-            "name": name,
-            "version": "1",
-            "chainId": int(chain_id),
-            "verifyingContract": zap_media.address
-        },
-        "message": {
-            'contentHash': media_data["contentHash"],
-            'metadataHash': media_data["metadataHash"],
-            'creatorShare': bid_shares["creator"]["value"],
-            'nonce': nonce+1,
-            'deadline': deadline
-        }
-    }
-  
-    eip191data = encode_structured_data(data)
-    print("EIP191: ", eip191data)
-
-    # sig_data = w3.eth.sign_typed_data("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", data)
-
-    sig_data2 = w3.eth.account.sign_message(eip191data, zap_media.privateKey)
-    sig_data3 = sign_typed_data(data, normalize_key(zap_media.privateKey))
-    
-    # print("sig data: ", sig_data)
-    print("sig data 2: ", sig_data2)
-    print("sig data 3: ", sig_data3)
-
-    recovered = recover_typed_data(data, sig_data3[0], sig_data3[1], sig_data3[2])
-    print("RECOVERED: ", recovered)
-
-    recovered2 = w3.eth.account.recover_message(eip191data, signature=sig_data2.signature)
-    print("RECOVERED2: ", recovered2)
-
-    sig = zap_media.makeEIP712Sig(
-        deadline, 
-        sig_data3[0], 
-        w3.toHex(sig_data3[1]),
-        w3.toHex(sig_data3[2])
+        tokenURI, 
+        metadataURI,
+        Web3.toBytes(text=tokenURI),
+        Web3.toBytes(text=metadataURI)
     )
-    print("sig: ", sig)
+    bid_shares = zap_media.makeBidShares(
+        90000000000000000000,
+        5000000000000000000,
+        [],
+        []
+    )
+    deadline = int(time.time() + 60 * 60 * 24)
+
+    sig = zap_media.getSignature(media_data, bid_shares, deadline) 
+
+    tx = zap_media.mintWithSig(zap_media.publicAddress, media_data, bid_shares, sig)
+    receipt = w3.eth.wait_for_transaction_receipt(tx, 180)
+    # assert receipt["logs"] != []
+
+    print(receipt)
+
+    assert zap_media.totalSupply() == 1
+
+    assert zap_media.balanceOf(zap_media.publicAddress) == 1
 
 
-    result = zap_media.mintWithSig(account, media_data, bid_shares, sig)
-    w3.eth.wait_for_transaction_receipt(result, 180)
-    print("tx receipt: ", result)
-
-    after_mint = zap_media.totalSupply()
-    assert account == "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
-    assert after_mint == before_mint + 1
 def test_media_remove_bid(w3, wallets, zap_media, zap_market, zap_token):
     tokenURI = "https://test"
     metadataURI = "http://test"
 
-    mediaData = {
-        "tokenURI": tokenURI,
-        "metadataURI": metadataURI,
-        "contentHash": w3.toBytes(text=tokenURI),
-        "metadataHash": w3.toBytes(text=metadataURI)
-    }
-
-    bidShares = {
-        "creator" : {"value":90000000000000000000},
-        "owner" : {"value":5000000000000000000},
-        "collaborators": [],
-        "collabShares": []
-    }
+    mediaData = zap_media.makeMediaData(
+        tokenURI, 
+        metadataURI,
+        Web3.toBytes(text=tokenURI),
+        Web3.toBytes(text=metadataURI)
+    )
+    bidShares = zap_media.makeBidShares(
+        90000000000000000000,
+        5000000000000000000,
+        [],
+        []
+    )
 
     tx_hash = zap_media.mint(mediaData, bidShares)
     receipt = w3.eth.wait_for_transaction_receipt(tx_hash, 180)
@@ -708,19 +644,18 @@ def test_media_set_ask(w3, wallets, zap_media, zap_market, zap_token):
     tokenURI = "https://test2"
     metadataURI = "http://test2"
 
-    mediaData = {
-        "tokenURI": tokenURI,
-        "metadataURI": metadataURI,
-        "contentHash": w3.toBytes(text=tokenURI),
-        "metadataHash": w3.toBytes(text=metadataURI)
-    }
-
-    bidShares = {
-        "creator" : {"value":90000000000000000000},
-        "owner" : {"value":5000000000000000000},
-        "collaborators": [],
-        "collabShares": []
-    }
+    mediaData = zap_media.makeMediaData(
+        tokenURI, 
+        metadataURI,
+        Web3.toBytes(text=tokenURI),
+        Web3.toBytes(text=metadataURI)
+    )
+    bidShares = zap_media.makeBidShares(
+        90000000000000000000,
+        5000000000000000000,
+        [],
+        []
+    )
 
     tx_hash = zap_media.mint(mediaData, bidShares)
     receipt = w3.eth.wait_for_transaction_receipt(tx_hash, 180)
@@ -761,19 +696,18 @@ def test_media_remove_ask(w3, wallets, zap_media, zap_market, zap_token):
     tokenURI = "https://test2"
     metadataURI = "http://test2"
 
-    mediaData = {
-        "tokenURI": tokenURI,
-        "metadataURI": metadataURI,
-        "contentHash": w3.toBytes(text=tokenURI),
-        "metadataHash": w3.toBytes(text=metadataURI)
-    }
-
-    bidShares = {
-        "creator" : {"value":90000000000000000000},
-        "owner" : {"value":5000000000000000000},
-        "collaborators": [],
-        "collabShares": []
-    }
+    mediaData = zap_media.makeMediaData(
+        tokenURI, 
+        metadataURI,
+        Web3.toBytes(text=tokenURI),
+        Web3.toBytes(text=metadataURI)
+    )
+    bidShares = zap_media.makeBidShares(
+        90000000000000000000,
+        5000000000000000000,
+        [],
+        []
+    )
 
     tx_hash = zap_media.mint(mediaData, bidShares)
     receipt = w3.eth.wait_for_transaction_receipt(tx_hash, 180)
@@ -816,19 +750,18 @@ def test_media_accept_bid(w3, wallets, zap_media, zap_market, zap_token):
     tokenURI = "https://test2"
     metadataURI = "http://test2"
 
-    mediaData = {
-        "tokenURI": tokenURI,
-        "metadataURI": metadataURI,
-        "contentHash": w3.toBytes(text=tokenURI),
-        "metadataHash": w3.toBytes(text=metadataURI)
-    }
-
-    bidShares = {
-        "creator" : {"value":90000000000000000000},
-        "owner" : {"value":5000000000000000000},
-        "collaborators": [],
-        "collabShares": []
-    }
+    mediaData = zap_media.makeMediaData(
+        tokenURI, 
+        metadataURI,
+        Web3.toBytes(text=tokenURI),
+        Web3.toBytes(text=metadataURI)
+    )
+    bidShares = zap_media.makeBidShares(
+        90000000000000000000,
+        5000000000000000000,
+        [],
+        []
+    )
     
     tx_hash = zap_media.mint(mediaData, bidShares)
     receipt = w3.eth.wait_for_transaction_receipt(tx_hash, 180)
@@ -900,18 +833,18 @@ def test_media_update_metadata_uri(w3, wallets, zap_media, zap_market):
     tokenURI = "Test CarZ"
     metadataURI = "Test CarMZ"
 
-    mediaData = {
-        "tokenURI": tokenURI,
-        "metadataURI": metadataURI,
-        "contentHash": Web3.toBytes(text=tokenURI),
-        "metadataHash": Web3.toBytes(text=metadataURI)
-    }
-    bidShares = {
-        "creator" : {"value":90000000000000000000},
-        "owner" : {"value":5000000000000000000},
-        "collaborators": [],
-        "collabShares": []
-    }
+    mediaData = zap_media.makeMediaData(
+        tokenURI, 
+        metadataURI,
+        Web3.toBytes(text=tokenURI),
+        Web3.toBytes(text=metadataURI)
+    )
+    bidShares = zap_media.makeBidShares(
+        90000000000000000000,
+        5000000000000000000,
+        [],
+        []
+    )
 
     tx_hash = zap_media.mint(mediaData, bidShares)
     w3.eth.wait_for_transaction_receipt(tx_hash, 180)

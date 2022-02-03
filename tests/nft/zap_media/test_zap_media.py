@@ -8,7 +8,6 @@ from src.nft.ZapMedia import ZapMedia
 from src.nft.ZapMarket import ZapMarket
 from src.nft.ZapToken import ZapTokenBSC
 from tests.nft.test_utilities import wallets
-from src.nft.utils.signature import encode_structured_data
 
 from py_eth_sig_utils.signing import (sign_typed_data, recover_typed_data)
 from py_eth_sig_utils.utils import normalize_key
@@ -62,14 +61,14 @@ def test_media_mint():
 
 def test_media_mint_w_sig():
     media_data = zap_media.makeMediaData(
-        "https://content-uri", 
-        "https://metadata-uri", 
-        'content-hash'.encode('utf-8'),  
-        'metadata-hash'.encode('utf-8'))
+        "https://content-uri1", 
+        "https://metadata-uri1", 
+        b'content-hash2',  
+        b'metadata-hash2'
+    )
     bid_shares = zap_media.makeBidShares(95000000000000000000, 0, [], [])
-    print(media_data["contentHash"])
     account = zap_media.w3.eth.account.privateKeyToAccount(zap_media.privateKey)
-
+    print(media_data["contentHash"])
     deadline = int(time.time() + 60 * 60 * 24)
     name = zap_media.name()
     chain_id = zap_media.chainId
@@ -98,40 +97,42 @@ def test_media_mint_w_sig():
             "verifyingContract": zap_media.address
         },
         "message": {
+            # probable invalid signature cause - 
+            # 'contentHash': zap_media.w3.toHex(media_data["contentHash"]).encode('utf-8'),
+            # 'metadataHash': zap_media.w3.toHex(media_data["metadataHash"]).encode('utf-8'),
             'contentHash': media_data["contentHash"],
             'metadataHash': media_data["metadataHash"],
+            # 'contentHash': HexBytes(media_data["contentHash"]),
+            # 'metadataHash': HexBytes(media_data["metadataHash"]),
             'creatorShare': bid_shares["creator"]["value"],
-            'nonce': nonce+1,
+            'nonce': nonce,
             'deadline': deadline
         }
     }
-  
-    # eip191data = encode_structured_data(data)
-    # print("EIP191: ", eip191data)
-    # sig_data2 = zap_media.w3.eth.account.sign_message(eip191data, zap_media.privateKey)
+    
+    print("data: ", data)
     sig_data = sign_typed_data(data, normalize_key(zap_media.privateKey))
     
     print("sig data: ", sig_data)
-    # print("sig data 2: ", sig_data2)
 
     recovered = recover_typed_data(data, sig_data[0], sig_data[1], sig_data[2])
     print("RECOVERED: ", recovered)
 
-    # recovered2 = zap_media.w3.eth.account.recover_message(eip191data, signature=sig_data2.signature)
-    # print("RECOVERED2: ", recovered2)
-
     sig = zap_media.makeEIP712Sig(
         deadline, 
         sig_data[0], 
-        # sig_data2[1].to_bytes(32, 'big'),
-        # sig_data2[2].to_bytes(32, 'big')
-        zap_media.w3.toBytes(sig_data[1]),
-        zap_media.w3.toBytes(sig_data[2]),
+        zap_media.w3.toHex(sig_data[1]),
+        zap_media.w3.toHex(sig_data[2]),
     )
     print("sig: ", sig)
 
+    tx_hash = zap_media.mintWithSig(account.address, media_data, bid_shares, sig)
+    receipt = zap_media.w3.eth.wait_for_transaction_receipt(tx_hash, 180)
+    assert receipt is not None
 
-    result = zap_media.mintWithSig(account.address, media_data, bid_shares, sig)
+    assert zap_media.totalSupply() == 1
+
+    assert zap_media.balanceOf(account.address) == 1
 
 def toHex(val):
     return zap_media.w3.toHex(zap_media.w3.toBytes(text=val).rjust(32, b'\0'))
@@ -291,7 +292,37 @@ def test_media_set_ask():
 
     # assert events["ask"]["currency"] == ask["currency"]
 
-test_media_mint_w_sig()
+def test_mint_w_sig():
+    tokenURI = "https://test1"
+    metadataURI = "http://test1"
+
+    media_data = zap_media.makeMediaData(
+        tokenURI, 
+        metadataURI,
+        zap_media.w3.toBytes(text=tokenURI),
+        zap_media.w3.toBytes(text=metadataURI)
+    )
+    bid_shares = zap_media.makeBidShares(
+        90000000000000000000,
+        5000000000000000000,
+        [],
+        []
+    )
+    deadline = int(time.time() + 60 * 60 * 24)
+
+    sig = zap_media.getSignature(media_data, bid_shares, deadline)
+
+    tx = zap_media.mintWithSig(zap_media.publicAddress, media_data, bid_shares, sig)
+    receipt = zap_media.w3.eth.wait_for_transaction_receipt(tx, 180)
+    assert receipt is not None
+
+    total_supply = zap_media.totalSupply()
+    assert total_supply == 1
+
+    assert zap_media.balanceOf(zap_media.publicAddress) == 1
+
+test_mint_w_sig()
+# test_media_mint_w_sig()
 # test_media_mint()
 # test_media_set_bid()
 # test_media_set_ask()
