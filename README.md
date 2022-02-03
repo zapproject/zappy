@@ -34,8 +34,15 @@ For example:
 ```
 
 ## Running build and tests
-pytest
+* Run all tests: `pytest`
+* Run a specific test file: `pytest tests/nft/<folder>/<file-name>.py`
+* Run a specific test in a file: `pytest tests/nft/<folder>/<file-name>.py::<nameof_test>`
+    * Example: `pytest tests/nft/zap_media/test_zapMedia.py::test_total_supply` will only run `test_total_supply` in `test_zapMedia.py`  
 
+
+    ### Notes:
+    Add `-v` flag `pytest -v` for verbose messages.  
+    Will only run tests in `./tests/nft/*`  
 ## Packages
 
 ## Usage

@@ -359,13 +359,11 @@ def test_symbol(zap_media):
 def test_total_supply(zap_media):
     assert zap_media.totalSupply() == 0
 
-def test_market_owner(zap_market, wallets, w3):
-    assert zap_market.getOwner() == wallets[0]
-    assert zap_market.w3 == w3
-    # assert zap_market.mediaContracts(wallets[0], 0)
+def test_contract_uri(zap_media):
+    assert zap_media.contractURI() == b"https://testing.com"
 
-def test_market_medias(zap_media, zap_market, wallets):
-    assert zap_market.mediaContracts(wallets[0], 0)
+def test_supports_interface(zap_media):
+    assert zap_media.supportsInterface("0x5b5e139f")
 
 def test_media_mint(w3, wallets, zap_media, zap_market):
     # assert w3.eth.accounts[1] == utils.wallets[0].address
@@ -862,3 +860,35 @@ def test_approve(zap_media:ZapMedia, wallets, mint_token0):
     # Returns the address approved for token id  0 after approval
     postApprovedStatus = zap_media.getApproved(0)
     assert postApprovedStatus == wallets[1]
+
+
+def test_media_burn(w3, wallets, zap_media, mint_token0):
+    before_bal = zap_media.balanceOf(zap_media.publicAddress)
+    token_id = zap_media.totalSupply() - 1
+
+    tx = zap_media.burn(token_id)
+    w3.eth.wait_for_transaction_receipt(tx, 180)
+
+    after_bal = zap_media.balanceOf(zap_media.publicAddress)
+    assert after_bal == before_bal - 1
+    assert after_bal == 0
+
+    assert zap_media.totalSupply() == 0
+
+    total_supply = zap_media.ownerOf(token_id)
+    assert total_supply is None
+
+
+def test_media_revoke_approval(w3, wallets, zap_media, mint_token0):
+    token_id = zap_media.totalSupply() - 1
+
+    tx = zap_media.approve(wallets[1], token_id)
+    w3.eth.wait_for_transaction_receipt(tx, 180)
+
+    postApprovedStatus = zap_media.getApproved(token_id)
+    assert postApprovedStatus == wallets[1]
+
+    tx = zap_media.revokeApproval(token_id)
+    w3.eth.wait_for_transaction_receipt(tx, 180)
+
+    assert zap_media.getApproved(token_id) == "0x0000000000000000000000000000000000000000"
