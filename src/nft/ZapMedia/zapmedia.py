@@ -25,7 +25,10 @@ class ZapMedia(BaseContract):
         return self.contract.functions.auctionTransfer(tokenId, recipient)
             
     def balanceOf(self, owner):
-        return self.contract.functions.balanceOf(owner).call()
+        try:
+            return self.contract.functions.balanceOf(owner).call()
+        except Exception as e:
+            print(e)
             
     def burn(self, tokenId):
         return self.sendTransaction(self.contract.functions.burn(tokenId))
@@ -37,7 +40,10 @@ class ZapMedia(BaseContract):
         return self.contract.functions.contractURI()
             
     def getApproved(self, tokenId:int) -> str:
-        return self.contract.functions.getApproved(tokenId).call()
+        try:
+            return self.contract.functions.getApproved(tokenId).call()
+        except Exception as e:
+            print(e)
             
     def getOwner(self, ):
         return self.contract.functions.getOwner()
@@ -52,16 +58,25 @@ class ZapMedia(BaseContract):
         return self.contract.functions.getSigNonces(_minter)
             
     def getTokenContentHashes(self, _tokenId):
-        return self.contract.functions.getTokenContentHashes(_tokenId).call()
+        try:
+            return self.contract.functions.getTokenContentHashes(_tokenId).call()
+        except Exception as e:
+            print(e)
             
     def getTokenCreators(self, _tokenId):
         return self.contract.functions.getTokenCreators(_tokenId)
             
     def getTokenMetadataHashes(self, _tokenId):
-        return self.contract.functions.getTokenMetadataHashes(_tokenId).call()
+        try:
+            return self.contract.functions.getTokenMetadataHashes(_tokenId).call()
+        except Exception as e:
+            print(e)
             
     def getTokenMetadataURIs(self, _tokenId):
-        return self.contract.functions.getTokenMetadataURIs(_tokenId).call()
+        try:
+            return self.contract.functions.getTokenMetadataURIs(_tokenId).call()
+        except Exception as e:
+            print(e)
             
     def initTransferOwnership(self, newOwner):
         return self.contract.functions.initTransferOwnership(newOwner)
@@ -82,7 +97,10 @@ class ZapMedia(BaseContract):
         return self.contract.functions.mintWithSig(creator, data, bidShares, sig)
             
     def name(self):
-        return self.contract.functions.name().call()
+        try:
+            return self.contract.functions.name().call()
+        except Exception as e:
+            print(e)
             
     def ownerOf(self, tokenId):
         try:
@@ -124,22 +142,34 @@ class ZapMedia(BaseContract):
         return self.contract.functions.supportsInterface(interfaceId)
             
     def symbol(self):
-        return self.contract.functions.symbol().call()
+        try:
+            return self.contract.functions.symbol().call()
+        except Exception as e:
+            print(e)
             
     def tokenByIndex(self, index):
-        return self.contract.functions.tokenByIndex(index).call()
-            
-    def tokenMetadataURI(self, tokenId):
-        return self.contract.functions.tokenMetadataURI(tokenId)
+        try:
+            return self.contract.functions.tokenByIndex(index).call()
+        except Exception as e:
+            print(e)
             
     def tokenOfOwnerByIndex(self, owner, index):
-        return self.contract.functions.tokenOfOwnerByIndex(owner, index).call()
+        try:
+            return self.contract.functions.tokenOfOwnerByIndex(owner, index).call()
+        except Exception as e:
+            print(e)
             
     def tokenURI(self, tokenId):
-        return self.contract.functions.tokenURI(tokenId).call()
+        try:
+            return self.contract.functions.tokenURI(tokenId).call()
+        except Exception as e:
+            print(e)
             
     def totalSupply(self, ):
-        return self.contract.functions.totalSupply().call()
+        try:
+            return self.contract.functions.totalSupply().call()
+        except Exception as e:
+            print(e)
             
     def transferFrom(self, _from, _to, tokenId):
         return self.contract.functions.transferFrom(_from, _to, tokenId)
