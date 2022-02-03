@@ -139,7 +139,10 @@ class ZapMedia(BaseContract):
         return self.sendTransaction(self.contract.functions.setBid(tokenId, bid))
             
     def supportsInterface(self, interfaceId):
-        return self.contract.functions.supportsInterface(interfaceId)
+        try:
+            return self.contract.functions.supportsInterface(interfaceId).call()
+        except Exception as e:
+            print(e)
             
     def symbol(self):
         try:

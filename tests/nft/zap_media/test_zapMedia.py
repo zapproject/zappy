@@ -362,6 +362,9 @@ def test_total_supply(zap_media):
 def test_contract_uri(zap_media):
     assert zap_media.contractURI() == b"https://testing.com"
 
+def test_supports_interface(zap_media):
+    assert zap_media.supportsInterface("0x5b5e139f")
+
 def test_media_mint(w3, wallets, zap_media, zap_market):
     # assert w3.eth.accounts[1] == utils.wallets[0].address
     before_mint = zap_media.totalSupply()
