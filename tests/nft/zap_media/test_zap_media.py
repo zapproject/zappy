@@ -563,10 +563,10 @@ def test_media_mint_w_sig(w3, wallets, zap_media):
     )
     deadline = int(time.time() + 60 * 60 * 24)
 
-    sig = zap_media.get_signature(media_data, bid_shares, deadline) 
+    sig = zap_media.get_mint_signature(media_data, bid_shares, deadline) 
 
     tx = zap_media.mint_with_sig(zap_media.publicAddress, media_data, bid_shares, sig)
-    receipt = w3.eth.wait_for_transaction_receipt(tx, 360)
+    w3.eth.wait_for_transaction_receipt(tx, 360)
 
 
 def test_media_remove_bid(w3, wallets, zap_media, zap_market, zap_token):
@@ -908,3 +908,15 @@ def test_media_revoke_approval(w3, wallets, zap_media, mint_token0):
     w3.eth.wait_for_transaction_receipt(tx, 180)
 
     assert zap_media.get_approved(token_id) == "0x0000000000000000000000000000000000000000"
+
+def test_media_permit(w3, wallets, zap_media, mint_token0):
+    token_id = zap_media.total_supply() - 1
+    deadline = int(time.time() + 60 * 60 * 24)
+
+    sig = zap_media.get_permit_signature(wallets[1], token_id, deadline)
+    
+    # make sure wallets[1] is not already approved
+    assert zap_media.get_approved(token_id) == "0x0000000000000000000000000000000000000000"
+
+    tx = zap_media.permit(wallets[1], token_id, sig)
+    w3.eth.wait_for_transaction_receipt(tx, 180)
