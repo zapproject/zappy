@@ -58,12 +58,14 @@ class ZapMedia(BaseContract):
     def getOwner(self, ):
         return self.contract.functions.getOwner()
             
-    def getPermitNonce(self, _user, _tokenId):
-        return self.contract.functions.getPermitNonce(_user, _tokenId)
+    # Retreives the nonce for permit with signature transactions for specified user and token id
+    def get_permit_nonce(self, _user, _tokenId):
+        return self.contract.functions.getPermitNonce(_user, _tokenId).call()
             
     def getPreviousTokenOwners(self, _tokenId):
         return self.contract.functions.getPreviousTokenOwners(_tokenId)
             
+    # Retreives the nonce for mint with signature transactions for specified user and token id
     def get_sig_nonces(self, _minter):
         return self.contract.functions.getSigNonces(_minter).call()
             
@@ -124,8 +126,9 @@ class ZapMedia(BaseContract):
         except Exception as e:
             print(e)
 
+    # Approves user with specified signature and token id
     def permit(self, spender, tokenId, sig):
-        return self.contract.functions.permit(spender, tokenId, sig)
+        return self.sendTransaction(self.contract.functions.permit(spender, tokenId, sig))
             
     # Removes the current ask on the specified token id
     def remove_ask(self, tokenId):
@@ -256,8 +259,8 @@ class ZapMedia(BaseContract):
             "sellOnShare": {"value": sellOnShare}
         }
 
-    # Creates the ECDSA compliant signature 
-    def get_signature(self, media_data, bid_share, deadline):
+    # Creates the ECDSA compliant signature for minting
+    def get_mint_signature(self, media_data, bid_share, deadline):
         # EIP191 data structure which specifies EIP712 versioning
         data = {
             "types": {
@@ -287,6 +290,51 @@ class ZapMedia(BaseContract):
                 'metadataHash': media_data["metadataHash"],
                 'creatorShare': bid_share["creator"]["value"],
                 'nonce': self.get_sig_nonces(self.publicAddress),
+                'deadline': deadline
+            }
+        }
+
+        # signs the data
+        sig_data = sign_typed_data(data, normalize_key(self.privateKey))
+
+        # builds the signature struct for solidity
+        return self.make_EIP712_Sig(
+            deadline, 
+            sig_data[0], 
+            self.w3.toHex(sig_data[1]),
+            self.w3.toHex(sig_data[2]),
+        )
+
+    
+    # Creates the ECDSA compliant signature for approving
+    def get_permit_signature(self, spender, token_id, deadline):
+        # EIP191 data structure which specifies EIP712 versioning
+        data = {
+            "types": {
+                "EIP712Domain": [
+                    { "name": "name", "type": "string" },
+                    { "name": "version", "type": "string" },
+                    { "name": "chainId", "type": "uint256" },
+                    { "name": "verifyingContract", "type": "address" }
+                ],
+                "Permit": [
+                    { "name": 'spender', "type": 'address' },
+                    { "name": 'tokenId', "type": 'uint256' },
+                    { "name": 'nonce', "type": 'uint256' },
+                    { "name": 'deadline', "type": 'uint256' },
+                ]
+            },
+            "primaryType": "Permit",
+            "domain": {
+                "name": self.name(),
+                "version": "1",
+                "chainId": int(self.chainId),
+                "verifyingContract": self.address
+            },
+            "message": {
+                'spender': spender,
+                'tokenId': token_id,
+                'nonce': self.get_permit_nonce(self.publicAddress, token_id),
                 'deadline': deadline
             }
         }
