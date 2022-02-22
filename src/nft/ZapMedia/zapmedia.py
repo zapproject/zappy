@@ -1,4 +1,7 @@
 from src.nft.base_contract import BaseContract
+from py_eth_sig_utils.signing import sign_typed_data
+from py_eth_sig_utils.utils import normalize_key
+
 
 class ZapMedia(BaseContract):
 
@@ -11,7 +14,7 @@ class ZapMedia(BaseContract):
         
     # Accepts the specified bid as the token owner or approved user. 
     # Transfer of the token and bid amount is done internally.
-    def acceptBid(self, tokenId, bid):
+    def accept_bid(self, tokenId, bid):
         return self.sendTransaction(self.contract.functions.acceptBid(tokenId, bid))
             
     def appointedOwner(self, ):
@@ -25,7 +28,7 @@ class ZapMedia(BaseContract):
         return self.contract.functions.approveToMint(toApprove)
             
     # Retrives the number of tokens the user has
-    def balanceOf(self, owner):
+    def balance_of(self, owner):
         try:
             return self.contract.functions.balanceOf(owner).call()
         except Exception as e:
@@ -39,14 +42,14 @@ class ZapMedia(BaseContract):
         return self.contract.functions.claimTransferOwnership()
             
     # Retrieves the contract URI 
-    def contractURI(self, ):
+    def contract_URI(self, ):
         try:
             return self.contract.functions.contractURI().call()
         except Exception as e:
             print(e)
             
     # Retreives the approved address for specified token id
-    def getApproved(self, tokenId:int) -> str:
+    def get_approved(self, tokenId:int) -> str:
         try:
             return self.contract.functions.getApproved(tokenId).call()
         except Exception as e:
@@ -55,17 +58,19 @@ class ZapMedia(BaseContract):
     def getOwner(self, ):
         return self.contract.functions.getOwner()
             
-    def getPermitNonce(self, _user, _tokenId):
-        return self.contract.functions.getPermitNonce(_user, _tokenId)
+    # Retreives the nonce for permit with signature transactions for specified user and token id
+    def get_permit_nonce(self, _user, _tokenId):
+        return self.contract.functions.getPermitNonce(_user, _tokenId).call()
             
     def getPreviousTokenOwners(self, _tokenId):
         return self.contract.functions.getPreviousTokenOwners(_tokenId)
             
-    def getSigNonces(self, _minter):
-        return self.contract.functions.getSigNonces(_minter)
+    # Retreives the nonce for mint with signature transactions for specified user and token id
+    def get_sig_nonces(self, _minter):
+        return self.contract.functions.getSigNonces(_minter).call()
             
     # Retreives the content URI hash for specified token id
-    def getTokenContentHashes(self, _tokenId):
+    def get_token_content_hashes(self, _tokenId):
         try:
             return self.contract.functions.getTokenContentHashes(_tokenId).call()
         except Exception as e:
@@ -75,14 +80,14 @@ class ZapMedia(BaseContract):
         return self.contract.functions.getTokenCreators(_tokenId)
             
     # Retreives the metadata hash for the specified token id
-    def getTokenMetadataHashes(self, _tokenId):
+    def get_token_metadata_hashes(self, _tokenId):
         try:
             return self.contract.functions.getTokenMetadataHashes(_tokenId).call()
         except Exception as e:
             print(e)
             
     # Retreives the metadata URI for the specified token id
-    def getTokenMetadataURIs(self, _tokenId):
+    def get_token_metadata_URIs(self, _tokenId):
         try:
             return self.contract.functions.getTokenMetadataURIs(_tokenId).call()
         except Exception as e:
@@ -105,10 +110,9 @@ class ZapMedia(BaseContract):
         return self.sendTransaction(self.contract.functions.mint(data, bidShares))
             
     # Mints a new token with ECDSA compliant signatures
-    def mintWithSig(self, creator, data, bidShares, sig):
-        return self.contract.functions.mintWithSig(creator, data, bidShares, sig)
-            
-    # Retreives the name of the collection / Media
+    def mint_with_sig(self, creator, data, bidShares, sig):
+        return self.sendTransaction(self.contract.functions.mintWithSig(creator, data, bidShares, sig))
+
     def name(self):
         try:
             return self.contract.functions.name().call()
@@ -116,25 +120,26 @@ class ZapMedia(BaseContract):
             print(e)
             
     # Retreives the owner of the specified token id
-    def ownerOf(self, tokenId):
+    def owner_of(self, tokenId):
         try:
             return self.contract.functions.ownerOf(tokenId).call()
         except Exception as e:
             print(e)
 
+    # Approves user with specified signature and token id
     def permit(self, spender, tokenId, sig):
-        return self.contract.functions.permit(spender, tokenId, sig)
+        return self.sendTransaction(self.contract.functions.permit(spender, tokenId, sig))
             
     # Removes the current ask on the specified token id
-    def removeAsk(self, tokenId):
+    def remove_ask(self, tokenId):
         return self.sendTransaction(self.contract.functions.removeAsk(tokenId))
             
     # Removes the current bid on the specified token id
-    def removeBid(self, tokenId):
+    def remove_bid(self, tokenId):
         return self.sendTransaction(self.contract.functions.removeBid(tokenId))
             
     # Removes all approvals on specified token id
-    def revokeApproval(self, tokenId):
+    def revoke_approval(self, tokenId):
         return self.sendTransaction(self.contract.functions.revokeApproval(tokenId))
             
     def revokeTransferOwnership(self):
@@ -150,15 +155,15 @@ class ZapMedia(BaseContract):
         return self.contract.functions.setApprovalForAll(operator, approved)
             
     # Creates a new ask for specified token id. Restricted for owner or approved users.
-    def setAsk(self, tokenId, ask):
+    def set_ask(self, tokenId, ask):
         return self.sendTransaction(self.contract.functions.setAsk(tokenId, ask))
             
     # Creates a new bid for specified token id
-    def setBid(self, tokenId, bid):
+    def set_bid(self, tokenId, bid):
         return self.sendTransaction(self.contract.functions.setBid(tokenId, bid))
             
     # Determines whether the collection supports the specified interface id
-    def supportsInterface(self, interfaceId):
+    def supports_interface(self, interfaceId):
         try:
             return self.contract.functions.supportsInterface(interfaceId).call()
         except Exception as e:
@@ -172,28 +177,28 @@ class ZapMedia(BaseContract):
             print(e)
             
     # Retreives the token specified by index
-    def tokenByIndex(self, index):
+    def token_by_index(self, index):
         try:
             return self.contract.functions.tokenByIndex(index).call()
         except Exception as e:
             print(e)
             
     # Retreives the token specified by the owner and index of the owner's tokens
-    def tokenOfOwnerByIndex(self, owner, index):
+    def token_of_owner_by_index(self, owner, index):
         try:
             return self.contract.functions.tokenOfOwnerByIndex(owner, index).call()
         except Exception as e:
             print(e)
             
     # Retreives the token / content URI for specified token id
-    def tokenURI(self, tokenId):
+    def token_URI(self, tokenId):
         try:
             return self.contract.functions.tokenURI(tokenId).call()
         except Exception as e:
             print(e)
             
     # Retreives the total supply of token for this collection
-    def totalSupply(self, ):
+    def total_supply(self, ):
         try:
             return self.contract.functions.totalSupply().call()
         except Exception as e:
@@ -203,15 +208,15 @@ class ZapMedia(BaseContract):
         return self.contract.functions.transferFrom(_from, _to, tokenId)
             
     # Updates the metadata URI for specified token id
-    def updateTokenMetadataURI(self, tokenId, metadataURI):
+    def update_token_metadata_URI(self, tokenId, metadataURI):
         return self.sendTransaction(self.contract.functions.updateTokenMetadataURI(tokenId, metadataURI))
             
     # Updates the token URI for the specified token id
-    def updateTokenURI(self, tokenId, tokenURILocal):
+    def update_token_URI(self, tokenId, tokenURILocal):
         return self.sendTransaction(self.contract.functions.updateTokenURI(tokenId, tokenURILocal))
 
     ## Helper function that builds a dict representing IMedia.MediaData
-    def makeMediaData(self, tokenURI, metadataURI, contentHash, metadataHash):
+    def make_media_data(self, tokenURI, metadataURI, contentHash, metadataHash):
         return {
             "tokenURI": tokenURI,
             "metadataURI": metadataURI,
@@ -220,7 +225,7 @@ class ZapMedia(BaseContract):
         }
 
     ## Helper function that build a dict representing IMarket.BidShares
-    def makeBidShares(self, creator, owner, collaborators, collabShares):
+    def make_bid_shares(self, creator, owner, collaborators, collabShares):
         return {
             "creator": {"value": creator},
             "owner": {"value": owner},
@@ -229,7 +234,7 @@ class ZapMedia(BaseContract):
         }
 
     ## Helper function that builds a dict representing IMedia.EIP712Signature
-    def makeEIP712Sig(self, deadline, v, r, s):
+    def make_EIP712_Sig(self, deadline, v, r, s):
         return {
             "deadline": deadline,
             "v": v,
@@ -238,14 +243,14 @@ class ZapMedia(BaseContract):
         }
 
     ## Helper function that builds a dict representing IMarket.Ask
-    def makeAsk(self, amount, currency):
+    def make_ask(self, amount, currency):
         return {
             "amount": amount,
             "currency": currency
         }
 
     ## Helper function that builds a dict representing IMarket.Bid
-    def makeBid(self, amount, currency, bidder, recipient, sellOnShare):
+    def make_bid(self, amount, currency, bidder, recipient, sellOnShare):
         return {
             "amount": amount,
             "currency": currency,
@@ -253,3 +258,94 @@ class ZapMedia(BaseContract):
             "recipient": recipient,
             "sellOnShare": {"value": sellOnShare}
         }
+
+    # Creates the ECDSA compliant signature for minting
+    def get_mint_signature(self, media_data, bid_share, deadline):
+        # EIP191 data structure which specifies EIP712 versioning
+        data = {
+            "types": {
+                "EIP712Domain": [
+                    { "name": "name", "type": "string" },
+                    { "name": "version", "type": "string" },
+                    { "name": "chainId", "type": "uint256" },
+                    { "name": "verifyingContract", "type": "address" }
+                ],
+                "MintWithSig": [
+                    { "name": 'contentHash', "type": 'bytes32' },
+                    { "name": 'metadataHash', "type": 'bytes32' },
+                    { "name": 'creatorShare', "type": 'uint256' },
+                    { "name": 'nonce', "type": 'uint256' },
+                    { "name": 'deadline', "type": 'uint256' }
+                ]
+            },
+            "primaryType": "MintWithSig",
+            "domain": {
+                "name": self.name(),
+                "version": "1",
+                "chainId": int(self.chainId),
+                "verifyingContract": self.address
+            },
+            "message": {
+                'contentHash': media_data["contentHash"],
+                'metadataHash': media_data["metadataHash"],
+                'creatorShare': bid_share["creator"]["value"],
+                'nonce': self.get_sig_nonces(self.publicAddress),
+                'deadline': deadline
+            }
+        }
+
+        # signs the data
+        sig_data = sign_typed_data(data, normalize_key(self.privateKey))
+
+        # builds the signature struct for solidity
+        return self.make_EIP712_Sig(
+            deadline, 
+            sig_data[0], 
+            self.w3.toHex(sig_data[1]),
+            self.w3.toHex(sig_data[2]),
+        )
+
+    
+    # Creates the ECDSA compliant signature for approving
+    def get_permit_signature(self, spender, token_id, deadline):
+        # EIP191 data structure which specifies EIP712 versioning
+        data = {
+            "types": {
+                "EIP712Domain": [
+                    { "name": "name", "type": "string" },
+                    { "name": "version", "type": "string" },
+                    { "name": "chainId", "type": "uint256" },
+                    { "name": "verifyingContract", "type": "address" }
+                ],
+                "Permit": [
+                    { "name": 'spender', "type": 'address' },
+                    { "name": 'tokenId', "type": 'uint256' },
+                    { "name": 'nonce', "type": 'uint256' },
+                    { "name": 'deadline', "type": 'uint256' },
+                ]
+            },
+            "primaryType": "Permit",
+            "domain": {
+                "name": self.name(),
+                "version": "1",
+                "chainId": int(self.chainId),
+                "verifyingContract": self.address
+            },
+            "message": {
+                'spender': spender,
+                'tokenId': token_id,
+                'nonce': self.get_permit_nonce(self.publicAddress, token_id),
+                'deadline': deadline
+            }
+        }
+
+        # signs the data
+        sig_data = sign_typed_data(data, normalize_key(self.privateKey))
+
+        # builds the signature struct for solidity
+        return self.make_EIP712_Sig(
+            deadline, 
+            sig_data[0], 
+            self.w3.toHex(sig_data[1]),
+            self.w3.toHex(sig_data[2]),
+        )
