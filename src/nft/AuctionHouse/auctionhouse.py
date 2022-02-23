@@ -40,8 +40,8 @@ class AuctionHouse(BaseContract):
     def create_auction(self, tokenId, mediaContract, duration, reservePrice, curator, curatorFeePercentage, auctionCurrency):
         return self.sendTransaction(self.contract.functions.createAuction(tokenId, mediaContract, duration, reservePrice, curator, curatorFeePercentage, auctionCurrency))
             
-    def createBid(self, auctionId, amount, mediaContract):
-        return self.contract.functions.createBid(auctionId, amount, mediaContract)
+    def create_bid(self, auctionId: int, amount: int, mediaContract: str):
+        return self.sendTransaction(self.contract.functions.createBid(auctionId, amount, mediaContract))
             
     def endAuction(self, auctionId, mediaContract):
         return self.contract.functions.endAuction(auctionId, mediaContract)

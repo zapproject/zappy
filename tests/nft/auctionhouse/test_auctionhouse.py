@@ -556,9 +556,123 @@ def test_setAuctionReservePrice(wallets, zap_token:ZapTokenBSC, auctionhouse:Auc
     assert auction_info.reserve_price == 200
 
 
+class TestCreateBid:
 
+    def test_reject_if_auction_id_does_not_exist(self, wallets, zap_token:ZapTokenBSC, auctionhouse:AuctionHouse, zap_media:ZapMedia, mint_token0):
 
+        bid_amount = 300
+        
+        # connect the curator
+        private_key_9 = "0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6"
+        auctionhouse.connect(private_key_9)
+        tx = auctionhouse.create_bid(0, bid_amount, zap_media.address)
+        receipt = auctionhouse.w3.eth.get_transaction_receipt(tx)
+        assert receipt['status'] == 0
 
+    def test_reject_media_contract_is_zero_address(self, wallets, zap_token:ZapTokenBSC, auctionhouse:AuctionHouse, zap_media:ZapMedia, mint_token0):
+        # CREATE AUCTION
+        duration = 86400 #  number of seconds in 24 hours
+        reservePrice = Web3.toWei(5, 'ether')
+        # curator = wallets[0]
+        token_id = 0
+        curator = wallets[9]
 
+        zap_media.approve(auctionhouse.address, token_id)
+
+        params = [
+            token_id, 
+            zap_media.address, 
+            duration, 
+            reservePrice, 
+            curator, 
+            0, 
+            zap_token.address
+            ]
+        auctionhouse.create_auction(*params)
+        
+        bid_amount = 300
+
+        # connect the curator
+        private_key_9 = "0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6"
+        auctionhouse.connect(private_key_9)
+        tx = auctionhouse.create_bid(0, bid_amount, web3.constants.ADDRESS_ZERO)
+        receipt = auctionhouse.w3.eth.get_transaction_receipt(tx)
+        assert receipt['status'] == 0
+
+    def test_reject_bid_less_than_reserve_price(self, wallets, zap_token:ZapTokenBSC, auctionhouse:AuctionHouse, zap_media:ZapMedia, mint_token0):
+        # CREATE AUCTION
+        duration = 86400 #  number of seconds in 24 hours
+        reservePrice = Web3.toWei(5, 'ether')
+        # curator = wallets[0]
+        token_id = 0
+        curator = wallets[9]
+
+        zap_media.approve(auctionhouse.address, token_id)
+
+        params = [
+            token_id, 
+            zap_media.address, 
+            duration, 
+            reservePrice, 
+            curator, 
+            0, 
+            zap_token.address
+            ]
+        auctionhouse.create_auction(*params)
+        bid_amount = 300
+        # connect the curator
+        private_key_9 = "0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6"
+        auctionhouse.connect(private_key_9)
+        auctionhouse.start_auction(0, True)
+        
+        tx = auctionhouse.create_bid(0, bid_amount-1, zap_media.address)
+        receipt = auctionhouse.w3.eth.get_transaction_receipt(tx)
+        assert receipt['status'] == 0
     
-    pass
+    def test_should_create_bid(self, w3, wallets, zap_token:ZapTokenBSC, auctionhouse:AuctionHouse, zap_media:ZapMedia, mint_token0):
+        private_key_1 = "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d"
+
+        # make sure wallets[1] has zap to bid with
+        zap_token.transfer(wallets[1], Web3.toWei(7, 'ether'))
+        zap_token.connect(private_key_1)
+        zap_token.approve(auctionhouse.address, Web3.toWei(10,'ether'))
+
+        # CREATE AUCTION
+        duration = 86400 #  number of seconds in 24 hours
+        reservePrice = Web3.toWei(5, 'ether')
+        # curator = wallets[0]
+        token_id = 0
+        curator = wallets[9]
+
+        zap_media.approve(auctionhouse.address, token_id)
+
+        params = [
+            token_id, 
+            zap_media.address, 
+            duration, 
+            reservePrice, 
+            curator, 
+            0, 
+            zap_token.address
+            ]
+        auctionhouse.create_auction(*params)
+        # connect the curator
+        private_key_9 = "0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6"
+        auctionhouse.connect(private_key_9)
+        auctionhouse.start_auction(0, True)
+        auction_info = auctionhouse.auctions(0);
+        print(auction_info)
+        print(auction_info.auction_currency)
+        print(zap_token.address)
+        assert auction_info.approved == True
+        
+        bid_amount = Web3.toWei(6, 'ether')
+        auctionhouse.connect(private_key_1)
+        assert auctionhouse.private_key == private_key_1
+
+        assert zap_token.balanceOf(auctionhouse.address) == 0 # before creating bid
+        auctionhouse.create_bid(0, bid_amount, zap_media.address)
+        assert zap_token.balanceOf(wallets[1]) == Web3.toWei(1, 'ether')
+        assert zap_token.balanceOf(auctionhouse.address) == bid_amount # after creating bid
+
+
