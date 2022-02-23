@@ -472,4 +472,40 @@ def test_start_auction(wallets, zap_token:ZapTokenBSC, auctionhouse:AuctionHouse
     approval_filter = auctionhouse.contract.events.AuctionApprovalUpdated.createFilter(fromBlock='0x0')
     assert approval_filter.get_new_entries()
     assert auction_info.approved == True
-    
+
+
+def test_starting_already_started_auction(wallets, zap_token:ZapTokenBSC, auctionhouse:AuctionHouse, zap_media:ZapMedia, mint_token0):
+    duration = 86400 #  number of seconds in 24 hours
+    reservePrice = Web3.toWei(5, 'ether')
+    # curator = wallets[0]
+    token_id = 0
+    curator = wallets[9]
+
+    zap_media.approve(auctionhouse.address, token_id)
+
+    params = [
+        token_id, 
+        zap_media.address, 
+        duration, 
+        reservePrice, 
+        curator, 
+        0, 
+        zap_token.address
+        ]
+    # create auction and assert
+    auctionhouse.create_auction(*params)
+
+    # change user of auctionhouse. similar to ethersjs: .connect(signer)
+    private_key_9 = "0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6"
+    auctionhouse.connect(private_key_9)
+
+    tx = auctionhouse.start_auction(0, True)
+    receipt = auctionhouse.w3.eth.get_transaction_receipt(tx)
+    assert receipt['status'] == 1
+    auction_info = auctionhouse.auctions(0);
+    assert auction_info.approved == True
+
+    # receipt status == 0 means EVM reverted
+    tx = auctionhouse.start_auction(0, True)
+    receipt = auctionhouse.w3.eth.get_transaction_receipt(tx)
+    assert receipt['status'] == 0
