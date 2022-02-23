@@ -259,8 +259,8 @@ def zap_media(mock_json, w3, zap_media_proxy_contract) -> ZapMedia:
     abi = artifact['abi']
 
     zap_media = ZapMedia(str(w3.eth.chain_id))
-    zap_media.privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
-    zap_media.publicAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+    zap_media.private_key = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+    zap_media.public_address = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
     zap_media.w3 = w3
     zap_media.contract = w3.eth.contract(address=zap_media_address, abi=abi)
     
@@ -278,8 +278,8 @@ def zap_market(mock_json, w3, zap_market_contract):
     abi = artifact['abi']
 
     zap_market = ZapMarket(str(w3.eth.chain_id))
-    zap_market.privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
-    zap_market.publicAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+    zap_market.private_key = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+    zap_market.public_address = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
     zap_market.w3 = w3
     zap_market.contract = w3.eth.contract(address=zap_market_address, abi=abi)
     return zap_market
@@ -295,8 +295,8 @@ def zap_token(mock_json, w3, zap_token_contract):
     abi = artifact['abi']
 
     zap_token = ZapTokenBSC(str(w3.eth.chain_id))
-    zap_token.privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
-    zap_token.publicAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+    zap_token.private_key = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+    zap_token.public_address = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
     zap_token.w3 = w3
     zap_token.contract = w3.eth.contract(address=zap_token_address, abi=abi)
     return zap_token
@@ -312,8 +312,8 @@ def auctionhouse(mock_json, w3, auction_house_contract):
     abi = artifact['abi']
 
     auctionhouse = AuctionHouse(str(w3.eth.chain_id))
-    auctionhouse.privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
-    auctionhouse.publicAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+    auctionhouse.private_key = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+    auctionhouse.public_address = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
     auctionhouse.w3 = w3
     auctionhouse.contract = w3.eth.contract(address=auction_house_address, abi=abi)
     return auctionhouse
@@ -358,7 +358,7 @@ def test_create_auction(wallets, zap_token:ZapTokenBSC, auctionhouse:AuctionHous
     reservePrice = Web3.toWei(5, 'ether')
 
     zap_media.approve(auctionhouse.address, 0)
-    approved_address = zap_media.getApproved(0)
+    approved_address = zap_media.get_approved(0)
     assert approved_address == auctionhouse.address
 
     params = [
@@ -422,19 +422,21 @@ def test_create_auction_with_diff_curator(wallets, zap_token:ZapTokenBSC, auctio
 def test_start_auction(wallets, zap_token:ZapTokenBSC, auctionhouse:AuctionHouse, zap_media:ZapMedia, mint_token0):
     
     """
-    Should start auction if the curator is not a zero address or token owner.
+    Should start auction if the curator is not a zero address or curator is not the token owner.
     If auction was created with curator == Zero Address or the curator is the token owner, the auction is automatically started.
     We are mainly testing auction_info.approved == False, then assert auction_info.approved == True after starting the auction
     """
 
     duration = 86400 #  number of seconds in 24 hours
     reservePrice = Web3.toWei(5, 'ether')
+    # curator = wallets[0]
+    token_id = 0
     curator = wallets[9]
 
-    zap_media.approve(auctionhouse.address, 0)
+    zap_media.approve(auctionhouse.address, token_id)
 
     params = [
-        0, 
+        token_id, 
         zap_media.address, 
         duration, 
         reservePrice, 
@@ -443,13 +445,25 @@ def test_start_auction(wallets, zap_token:ZapTokenBSC, auctionhouse:AuctionHouse
         zap_token.address
         ]
     auctionhouse.create_auction(*params)
-    auction_info = auctionhouse.auctions(0);
+    auction_info = auctionhouse.auctions(0)
+
+    pp.pprint(auction_info.__dict__)
+
     assert auction_info.approved == False
 
-    assert auction_info.curator == wallets[9]
     assert auction_info.curator != web3.constants.ADDRESS_ZERO
+    assert auction_info.curator == wallets[9]
     assert auction_info.auction_currency == zap_token.address
     
+    # change user of auctionhouse. similar to ethersjs: .connect(signer)
+    private_key_9 = "0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6"
+    auctionhouse.connect(private_key_9)
+    assert auctionhouse.public_address == wallets[9]
+    assert auctionhouse.private_key == private_key_9
+    
+    # auction started by the curator - wallet[9] in this test
     auctionhouse.start_auction(0, True)
     auction_info = auctionhouse.auctions(0);
+    pp.pprint(auction_info.__dict__)
     assert auction_info.approved == True
+    

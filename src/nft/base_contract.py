@@ -31,10 +31,10 @@ class BaseContract:
             self.w3 = Web3(Web3.HTTPProvider(provider_uri[chainId]))    
             with open("config.json", "r") as f:
                 data = json.load(f)
-            self.privateKey = data["privateKey"]
+            self.private_key = data["privateKey"]
 
-            wallet = self.w3.eth.account.from_key(self.privateKey)
-            self.publicAddress = wallet.address        
+            wallet = self.w3.eth.account.from_key(self.private_key)
+            self.public_address = wallet.address        
         except Exception as e:
             print(e)            
 
@@ -54,25 +54,32 @@ class BaseContract:
             self.contract = self.w3.eth.contract(address=self.address, abi=self.abi)
         except Exception as e:
             raise e
+
+
+    def connect(self, private_key: str):
+        self.private_key = private_key
+        wallet = self.w3.eth.account.from_key(self.private_key)
+        self.public_address = wallet.address        
+
     
 
-    # Async class methods
-    async def get_contract(self):
-        contract_address = await self.coordinator.functions.getContract(self.name.upper()).call()
-        self.contract = self.w3.eth.contract(
-            address=contract_address, abi=self.artifact['abi'])
-        return contract_address
+    # # Async class methods
+    # async def get_contract(self):
+    #     contract_address = await self.coordinator.functions.getContract(self.name.upper()).call()
+    #     self.contract = self.w3.eth.contract(
+    #         address=contract_address, abi=self.artifact['abi'])
+    #     return contract_address
 
-    def get_contract_owner(self):
-        return self.loop.run_until_complete(self.__async__get_contract_owner())
+    # def get_contract_owner(self):
+    #     return self.loop.run_until_complete(self.__async__get_contract_owner())
 
-    async def __async__get_contract_owner(self):
-        contract_owner = await self.contract.functions.owner().call()
-        return contract_owner
+    # async def __async__get_contract_owner(self):
+    #     contract_owner = await self.contract.functions.owner().call()
+    #     return contract_owner
 
     # Builds transactions for write contract calls
     def sendTransaction(self, function):
-        nonce = self.w3.eth.get_transaction_count(self.publicAddress)
+        nonce = self.w3.eth.get_transaction_count(self.public_address)
 
         tx = function.buildTransaction({
             'chainId': int(self.chainId),
@@ -81,7 +88,7 @@ class BaseContract:
             'nonce': nonce,
         })
 
-        signed_txn = self.w3.eth.account.sign_transaction(tx, self.privateKey)
+        signed_txn = self.w3.eth.account.sign_transaction(tx, self.private_key)
 
         return self.w3.eth.send_raw_transaction(signed_txn.rawTransaction)
         

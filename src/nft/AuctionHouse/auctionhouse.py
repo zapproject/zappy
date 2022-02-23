@@ -1,3 +1,4 @@
+from tokenize import Number
 from src.nft.base_contract import BaseContract
 from src.nft.AuctionHouse.auctionInfo import AuctionInfo
 from typing import TypedDict
@@ -33,7 +34,7 @@ class AuctionHouse(BaseContract):
         response = self.contract.functions.auctions(auctionId).call()
         return AuctionInfo(response)
 
-    def cancelAuction(self, auctionId):
+    def cancelAuction(self, auctionId: int):
         return self.contract.functions.cancelAuction(auctionId)
             
     def create_auction(self, tokenId, mediaContract, duration, reservePrice, curator, curatorFeePercentage, auctionCurrency):
@@ -45,25 +46,25 @@ class AuctionHouse(BaseContract):
     def endAuction(self, auctionId, mediaContract):
         return self.contract.functions.endAuction(auctionId, mediaContract)
             
-    def hundredPercent(self, ):
+    def hundredPercent(self):
         return self.contract.functions.hundredPercent()
             
     def initialize(self, _weth, _marketContract):
         return self.contract.functions.initialize(_weth, _marketContract)
             
-    def minBidIncrementPercentage(self, ):
+    def minBidIncrementPercentage(self):
         return self.contract.functions.minBidIncrementPercentage()
             
     def setAuctionReservePrice(self, auctionId, reservePrice):
         return self.contract.functions.setAuctionReservePrice(auctionId, reservePrice)
             
-    def start_auction(self, auctionId, approved):
+    def start_auction(self, auctionId: int, approved:bool):
         return self.sendTransaction(self.contract.functions.startAuction(auctionId, approved))
             
-    def timeBuffer(self, ):
+    def timeBuffer(self):
         return self.contract.functions.timeBuffer()
             
-    def wethAddress(self, ):
+    def wethAddress(self):
         return self.contract.functions.wethAddress()
             
     ## Helper function that builds a dict representing IAuctionHouse.TokenDetails

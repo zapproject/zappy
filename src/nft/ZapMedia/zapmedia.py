@@ -1,3 +1,4 @@
+from eth_typing import Address
 from src.nft.base_contract import BaseContract
 from py_eth_sig_utils.signing import sign_typed_data
 from py_eth_sig_utils.utils import normalize_key
@@ -17,11 +18,11 @@ class ZapMedia(BaseContract):
     def accept_bid(self, tokenId, bid):
         return self.sendTransaction(self.contract.functions.acceptBid(tokenId, bid))
             
-    def appointedOwner(self, ):
+    def appointedOwner(self):
         return self.contract.functions.appointedOwner()
             
     # Approves a user for managing the token
-    def approve(self, _to, tokenId):
+    def approve(self, _to: Address, tokenId: int):
         return self.sendTransaction(self.contract.functions.approve(_to, tokenId))
             
     def approveToMint(self, toApprove):
@@ -55,7 +56,7 @@ class ZapMedia(BaseContract):
         except Exception as e:
             print(e)
             
-    def getOwner(self, ):
+    def getOwner(self):
         return self.contract.functions.getOwner()
             
     # Retreives the nonce for permit with signature transactions for specified user and token id
@@ -289,13 +290,13 @@ class ZapMedia(BaseContract):
                 'contentHash': media_data["contentHash"],
                 'metadataHash': media_data["metadataHash"],
                 'creatorShare': bid_share["creator"]["value"],
-                'nonce': self.get_sig_nonces(self.publicAddress),
+                'nonce': self.get_sig_nonces(self.public_address),
                 'deadline': deadline
             }
         }
 
         # signs the data
-        sig_data = sign_typed_data(data, normalize_key(self.privateKey))
+        sig_data = sign_typed_data(data, normalize_key(self.private_key))
 
         # builds the signature struct for solidity
         return self.make_EIP712_Sig(
@@ -334,13 +335,13 @@ class ZapMedia(BaseContract):
             "message": {
                 'spender': spender,
                 'tokenId': token_id,
-                'nonce': self.get_permit_nonce(self.publicAddress, token_id),
+                'nonce': self.get_permit_nonce(self.public_address, token_id),
                 'deadline': deadline
             }
         }
 
         # signs the data
-        sig_data = sign_typed_data(data, normalize_key(self.privateKey))
+        sig_data = sign_typed_data(data, normalize_key(self.private_key))
 
         # builds the signature struct for solidity
         return self.make_EIP712_Sig(
