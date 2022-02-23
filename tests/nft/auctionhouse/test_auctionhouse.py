@@ -509,3 +509,56 @@ def test_starting_already_started_auction(wallets, zap_token:ZapTokenBSC, auctio
     tx = auctionhouse.start_auction(0, True)
     receipt = auctionhouse.w3.eth.get_transaction_receipt(tx)
     assert receipt['status'] == 0
+
+
+def test_setAuctionReservePrice(wallets, zap_token:ZapTokenBSC, auctionhouse:AuctionHouse, zap_media:ZapMedia, mint_token0):
+    # CREATE AUCTION
+
+    duration = 86400 #  number of seconds in 24 hours
+    reservePrice = Web3.toWei(5, 'ether')
+    # curator = wallets[0]
+    token_id = 0
+    curator = wallets[9]
+
+    zap_media.approve(auctionhouse.address, token_id)
+
+    params = [
+        token_id, 
+        zap_media.address, 
+        duration, 
+        reservePrice, 
+        curator, 
+        0, 
+        zap_token.address
+        ]
+    auctionhouse.create_auction(*params)
+
+    # Should revert if not called by the curator or owner 
+    
+    # connect a different user
+    private_key_8 = "0xdbda1821b80551c9d65939329250298aa3472ba22feea921c0cf5d620ea67b97"
+    auctionhouse.connect(private_key_8)
+    
+    tx = auctionhouse.setAuctionReservePrice(0, 200)
+    receipt = auctionhouse.w3.eth.get_transaction_receipt(tx)
+    assert receipt['status'] == 0     # receipt status == 0 means EVM reverted
+
+
+
+    # connect the curator
+    private_key_9 = "0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6"
+    auctionhouse.connect(private_key_9)
+    tx = auctionhouse.setAuctionReservePrice(0, 200)
+    receipt = auctionhouse.w3.eth.get_transaction_receipt(tx)
+    assert receipt['status'] == 1
+
+    auction_info = auctionhouse.auctions(0);
+    assert auction_info.reserve_price == 200
+
+
+
+
+
+
+    
+    pass

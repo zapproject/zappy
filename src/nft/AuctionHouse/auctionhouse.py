@@ -55,8 +55,8 @@ class AuctionHouse(BaseContract):
     def minBidIncrementPercentage(self):
         return self.contract.functions.minBidIncrementPercentage()
             
-    def setAuctionReservePrice(self, auctionId, reservePrice):
-        return self.contract.functions.setAuctionReservePrice(auctionId, reservePrice)
+    def setAuctionReservePrice(self, auctionId: int, reservePrice: int):
+        return self.sendTransaction(self.contract.functions.setAuctionReservePrice(auctionId, reservePrice))
             
     def start_auction(self, auctionId: int, approved:bool):
         return self.sendTransaction(self.contract.functions.startAuction(auctionId, approved))
