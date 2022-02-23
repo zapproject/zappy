@@ -444,16 +444,14 @@ def test_start_auction(wallets, zap_token:ZapTokenBSC, auctionhouse:AuctionHouse
         0, 
         zap_token.address
         ]
+    # create auction and assert
     auctionhouse.create_auction(*params)
     auction_info = auctionhouse.auctions(0)
-
-    pp.pprint(auction_info.__dict__)
-
     assert auction_info.approved == False
-
     assert auction_info.curator != web3.constants.ADDRESS_ZERO
     assert auction_info.curator == wallets[9]
     assert auction_info.auction_currency == zap_token.address
+
     
     # change user of auctionhouse. similar to ethersjs: .connect(signer)
     private_key_9 = "0x2a871d0798f97d79848a013d4936a73bf4cc922c825d33c1cf7073dff6d409c6"
@@ -461,9 +459,17 @@ def test_start_auction(wallets, zap_token:ZapTokenBSC, auctionhouse:AuctionHouse
     assert auctionhouse.public_address == wallets[9]
     assert auctionhouse.private_key == private_key_9
     
+
+    # start_auction should reject if auctionId doesn't exist
+    auctionhouse.start_auction(1234, True)
+    auction_info = auctionhouse.auctions(1234)
+    assert auction_info.approved == False
+
+
     # auction started by the curator - wallet[9] in this test
     auctionhouse.start_auction(0, True)
     auction_info = auctionhouse.auctions(0);
-    pp.pprint(auction_info.__dict__)
+    approval_filter = auctionhouse.contract.events.AuctionApprovalUpdated.createFilter(fromBlock='0x0')
+    assert approval_filter.get_new_entries()
     assert auction_info.approved == True
     
