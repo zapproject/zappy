@@ -31,41 +31,28 @@ class AuctionHouse(BaseContract):
             print(e)
         
     def auctions(self, auctionId: int) -> AuctionInfo:
+        # get info from contract
         response = self.contract.functions.auctions(auctionId).call()
+        # parse response into usable python class
         return AuctionInfo(response)
 
     def cancel_auction(self, auctionId: int):
-        return self.sendTransaction(self.contract.functions.cancelAuction(auctionId))
+        return self.send_transaction(self.contract.functions.cancelAuction(auctionId))
             
     def create_auction(self, tokenId, mediaContract, duration, reservePrice, curator, curatorFeePercentage, auctionCurrency):
-        return self.sendTransaction(self.contract.functions.createAuction(tokenId, mediaContract, duration, reservePrice, curator, curatorFeePercentage, auctionCurrency))
+        return self.send_transaction(self.contract.functions.createAuction(tokenId, mediaContract, duration, reservePrice, curator, curatorFeePercentage, auctionCurrency))
             
     def create_bid(self, auctionId: int, amount: int, mediaContract: str):
-        return self.sendTransaction(self.contract.functions.createBid(auctionId, amount, mediaContract))
+        return self.send_transaction(self.contract.functions.createBid(auctionId, amount, mediaContract))
             
     def end_auction(self, auctionId: int, mediaContract: str):
-        return self.sendTransaction(self.contract.functions.endAuction(auctionId, mediaContract))
+        return self.send_transaction(self.contract.functions.endAuction(auctionId, mediaContract))
             
-    def hundredPercent(self):
-        return self.contract.functions.hundredPercent()
-            
-    def initialize(self, _weth, _marketContract):
-        return self.contract.functions.initialize(_weth, _marketContract)
-            
-    def minBidIncrementPercentage(self):
-        return self.contract.functions.minBidIncrementPercentage()
-            
-    def setAuctionReservePrice(self, auctionId: int, reservePrice: int):
-        return self.sendTransaction(self.contract.functions.setAuctionReservePrice(auctionId, reservePrice))
+    def set_auction_reserve_price(self, auctionId: int, reservePrice: int):
+        return self.send_transaction(self.contract.functions.setAuctionReservePrice(auctionId, reservePrice))
             
     def start_auction(self, auctionId: int, approved:bool):
-        return self.sendTransaction(self.contract.functions.startAuction(auctionId, approved))
-            
-    def timeBuffer(self):
-        return self.contract.functions.timeBuffer()
-            
-    def wethAddress(self):
-        return self.contract.functions.wethAddress()
+        return self.send_transaction(self.contract.functions.startAuction(auctionId, approved))
             
     ## Helper function that builds a dict representing IAuctionHouse.TokenDetails
     def makeTokenDetails(self, tokenId, mediaContract):

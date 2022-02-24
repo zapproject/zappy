@@ -48,6 +48,6 @@ tx = zap_media.buildTransaction(zap_media.contract.functions.mint(
         }
     ))
 
-result = zap_media.sendTransaction(tx, private_key)
+result = zap_media.send_transaction(tx, private_key)
 tx_receipt = zap_media.w3.eth.getTransactionReceipt(result)
 print(tx_receipt)

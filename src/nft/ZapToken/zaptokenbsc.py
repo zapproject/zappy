@@ -16,7 +16,7 @@ class ZapTokenBSC(BaseContract):
         return self.contract.functions.allowance(_owner, _spender)
             
     def approve(self, _spender, _value):
-        return self.sendTransaction(self.contract.functions.approve(_spender, _value))
+        return self.send_transaction(self.contract.functions.approve(_spender, _value))
         
     def balanceOf(self, _owner):
         return self.contract.functions.balanceOf(_owner).call()
@@ -55,7 +55,7 @@ class ZapTokenBSC(BaseContract):
         return self.contract.functions.totalSupply()
             
     def transfer(self, _to, _value):
-        return self.sendTransaction(self.contract.functions.transfer(_to, _value))
+        return self.send_transaction(self.contract.functions.transfer(_to, _value))
             
     def transferFrom(self, _from, _to, _value):
         return self.contract.functions.transferFrom(_from, _to, _value)

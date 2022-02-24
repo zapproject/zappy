@@ -78,7 +78,7 @@ class BaseContract:
     #     return contract_owner
 
     # Builds transactions for write contract calls
-    def sendTransaction(self, function):
+    def send_transaction(self, function):
         nonce = self.w3.eth.get_transaction_count(self.public_address)
 
         tx = function.buildTransaction({
