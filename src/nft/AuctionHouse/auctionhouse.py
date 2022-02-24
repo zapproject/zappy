@@ -34,8 +34,8 @@ class AuctionHouse(BaseContract):
         response = self.contract.functions.auctions(auctionId).call()
         return AuctionInfo(response)
 
-    def cancelAuction(self, auctionId: int):
-        return self.contract.functions.cancelAuction(auctionId)
+    def cancel_auction(self, auctionId: int):
+        return self.sendTransaction(self.contract.functions.cancelAuction(auctionId))
             
     def create_auction(self, tokenId, mediaContract, duration, reservePrice, curator, curatorFeePercentage, auctionCurrency):
         return self.sendTransaction(self.contract.functions.createAuction(tokenId, mediaContract, duration, reservePrice, curator, curatorFeePercentage, auctionCurrency))
@@ -43,8 +43,8 @@ class AuctionHouse(BaseContract):
     def create_bid(self, auctionId: int, amount: int, mediaContract: str):
         return self.sendTransaction(self.contract.functions.createBid(auctionId, amount, mediaContract))
             
-    def endAuction(self, auctionId, mediaContract):
-        return self.contract.functions.endAuction(auctionId, mediaContract)
+    def end_auction(self, auctionId: int, mediaContract: str):
+        return self.sendTransaction(self.contract.functions.endAuction(auctionId, mediaContract))
             
     def hundredPercent(self):
         return self.contract.functions.hundredPercent()

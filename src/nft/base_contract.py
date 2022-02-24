@@ -59,8 +59,8 @@ class BaseContract:
     def connect(self, private_key: str):
         self.private_key = private_key
         wallet = self.w3.eth.account.from_key(self.private_key)
-        self.public_address = wallet.address        
-
+        self.public_address = wallet.address
+        return self
     
 
     # # Async class methods
