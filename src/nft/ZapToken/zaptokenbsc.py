@@ -30,7 +30,7 @@ class ZapTokenBSC(BaseContract):
     def finishMinting(self, ):
         return self.contract.functions.finishMinting()
             
-    def getOwner(self, ):
+    def get_owner(self, ):
         return self.contract.functions.getOwner()
             
     def increaseApproval(self, _spender, _addedValue):

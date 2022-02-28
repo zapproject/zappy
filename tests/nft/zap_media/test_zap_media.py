@@ -358,19 +358,23 @@ def test_symbol(zap_media):
 def test_total_supply(zap_media):
     assert zap_media.total_supply() == 0
 
-def test_contract_uri(zap_media):
-    assert zap_media.contract_URI() == b"https://testing.com"
+def test_get_contract_URI(zap_media):
+    assert zap_media.get_contract_URI() == b"https://testing.com"
 
 def test_supports_interface(zap_media):
     assert zap_media.supports_interface("0x5b5e139f")
 
-def test_media_mint(w3, wallets, zap_media, zap_market):
+def test_media_mint(w3, wallets, zap_media: ZapMedia, zap_market: ZapMarket):
     # assert w3.eth.accounts[1] == utils.wallets[0].address
     before_mint = zap_media.total_supply()
     assert before_mint == 0
 
     before_balance = zap_media.balance_of(zap_media.public_address)
     assert before_balance == 0
+    # creator = zap_media.owner_of(0);
+    # print(creator);
+    # assert False
+
 
     token_URI = "Test CarZ"
     metadataURI = "Test CarMZ"

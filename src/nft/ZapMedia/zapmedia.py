@@ -18,15 +18,9 @@ class ZapMedia(BaseContract):
     def accept_bid(self, tokenId, bid):
         return self.send_transaction(self.contract.functions.acceptBid(tokenId, bid))
             
-    def appointedOwner(self):
-        return self.contract.functions.appointedOwner()
-            
     # Approves a user for managing the token
     def approve(self, _to: Address, tokenId: int):
         return self.send_transaction(self.contract.functions.approve(_to, tokenId))
-            
-    def approveToMint(self, toApprove):
-        return self.contract.functions.approveToMint(toApprove)
             
     # Retrives the number of tokens the user has
     def balance_of(self, owner):
@@ -39,11 +33,8 @@ class ZapMedia(BaseContract):
     def burn(self, tokenId):
         return self.send_transaction(self.contract.functions.burn(tokenId))
             
-    def claimTransferOwnership(self, ):
-        return self.contract.functions.claimTransferOwnership()
-            
     # Retrieves the contract URI 
-    def contract_URI(self, ):
+    def get_contract_URI(self):
         try:
             return self.contract.functions.contractURI().call()
         except Exception as e:
@@ -56,7 +47,7 @@ class ZapMedia(BaseContract):
         except Exception as e:
             print(e)
             
-    def getOwner(self):
+    def get_owner(self):
         return self.contract.functions.getOwner()
             
     # Retreives the nonce for permit with signature transactions for specified user and token id
@@ -77,7 +68,7 @@ class ZapMedia(BaseContract):
         except Exception as e:
             print(e)
             
-    def getTokenCreators(self, _tokenId):
+    def get_token_creators(self, _tokenId):
         return self.contract.functions.getTokenCreators(_tokenId)
             
     # Retreives the metadata hash for the specified token id
