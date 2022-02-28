@@ -15,12 +15,12 @@ class ZapMedia(BaseContract):
         
     # Accepts the specified bid as the token owner or approved user. 
     # Transfer of the token and bid amount is done internally.
-    def accept_bid(self, tokenId, bid):
-        return self.send_transaction(self.contract.functions.acceptBid(tokenId, bid))
+    def accept_bid(self, tokenId, bid, **kwargs):
+        return self.send_transaction(self.contract.functions.acceptBid(tokenId, bid), **kwargs)
             
     # Approves a user for managing the token
-    def approve(self, _to: Address, tokenId: int):
-        return self.send_transaction(self.contract.functions.approve(_to, tokenId))
+    def approve(self, _to: Address, tokenId: int, **kwargs):
+        return self.send_transaction(self.contract.functions.approve(_to, tokenId), **kwargs)
             
     # Retrives the number of tokens the user has
     def balance_of(self, owner):
@@ -30,8 +30,8 @@ class ZapMedia(BaseContract):
             print(e)
             
     # Burns the specified token id
-    def burn(self, tokenId):
-        return self.send_transaction(self.contract.functions.burn(tokenId))
+    def burn(self, tokenId, **kwargs):
+        return self.send_transaction(self.contract.functions.burn(tokenId), **kwargs)
             
     # Retrieves the contract URI 
     def get_contract_URI(self):
@@ -84,13 +84,7 @@ class ZapMedia(BaseContract):
             return self.contract.functions.getTokenMetadataURIs(_tokenId).call()
         except Exception as e:
             print(e)
-            
-    def initTransferOwnership(self, newOwner):
-        return self.contract.functions.initTransferOwnership(newOwner)
-            
-    def initialize(self, name, symbol, marketContractAddr, permissive, collectionURI):
-        return self.contract.functions.initialize(name, symbol, marketContractAddr, permissive, collectionURI)
-            
+
     def isApprovedForAll(self, owner, operator):
         return self.contract.functions.isApprovedForAll(owner, operator)
             
@@ -98,12 +92,12 @@ class ZapMedia(BaseContract):
         return self.contract.functions.marketContract()
             
     # Mints a new token
-    def mint(self, data, bidShares):
-        return self.send_transaction(self.contract.functions.mint(data, bidShares))
+    def mint(self, data, bidShares, **kwargs):
+        return self.send_transaction(self.contract.functions.mint(data, bidShares), **kwargs)
             
     # Mints a new token with ECDSA compliant signatures
-    def mint_with_sig(self, creator, data, bidShares, sig):
-        return self.send_transaction(self.contract.functions.mintWithSig(creator, data, bidShares, sig))
+    def mint_with_sig(self, creator, data, bidShares, sig, **kwargs):
+        return self.send_transaction(self.contract.functions.mintWithSig(creator, data, bidShares, sig), **kwargs)
 
     def name(self):
         try:
@@ -119,20 +113,20 @@ class ZapMedia(BaseContract):
             print(e)
 
     # Approves user with specified signature and token id
-    def permit(self, spender, tokenId, sig):
-        return self.send_transaction(self.contract.functions.permit(spender, tokenId, sig))
+    def permit(self, spender, tokenId, sig, **kwargs):
+        return self.send_transaction(self.contract.functions.permit(spender, tokenId, sig), **kwargs)
             
     # Removes the current ask on the specified token id
-    def remove_ask(self, tokenId):
-        return self.send_transaction(self.contract.functions.removeAsk(tokenId))
+    def remove_ask(self, tokenId, **kwargs):
+        return self.send_transaction(self.contract.functions.removeAsk(tokenId), **kwargs)
             
     # Removes the current bid on the specified token id
-    def remove_bid(self, tokenId):
-        return self.send_transaction(self.contract.functions.removeBid(tokenId))
+    def remove_bid(self, tokenId, **kwargs):
+        return self.send_transaction(self.contract.functions.removeBid(tokenId), **kwargs)
             
     # Removes all approvals on specified token id
-    def revoke_approval(self, tokenId):
-        return self.send_transaction(self.contract.functions.revokeApproval(tokenId))
+    def revoke_approval(self, tokenId, **kwargs):
+        return self.send_transaction(self.contract.functions.revokeApproval(tokenId), **kwargs)
             
     def revokeTransferOwnership(self):
         return self.contract.functions.revokeTransferOwnership()
@@ -147,12 +141,12 @@ class ZapMedia(BaseContract):
         return self.contract.functions.setApprovalForAll(operator, approved)
             
     # Creates a new ask for specified token id. Restricted for owner or approved users.
-    def set_ask(self, tokenId, ask):
-        return self.send_transaction(self.contract.functions.setAsk(tokenId, ask))
+    def set_ask(self, tokenId, ask, **kwargs):
+        return self.send_transaction(self.contract.functions.setAsk(tokenId, ask), **kwargs)
             
     # Creates a new bid for specified token id
-    def set_bid(self, tokenId, bid):
-        return self.send_transaction(self.contract.functions.setBid(tokenId, bid))
+    def set_bid(self, tokenId, bid, **kwargs):
+        return self.send_transaction(self.contract.functions.setBid(tokenId, bid), **kwargs)
             
     # Determines whether the collection supports the specified interface id
     def supports_interface(self, interfaceId):
@@ -200,12 +194,18 @@ class ZapMedia(BaseContract):
         return self.contract.functions.transferFrom(_from, _to, tokenId)
             
     # Updates the metadata URI for specified token id
-    def update_token_metadata_URI(self, tokenId, metadataURI):
-        return self.send_transaction(self.contract.functions.updateTokenMetadataURI(tokenId, metadataURI))
+    def update_token_metadata_URI(self, tokenId, metadataURI, **kwargs):
+        return self.send_transaction(self.contract.functions.updateTokenMetadataURI(tokenId, metadataURI), **kwargs)
             
     # Updates the token URI for the specified token id
-    def update_token_URI(self, tokenId, tokenURILocal):
-        return self.send_transaction(self.contract.functions.updateTokenURI(tokenId, tokenURILocal))
+    def update_token_URI(self, tokenId, tokenURILocal, **kwargs):
+        return self.send_transaction(self.contract.functions.updateTokenURI(tokenId, tokenURILocal), **kwargs)
+
+
+
+    # ================================================================
+    #                     HELPER FUNCTIONS
+    # ================================================================
 
     ## Helper function that builds a dict representing IMedia.MediaData
     def make_media_data(self, tokenURI, metadataURI, contentHash, metadataHash):

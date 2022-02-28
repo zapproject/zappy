@@ -391,8 +391,10 @@ def test_media_mint(w3, wallets, zap_media: ZapMedia, zap_market: ZapMarket):
         [],
         []
     )
+    # also testing kwargs in this example
+    tx_params = {'gas': 5400000}
 
-    tx_hash = zap_media.mint(mediaData, bidShares)
+    tx_hash = zap_media.mint(mediaData, bidShares, **tx_params)
     w3.eth.wait_for_transaction_receipt(tx_hash, 180)
 
     after_mint = zap_media.total_supply()
