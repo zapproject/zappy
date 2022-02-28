@@ -67,7 +67,7 @@ def test_accounts(w3, eth_tester, wallets):
     assert w3.eth.get_balance(wallets[0]) == 100000000000000000000
     # print(dir(wallets[0]))
     # assert (wallet.key).hex() == "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
-    # # assert account1.privateKey
+    # # assert account1.private_key
 
 
 @pytest.fixture
@@ -275,8 +275,8 @@ def zap_media(mock_json, w3, zap_media_proxy_contract) -> ZapMedia:
     abi = artifact['abi']
 
     zap_media = ZapMedia(str(w3.eth.chain_id))
-    zap_media.privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
-    zap_media.publicAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+    zap_media.private_key = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+    zap_media.public_address = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
     zap_media.w3 = w3
     zap_media.contract = w3.eth.contract(address=zap_media_address, abi=abi)
     
@@ -294,8 +294,8 @@ def zap_market(mock_json, w3, zap_market_contract):
     abi = artifact['abi']
 
     zap_market = ZapMarket(str(w3.eth.chain_id))
-    zap_market.privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
-    zap_market.publicAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+    zap_market.private_key = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+    zap_market.public_address = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
     zap_market.w3 = w3
     zap_market.contract = w3.eth.contract(address=zap_market_address, abi=abi)
     return zap_market
@@ -311,8 +311,8 @@ def zap_token(mock_json, w3, zap_token_contract):
     abi = artifact['abi']
 
     zap_token = ZapTokenBSC(str(w3.eth.chain_id))
-    zap_token.privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
-    zap_token.publicAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+    zap_token.private_key = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+    zap_token.public_address = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
     zap_token.w3 = w3
     zap_token.contract = w3.eth.contract(address=zap_token_address, abi=abi)
     return zap_token
@@ -358,19 +358,23 @@ def test_symbol(zap_media):
 def test_total_supply(zap_media):
     assert zap_media.total_supply() == 0
 
-def test_contract_uri(zap_media):
-    assert zap_media.contract_URI() == b"https://testing.com"
+def test_get_contract_URI(zap_media):
+    assert zap_media.get_contract_URI() == b"https://testing.com"
 
 def test_supports_interface(zap_media):
     assert zap_media.supports_interface("0x5b5e139f")
 
-def test_media_mint(w3, wallets, zap_media, zap_market):
+def test_media_mint(w3, wallets, zap_media: ZapMedia, zap_market: ZapMarket):
     # assert w3.eth.accounts[1] == utils.wallets[0].address
     before_mint = zap_media.total_supply()
     assert before_mint == 0
 
-    before_balance = zap_media.balance_of(zap_media.publicAddress)
+    before_balance = zap_media.balance_of(zap_media.public_address)
     assert before_balance == 0
+    # creator = zap_media.owner_of(0);
+    # print(creator);
+    # assert False
+
 
     token_URI = "Test CarZ"
     metadataURI = "Test CarMZ"
@@ -394,7 +398,7 @@ def test_media_mint(w3, wallets, zap_media, zap_market):
     after_mint = zap_media.total_supply()
     assert after_mint == before_mint + 1
 
-    after_balance = zap_media.balance_of(zap_media.publicAddress)
+    after_balance = zap_media.balance_of(zap_media.public_address)
     assert after_balance == before_balance + 1
 
     metadataURI = zap_media.get_token_metadata_URIs(before_mint)
@@ -410,9 +414,9 @@ def test_media_mint(w3, wallets, zap_media, zap_market):
     assert contentHash == mediaData["contentHash"].ljust(32, b'\x00')
 
     owner_of = zap_media.owner_of(before_mint)
-    assert owner_of == zap_media.publicAddress
+    assert owner_of == zap_media.public_address
 
-    token = zap_media.token_of_owner_by_index(zap_media.publicAddress, 0)
+    token = zap_media.token_of_owner_by_index(zap_media.public_address, 0)
     assert token == before_mint
 
     current_bid_shares = zap_market.bidSharesForToken(zap_media.address, before_mint)
@@ -427,7 +431,7 @@ def test_media_mint2(w3, wallets, zap_media, zap_market):
     before_mint = zap_media.total_supply()
     assert before_mint == 0
 
-    before_balance = zap_media.balance_of(zap_media.publicAddress)
+    before_balance = zap_media.balance_of(zap_media.public_address)
     assert before_balance == 0
 
     token_URI = "Test CarZ"
@@ -452,7 +456,7 @@ def test_media_mint2(w3, wallets, zap_media, zap_market):
     after_mint = zap_media.total_supply()
     assert after_mint == before_mint + 1
 
-    after_balance = zap_media.balance_of(zap_media.publicAddress)
+    after_balance = zap_media.balance_of(zap_media.public_address)
     assert after_balance == before_balance + 1
 
     metadataURI = zap_media.get_token_metadata_URIs(before_mint)
@@ -468,9 +472,9 @@ def test_media_mint2(w3, wallets, zap_media, zap_market):
     assert contentHash == mediaData["contentHash"].ljust(32, b'\x00')
 
     owner_of = zap_media.owner_of(before_mint)
-    assert owner_of == zap_media.publicAddress
+    assert owner_of == zap_media.public_address
 
-    token = zap_media.token_of_owner_by_index(zap_media.publicAddress, 0)
+    token = zap_media.token_of_owner_by_index(zap_media.public_address, 0)
     assert token == before_mint
 
     current_bid_shares = zap_market.bidSharesForToken(zap_media.address, before_mint)
@@ -501,8 +505,8 @@ def test_media_set_bid(w3, wallets, zap_media, zap_market, zap_token):
     receipt = w3.eth.wait_for_transaction_receipt(tx_hash, 180)
     assert receipt is not None
 
-    zap_media.privateKey = utils.hh_private_keys[1]
-    zap_media.publicAddress = wallets[1]
+    zap_media.private_key = utils.hh_private_keys[1]
+    zap_media.public_address = wallets[1]
    
     bidder = wallets[1]
 
@@ -526,8 +530,8 @@ def test_media_set_bid(w3, wallets, zap_media, zap_market, zap_token):
     tx = zap_token.transfer(wallets[1], 100)
     receipt = w3.eth.wait_for_transaction_receipt(tx, 180)
 
-    zap_token.privateKey = utils.hh_private_keys[1]
-    zap_token.publicAddress = wallets[1]
+    zap_token.private_key = utils.hh_private_keys[1]
+    zap_token.public_address = wallets[1]
     tx = zap_token.approve(zap_market.address, 100)
     receipt = w3.eth.wait_for_transaction_receipt(tx, 180)
     assert receipt is not None
@@ -565,7 +569,7 @@ def test_media_mint_w_sig(w3, wallets, zap_media):
 
     sig = zap_media.get_mint_signature(media_data, bid_shares, deadline) 
 
-    tx = zap_media.mint_with_sig(zap_media.publicAddress, media_data, bid_shares, sig)
+    tx = zap_media.mint_with_sig(zap_media.public_address, media_data, bid_shares, sig)
     w3.eth.wait_for_transaction_receipt(tx, 360)
 
 
@@ -590,13 +594,13 @@ def test_media_remove_bid(w3, wallets, zap_media, zap_market, zap_token):
     receipt = w3.eth.wait_for_transaction_receipt(tx_hash, 180)
     assert receipt is not None
 
-    zap_media.privateKey = utils.hh_private_keys[1]
+    zap_media.private_key = utils.hh_private_keys[1]
     # zap_media.public_address
     bidder = wallets[1]
 
-    # zap_media.privateKey = wallets[1].key.hex()
-    zap_media.publicAddress = wallets[1]
-    # bidder = zap_media.publicAddress
+    # zap_media.private_key = wallets[1].key.hex()
+    zap_media.public_address = wallets[1]
+    # bidder = zap_media.public_address
     bid = zap_media.make_bid(
         100,
         zap_token.address,
@@ -610,8 +614,8 @@ def test_media_remove_bid(w3, wallets, zap_media, zap_market, zap_token):
     tx = zap_token.transfer(wallets[1], 100)
     receipt = w3.eth.wait_for_transaction_receipt(tx, 180)
 
-    zap_token.privateKey = utils.hh_private_keys[1]
-    zap_token.publicAddress = wallets[1]
+    zap_token.private_key = utils.hh_private_keys[1]
+    zap_token.public_address = wallets[1]
 
     tx = zap_token.approve(zap_market.address, 100)
     receipt = w3.eth.wait_for_transaction_receipt(tx, 180)
@@ -762,8 +766,8 @@ def test_media_accept_bid(w3, wallets, zap_media, zap_market, zap_token):
 
     token_id = zap_media.total_supply() - 1
 
-    zap_media.privateKey = utils.hh_private_keys[1]
-    zap_media.publicAddress = wallets[1]
+    zap_media.private_key = utils.hh_private_keys[1]
+    zap_media.public_address = wallets[1]
     bidder = wallets[1]
 
     bid = zap_media.make_bid(
@@ -784,8 +788,8 @@ def test_media_accept_bid(w3, wallets, zap_media, zap_market, zap_token):
     creator_before_token_bal = zap_media.balance_of(wallets[0])
     bidder_before_token_bal = zap_media.balance_of(wallets[1])
 
-    zap_token.privateKey = utils.hh_private_keys[1]
-    zap_token.publicAddress = wallets[1]
+    zap_token.private_key = utils.hh_private_keys[1]
+    zap_token.public_address = wallets[1]
     tx = zap_token.approve(zap_market.address, 100)
     receipt = w3.eth.wait_for_transaction_receipt(tx, 180)
     assert receipt is not None
@@ -795,10 +799,10 @@ def test_media_accept_bid(w3, wallets, zap_media, zap_market, zap_token):
     assert receipt is not None
 
     # restore private and public keys
-    zap_token.privateKey = utils.hh_private_keys[0]
-    zap_token.publicAddress = wallets[0]
-    zap_media.privateKey = utils.hh_private_keys[0]
-    zap_media.publicAddress = wallets[0]
+    zap_token.private_key = utils.hh_private_keys[0]
+    zap_token.public_address = wallets[0]
+    zap_media.private_key = utils.hh_private_keys[0]
+    zap_media.public_address = wallets[0]
 
     tx = zap_media.accept_bid(token_id, bid)
     receipt = w3.eth.wait_for_transaction_receipt(tx, 180)
@@ -879,13 +883,13 @@ def test_approve(zap_media:ZapMedia, wallets, mint_token0):
 
 
 def test_media_burn(w3, wallets, zap_media, mint_token0):
-    before_bal = zap_media.balance_of(zap_media.publicAddress)
+    before_bal = zap_media.balance_of(zap_media.public_address)
     token_id = zap_media.total_supply() - 1
 
     tx = zap_media.burn(token_id)
     w3.eth.wait_for_transaction_receipt(tx, 180)
 
-    after_bal = zap_media.balance_of(zap_media.publicAddress)
+    after_bal = zap_media.balance_of(zap_media.public_address)
     assert after_bal == before_bal - 1
     assert after_bal == 0
 

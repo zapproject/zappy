@@ -30,7 +30,7 @@ class ZapMarket(BaseContract):
     def currentAskForToken(self, mediaContractAddress, tokenId):
         return self.contract.functions.currentAskForToken(mediaContractAddress, tokenId).call()
             
-    def getOwner(self, ):
+    def get_owner(self, ):
         return self.contract.functions.getOwner().call()
             
     def initTransferOwnership(self, newOwner):

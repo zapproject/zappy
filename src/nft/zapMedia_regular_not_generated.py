@@ -29,7 +29,7 @@ print(zap_media.w3)
 # print(zap_media.connect_to_contract())
 print(dir(zap_media.contract.functions))
 print(zap_media.contract.functions.getOwner().call())
-print(zap_media.call_function("getOwner"))
+print(zap_media.call_function("get_owner"))
 
 private_key = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 
@@ -48,6 +48,6 @@ tx = zap_media.buildTransaction(zap_media.contract.functions.mint(
         }
     ))
 
-result = zap_media.sendTransaction(tx, private_key)
+result = zap_media.send_transaction(tx, private_key)
 tx_receipt = zap_media.w3.eth.getTransactionReceipt(result)
 print(tx_receipt)

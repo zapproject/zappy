@@ -1,3 +1,4 @@
+from eth_typing import Address
 from src.nft.base_contract import BaseContract
 from py_eth_sig_utils.signing import sign_typed_data
 from py_eth_sig_utils.utils import normalize_key
@@ -15,17 +16,11 @@ class ZapMedia(BaseContract):
     # Accepts the specified bid as the token owner or approved user. 
     # Transfer of the token and bid amount is done internally.
     def accept_bid(self, tokenId, bid):
-        return self.sendTransaction(self.contract.functions.acceptBid(tokenId, bid))
-            
-    def appointedOwner(self, ):
-        return self.contract.functions.appointedOwner()
+        return self.send_transaction(self.contract.functions.acceptBid(tokenId, bid))
             
     # Approves a user for managing the token
-    def approve(self, _to, tokenId):
-        return self.sendTransaction(self.contract.functions.approve(_to, tokenId))
-            
-    def approveToMint(self, toApprove):
-        return self.contract.functions.approveToMint(toApprove)
+    def approve(self, _to: Address, tokenId: int):
+        return self.send_transaction(self.contract.functions.approve(_to, tokenId))
             
     # Retrives the number of tokens the user has
     def balance_of(self, owner):
@@ -36,13 +31,10 @@ class ZapMedia(BaseContract):
             
     # Burns the specified token id
     def burn(self, tokenId):
-        return self.sendTransaction(self.contract.functions.burn(tokenId))
-            
-    def claimTransferOwnership(self, ):
-        return self.contract.functions.claimTransferOwnership()
+        return self.send_transaction(self.contract.functions.burn(tokenId))
             
     # Retrieves the contract URI 
-    def contract_URI(self, ):
+    def get_contract_URI(self):
         try:
             return self.contract.functions.contractURI().call()
         except Exception as e:
@@ -55,7 +47,7 @@ class ZapMedia(BaseContract):
         except Exception as e:
             print(e)
             
-    def getOwner(self, ):
+    def get_owner(self):
         return self.contract.functions.getOwner()
             
     # Retreives the nonce for permit with signature transactions for specified user and token id
@@ -76,7 +68,7 @@ class ZapMedia(BaseContract):
         except Exception as e:
             print(e)
             
-    def getTokenCreators(self, _tokenId):
+    def get_token_creators(self, _tokenId):
         return self.contract.functions.getTokenCreators(_tokenId)
             
     # Retreives the metadata hash for the specified token id
@@ -107,11 +99,11 @@ class ZapMedia(BaseContract):
             
     # Mints a new token
     def mint(self, data, bidShares):
-        return self.sendTransaction(self.contract.functions.mint(data, bidShares))
+        return self.send_transaction(self.contract.functions.mint(data, bidShares))
             
     # Mints a new token with ECDSA compliant signatures
     def mint_with_sig(self, creator, data, bidShares, sig):
-        return self.sendTransaction(self.contract.functions.mintWithSig(creator, data, bidShares, sig))
+        return self.send_transaction(self.contract.functions.mintWithSig(creator, data, bidShares, sig))
 
     def name(self):
         try:
@@ -128,19 +120,19 @@ class ZapMedia(BaseContract):
 
     # Approves user with specified signature and token id
     def permit(self, spender, tokenId, sig):
-        return self.sendTransaction(self.contract.functions.permit(spender, tokenId, sig))
+        return self.send_transaction(self.contract.functions.permit(spender, tokenId, sig))
             
     # Removes the current ask on the specified token id
     def remove_ask(self, tokenId):
-        return self.sendTransaction(self.contract.functions.removeAsk(tokenId))
+        return self.send_transaction(self.contract.functions.removeAsk(tokenId))
             
     # Removes the current bid on the specified token id
     def remove_bid(self, tokenId):
-        return self.sendTransaction(self.contract.functions.removeBid(tokenId))
+        return self.send_transaction(self.contract.functions.removeBid(tokenId))
             
     # Removes all approvals on specified token id
     def revoke_approval(self, tokenId):
-        return self.sendTransaction(self.contract.functions.revokeApproval(tokenId))
+        return self.send_transaction(self.contract.functions.revokeApproval(tokenId))
             
     def revokeTransferOwnership(self):
         return self.contract.functions.revokeTransferOwnership()
@@ -156,11 +148,11 @@ class ZapMedia(BaseContract):
             
     # Creates a new ask for specified token id. Restricted for owner or approved users.
     def set_ask(self, tokenId, ask):
-        return self.sendTransaction(self.contract.functions.setAsk(tokenId, ask))
+        return self.send_transaction(self.contract.functions.setAsk(tokenId, ask))
             
     # Creates a new bid for specified token id
     def set_bid(self, tokenId, bid):
-        return self.sendTransaction(self.contract.functions.setBid(tokenId, bid))
+        return self.send_transaction(self.contract.functions.setBid(tokenId, bid))
             
     # Determines whether the collection supports the specified interface id
     def supports_interface(self, interfaceId):
@@ -209,11 +201,11 @@ class ZapMedia(BaseContract):
             
     # Updates the metadata URI for specified token id
     def update_token_metadata_URI(self, tokenId, metadataURI):
-        return self.sendTransaction(self.contract.functions.updateTokenMetadataURI(tokenId, metadataURI))
+        return self.send_transaction(self.contract.functions.updateTokenMetadataURI(tokenId, metadataURI))
             
     # Updates the token URI for the specified token id
     def update_token_URI(self, tokenId, tokenURILocal):
-        return self.sendTransaction(self.contract.functions.updateTokenURI(tokenId, tokenURILocal))
+        return self.send_transaction(self.contract.functions.updateTokenURI(tokenId, tokenURILocal))
 
     ## Helper function that builds a dict representing IMedia.MediaData
     def make_media_data(self, tokenURI, metadataURI, contentHash, metadataHash):
@@ -289,13 +281,13 @@ class ZapMedia(BaseContract):
                 'contentHash': media_data["contentHash"],
                 'metadataHash': media_data["metadataHash"],
                 'creatorShare': bid_share["creator"]["value"],
-                'nonce': self.get_sig_nonces(self.publicAddress),
+                'nonce': self.get_sig_nonces(self.public_address),
                 'deadline': deadline
             }
         }
 
         # signs the data
-        sig_data = sign_typed_data(data, normalize_key(self.privateKey))
+        sig_data = sign_typed_data(data, normalize_key(self.private_key))
 
         # builds the signature struct for solidity
         return self.make_EIP712_Sig(
@@ -334,13 +326,13 @@ class ZapMedia(BaseContract):
             "message": {
                 'spender': spender,
                 'tokenId': token_id,
-                'nonce': self.get_permit_nonce(self.publicAddress, token_id),
+                'nonce': self.get_permit_nonce(self.public_address, token_id),
                 'deadline': deadline
             }
         }
 
         # signs the data
-        sig_data = sign_typed_data(data, normalize_key(self.privateKey))
+        sig_data = sign_typed_data(data, normalize_key(self.private_key))
 
         # builds the signature struct for solidity
         return self.make_EIP712_Sig(
