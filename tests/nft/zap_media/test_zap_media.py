@@ -358,8 +358,11 @@ def test_symbol(zap_media):
 def test_total_supply(zap_media):
     assert zap_media.total_supply() == 0
 
-def test_get_contract_URI(zap_media):
-    assert zap_media.get_contract_URI() == b"https://testing.com"
+def test_contract_URI(zap_media):
+    assert zap_media.contract_URI() == b"https://testing.com"
+
+def test_token_by_index(zap_media, mint_token0):
+    assert zap_media.token_by_index(0) == 0
 
 def test_supports_interface(zap_media):
     assert zap_media.supports_interface("0x5b5e139f")
@@ -926,3 +929,14 @@ def test_media_permit(w3, wallets, zap_media, mint_token0):
 
     tx = zap_media.permit(wallets[1], token_id, sig)
     w3.eth.wait_for_transaction_receipt(tx, 180)
+
+def test_approved_for_all(wallets, zap_media: ZapMedia, mint_token0):
+    
+    is_approved = zap_media.is_approved_for_all(wallets[0], wallets[1]);
+    assert is_approved == False
+
+    # approve wallet 1 for all
+    zap_media.set_approval_for_all(wallets[1], True);
+
+    is_approved = zap_media.is_approved_for_all(wallets[0], wallets[1]);
+    assert is_approved == True
