@@ -21,23 +21,16 @@ class ZapMedia(BaseContract):
 
     # Retrives the number of tokens the user has
     def balance_of(self, owner):
-        try:
-            return self.contract.functions.balanceOf(owner).call()
-        except Exception as e:
-            print(e)
+        return self.contract.functions.balanceOf(owner).call()
+
     
         # Retrieves the contract URI 
     def contract_URI(self):
-        try:
-            return self.contract.functions.contractURI().call()
-        except Exception as e:
-            print(e)
+        return self.contract.functions.contractURI().call()
+
     # Retreives the approved address for specified token id
     def get_approved(self, tokenId:int) -> str:
-        try:
-            return self.contract.functions.getApproved(tokenId).call()
-        except Exception as e:
-            print(e)
+        return self.contract.functions.getApproved(tokenId).call()
             
     def get_owner(self):
         return self.contract.functions.getOwner()
@@ -55,85 +48,55 @@ class ZapMedia(BaseContract):
             
     # Retreives the content URI hash for specified token id
     def get_token_content_hashes(self, _tokenId):
-        try:
-            return self.contract.functions.getTokenContentHashes(_tokenId).call()
-        except Exception as e:
-            print(e)
+        return self.contract.functions.getTokenContentHashes(_tokenId).call()
             
     def get_token_creators(self, _tokenId):
         return self.contract.functions.getTokenCreators(_tokenId)
             
     # Retreives the metadata hash for the specified token id
     def get_token_metadata_hashes(self, _tokenId):
-        try:
-            return self.contract.functions.getTokenMetadataHashes(_tokenId).call()
-        except Exception as e:
-            print(e)
+        return self.contract.functions.getTokenMetadataHashes(_tokenId).call()
             
     # Retreives the metadata URI for the specified token id
     def get_token_metadata_URIs(self, _tokenId):
-        try:
-            return self.contract.functions.getTokenMetadataURIs(_tokenId).call()
-        except Exception as e:
-            print(e)
+        return self.contract.functions.getTokenMetadataURIs(_tokenId).call()
+        
+    def marketContract(self):
+        return self.contract.functions.marketContract().call()
 
     # Retreives the name of the media contract
     def name(self):
-            try:
-                return self.contract.functions.name().call()
-            except Exception as e:
-                print(e)
-            
+        return self.contract.functions.name().call()
+        
     # Retreives the owner of the specified token id
     def owner_of(self, tokenId):
-        try:
-            return self.contract.functions.ownerOf(tokenId).call()
-        except Exception as e:
-            print(e)
+        return self.contract.functions.ownerOf(tokenId).call()
 
     # Determines whether the collection supports the specified interface id
     def supports_interface(self, interfaceId):
-        try:
-            return self.contract.functions.supportsInterface(interfaceId).call()
-        except Exception as e:
-            print(e)
+        return self.contract.functions.supportsInterface(interfaceId).call()
     
     # Retreives the collection symbol
     def symbol(self):
-        try:
-            return self.contract.functions.symbol().call()
-        except Exception as e:
-            print(e)
+        return self.contract.functions.symbol().call()
             
     def token_by_index(self, index):
         """
         * Returns a token ID at a given `index` of all the tokens stored by the contract.
         """
-        try:
-            return self.contract.functions.tokenByIndex(index).call()
-        except Exception as e:
-            print(e)
+        return self.contract.functions.tokenByIndex(index).call()
             
     # Retreives the token specified by the owner and index of the owner's tokens
     def token_of_owner_by_index(self, owner, index):
-        try:
-            return self.contract.functions.tokenOfOwnerByIndex(owner, index).call()
-        except Exception as e:
-            print(e)
+        return self.contract.functions.tokenOfOwnerByIndex(owner, index).call()
             
     # Retreives the token / content URI for specified token id
     def token_URI(self, tokenId):
-        try:
-            return self.contract.functions.tokenURI(tokenId).call()
-        except Exception as e:
-            print(e)
+        return self.contract.functions.tokenURI(tokenId).call()
             
     # Retreives the total supply of token for this collection
     def total_supply(self, ):
-        try:
-            return self.contract.functions.totalSupply().call()
-        except Exception as e:
-            print(e)
+        return self.contract.functions.totalSupply().call()
 
     def is_approved_for_all(self, owner: str, operator: str):
         return self.contract.functions.isApprovedForAll(owner, operator).call()
@@ -196,25 +159,24 @@ class ZapMedia(BaseContract):
     def update_token_URI(self, tokenId, tokenURILocal, **kwargs):
         return self.send_transaction(self.contract.functions.updateTokenURI(tokenId, tokenURILocal), **kwargs)
 
-    def set_approval_for_all(self, operator: str, approved: bool):
-        return self.send_transaction(self.contract.functions.setApprovalForAll(operator, approved))
+    def set_approval_for_all(self, operator: str, approved: bool, **kwarg):
+        return self.send_transaction(self.contract.functions.setApprovalForAll(operator, approved), **kwarg)
 
+    def safe_transfer_from(self, _from: str, _to: str, tokenId: int, **kwarg):
+        return self.send_transaction(self.contract.functions.safeTransferFrom(_from, _to, tokenId), **kwarg)
 
-
+    def transfer_from(self, _from: str, _to: str, tokenId: int):
+        return self.send_transaction(self.contract.functions.transferFrom(_from, _to, tokenId))
+    
+    
+    
     # def revokeTransferOwnership(self):
     #     return self.contract.functions.revokeTransferOwnership()
-            
-    def safeTransferFrom(self, _from, _to, tokenId):
-        return self.contract.functions.safeTransferFrom(_from, _to, tokenId)
-            
-    def safeTransferFrom(self, _from, _to, tokenId, _data):
-        return self.contract.functions.safeTransferFrom(_from, _to, tokenId, _data)
 
-    def transferFrom(self, _from, _to, tokenId):
-        return self.contract.functions.transferFrom(_from, _to, tokenId)
-            
-    def marketContract(self):
-        return self.contract.functions.marketContract()
+    # def safeTransferFrom(self, _from, _to, tokenId, _data):
+    #     return self.contract.functions.safeTransferFrom(_from, _to, tokenId, _data)
+
+
 
             
     
