@@ -671,6 +671,7 @@ def test_media_set_ask(w3, wallets, zap_media, zap_market, zap_token):
     )
 
     tx_hash = zap_media.set_ask(token_id, ask)
+
     receipt = w3.eth.wait_for_transaction_receipt(tx_hash, 180)
     assert receipt is not None
 
@@ -940,3 +941,49 @@ def test_approved_for_all(wallets, zap_media: ZapMedia, mint_token0):
 
     is_approved = zap_media.is_approved_for_all(wallets[0], wallets[1]);
     assert is_approved == True
+
+
+def test_safe_transfer_from(wallets, zap_media: ZapMedia, mint_token0):
+    owner = wallets[0]
+    recipient = wallets[1]
+    
+    # check owner of token 0 is currently not the recipient
+    assert zap_media.owner_of(0) != recipient
+    
+    # transfer the token to wallets[1]/recipient    
+    zap_media.safe_transfer_from(owner, recipient, 0)
+    
+    # check owner of token 0 is now wallets[1]/recipient
+    assert zap_media.owner_of(0) == recipient
+
+
+def test_transfer_from(wallets, zap_media: ZapMedia, mint_token0):
+    owner = wallets[0]
+    recipient = wallets[1]
+    
+    # check token 0 owner is wallets[0]/owner
+    assert zap_media.owner_of(0) == owner
+
+    # transfer the token to wallets[1]/recipient    
+    zap_media.transfer_from(owner, recipient, 0)
+    
+    # after transferring the token, check token 0 owner is now wallets[1]/recipient
+    assert zap_media.owner_of(0) == recipient
+
+
+
+    #   describe("#transferFrom", () => {
+    #     it("Should transfer token to another address", async () => {
+    #       const recipient = await signerOne.getAddress();
+
+    #       const owner = await ownerConnected.fetchOwnerOf(0);
+
+    #       expect(owner).to.equal(await signer.getAddress());
+
+    #       await ownerConnected.transferFrom(owner, recipient, 0);
+
+    #       const newOwner = await ownerConnected.fetchOwnerOf(0);
+
+    #       expect(newOwner).to.equal(recipient);
+    #     });
+    #   });
