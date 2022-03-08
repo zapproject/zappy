@@ -48,7 +48,7 @@ class ZapMedia(BaseContract):
             print(e)
             
     def get_owner(self):
-        return self.contract.functions.getOwner()
+        return self.contract.functions.getOwner().call()
             
     # Retreives the nonce for permit with signature transactions for specified user and token id
     def get_permit_nonce(self, _user, _tokenId):

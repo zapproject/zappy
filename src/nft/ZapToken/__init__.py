@@ -1,1 +1,2 @@
-from src.nft.ZapToken.zaptokenbsc import ZapTokenBSC
+# from src.nft.ZapToken.zaptokenbsc import ZapTokenBSC
+from .zaptoken import ZapToken

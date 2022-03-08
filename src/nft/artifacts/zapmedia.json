@@ -4,10 +4,16 @@
     "address": "0x3Ca8f9C04c7e3E1624Ac2008F92f6F366A869444"
   },
   "1": {
-    "address": "0xETHEREUM_MAINNETADDRESS"
+    "address": "0xBBd7B3fcA15a10BA76811117Ba83Da259691362d"
+  },
+  "4": {
+    "address": "0xa6b70C1Ad5D443d6C53C0A563f56bF0AF7F582D4"
+  },
+  "97": {
+    "address": "0x314D0A56B2bd8229a18A3B9f0875E4fE7A963375"
   },
   "56": {
-    "address": "0xBSC_MAINNETADDRESS"
+    "address": "0x795Ef08D74295f773b6C6D197fC5c6eFD5610B31"
   },
   "abi": [
     {

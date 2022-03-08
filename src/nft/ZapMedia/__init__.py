@@ -11,4 +11,5 @@
 #         print("hello")
 
 
-from src.nft.ZapMedia.zapmedia import ZapMedia
+# from src.nft.ZapMedia.zapmedia import ZapMedia
+from .zapmedia import ZapMedia

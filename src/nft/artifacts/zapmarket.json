@@ -3,11 +3,17 @@
   "31337": {
     "address": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707"
   },
+  "4": {
+    "address": "0x61d099A2799eE012173eceA89ca9FDcA10d02C1c"
+  },
   "1": {
-    "address": "0xETHEREUM_MAINNETADDRESS"
+    "address": "0xcadf5E2eb93C58C10e002879e1E7888a4598F9Ef"
+  },
+  "97": {
+    "address": "0x1630800181A705aeBd645066Ee2c91e5CD37D1cB"
   },
   "56": {
-    "address": "0xBSC_MAINNETADDRESS"
+    "address": "0x53813994415203448cdF5b2113d82b9D0058A23C"
   },
   "abi": [
     {
