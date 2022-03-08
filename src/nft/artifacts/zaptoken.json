@@ -1,7 +1,21 @@
 {
-  "_format": "hh-sol-artifact-1",
   "contractName": "ZapToken",
-  "sourceName": "contracts/token/ZapToken.sol",
+  "test": "BOO",
+  "31337": {
+    "address": "0x5fbdb2315678afecb367f032d93f642f64180aa3"
+  },
+  "1": {
+    "address": "0x6781a0f84c7e9e846dcb84a9a5bd49333067b104"
+  },
+  "4": {
+    "address": "0x5877451904f0484cc49DAFdfb8f9b33C8C31Ee2F"
+  },
+  "97": {
+    "address": "0x09d8AF358636D9BCC9a3e177B66EB30381a4b1a8"
+  },
+  "56": {
+    "address": "0xc5326b32e8baef125acd68f8bc646fd646104f1"
+  },
   "abi": [
     {
       "anonymous": false,
