@@ -13,7 +13,7 @@ class ZapTokenBSC(BaseContract):
         return self.contract.functions.allocate(_to, amount)
             
     def allowance(self, _owner, _spender):
-        return self.contract.functions.allowance(_owner, _spender)
+        return self.contract.functions.allowance(_owner, _spender).call()
             
     def approve(self, _spender, _value):
         return self.send_transaction(self.contract.functions.approve(_spender, _value))

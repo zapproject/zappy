@@ -48,7 +48,10 @@ class ZapMedia(BaseContract):
             print(e)
             
     def get_owner(self):
-        return self.contract.functions.getOwner()
+        """
+        Returns the owner of the media contract.
+        """
+        return self.contract.functions.getOwner().call()
             
     # Retreives the nonce for permit with signature transactions for specified user and token id
     def get_permit_nonce(self, _user, _tokenId):
@@ -72,14 +75,14 @@ class ZapMedia(BaseContract):
         return self.contract.functions.getTokenCreators(_tokenId)
             
     # Retreives the metadata hash for the specified token id
-    def get_token_metadata_hashes(self, _tokenId):
+    def get_token_metadata_hashes(self, _tokenId: int):
         try:
             return self.contract.functions.getTokenMetadataHashes(_tokenId).call()
         except Exception as e:
             print(e)
             
     # Retreives the metadata URI for the specified token id
-    def get_token_metadata_URIs(self, _tokenId):
+    def get_token_metadata_URIs(self, _tokenId: int):
         try:
             return self.contract.functions.getTokenMetadataURIs(_tokenId).call()
         except Exception as e:
@@ -95,10 +98,11 @@ class ZapMedia(BaseContract):
         return self.contract.functions.isApprovedForAll(owner, operator)
             
     def marketContract(self):
-        return self.contract.functions.marketContract()
+        return self.contract.functions.marketContract().call()
             
     # Mints a new token
     def mint(self, data, bidShares):
+        # make sure the hash is less than 32 bytes
         return self.send_transaction(self.contract.functions.mint(data, bidShares))
             
     # Mints a new token with ECDSA compliant signatures
@@ -183,14 +187,14 @@ class ZapMedia(BaseContract):
             print(e)
             
     # Retreives the token / content URI for specified token id
-    def token_URI(self, tokenId):
+    def token_URI(self, tokenId: int):
         try:
             return self.contract.functions.tokenURI(tokenId).call()
         except Exception as e:
             print(e)
             
     # Retreives the total supply of token for this collection
-    def total_supply(self, ):
+    def total_supply(self):
         try:
             return self.contract.functions.totalSupply().call()
         except Exception as e:
@@ -208,12 +212,13 @@ class ZapMedia(BaseContract):
         return self.send_transaction(self.contract.functions.updateTokenURI(tokenId, tokenURILocal))
 
     ## Helper function that builds a dict representing IMedia.MediaData
-    def make_media_data(self, tokenURI, metadataURI, contentHash, metadataHash):
+    # def make_media_data(self, tokenURI, metadataURI, contentHash, metadataHash):
+    def make_media_data(self, tokenURI, metadataURI):
         return {
             "tokenURI": tokenURI,
             "metadataURI": metadataURI,
-            "contentHash": contentHash,
-            "metadataHash": metadataHash
+            "contentHash": self.generate_hash_from_string(tokenURI),
+            "metadataHash": self.generate_hash_from_string(metadataURI)
         }
 
     ## Helper function that build a dict representing IMarket.BidShares
@@ -242,7 +247,7 @@ class ZapMedia(BaseContract):
         }
 
     ## Helper function that builds a dict representing IMarket.Bid
-    def make_bid(self, amount, currency, bidder, recipient, sellOnShare):
+    def make_bid(self, amount: int, currency: str, bidder: str, recipient: str, sellOnShare: int):
         return {
             "amount": amount,
             "currency": currency,
@@ -341,3 +346,9 @@ class ZapMedia(BaseContract):
             self.w3.toHex(sig_data[1]),
             self.w3.toHex(sig_data[2]),
         )
+
+
+    def generate_hash_from_string(self, string_input: str):
+        hex = self.w3.toHex(text=string_input)
+        hash = self.w3.solidityKeccak(['bytes32'], [hex])
+        return hash
