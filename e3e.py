@@ -17,7 +17,7 @@ ZapMedia Info
 
 assert zap_media.address == '0x3Ca8f9C04c7e3E1624Ac2008F92f6F366A869444'
 assert zap_media.name() == 'Zap Collection'
-assert zap_media.get_contract_URI() == b'https://bafybeiev76hwk2gu7xmy5h3dn2f6iquxkhu4dhwpjgmt6ookrn6ykbtfi4.ipfs.dweb.link/'
+assert zap_media.contract_URI() == b'https://bafybeiev76hwk2gu7xmy5h3dn2f6iquxkhu4dhwpjgmt6ookrn6ykbtfi4.ipfs.dweb.link/'
 assert zap_media.marketContract() == '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707'
 
 
