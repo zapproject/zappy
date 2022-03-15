@@ -6,8 +6,8 @@ from py_eth_sig_utils.utils import normalize_key
 
 class ZapMedia(BaseContract):
 
-    def __init__(self, chain_id):
-        super().__init__(chain_id)
+    def __init__(self, chain_id: str = '31337', custom_contract_address: str = ""):
+        super().__init__(chain_id, custom_contract_address)
         try:
             self.connect_to_contract(ZapMedia.__name__)
         except Exception as e:

@@ -25,7 +25,7 @@ class BaseContract:
    
     """
 
-    def __init__(self, chain_id: str = '31337'):
+    def __init__(self, chain_id: str = '31337', custom_contract_address: str = ""):
         """
         Contract classes are instantiated through the given chainId and a config.json which contains the private_key of the user.
         That in turn generated the public_address.
@@ -34,6 +34,7 @@ class BaseContract:
         """
 
         self.chain_id = chain_id
+        self.address = custom_contract_address
         try:
             self.w3 = Web3(Web3.HTTPProvider(provider_uri[chain_id]))    
             with open("config.json", "r") as f:
@@ -58,7 +59,9 @@ class BaseContract:
             # with open(os.path.join(curr_dir, f'artifacts/{contract_name.lower()}.json'), 'r') as f:
             #     artifact = json.load(f)
             artifact = self.get_contract_info(contract_name)
-            self.address = artifact[self.chain_id]['address']
+
+            if self.address == "":
+                self.address = artifact[self.chain_id]['address']
             self.abi = artifact['abi']
             self.contract = self.w3.eth.contract(address=self.address, abi=self.abi)
         except Exception as e:
