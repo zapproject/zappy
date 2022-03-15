@@ -25,7 +25,7 @@ class BaseContract:
    
     """
 
-    def __init__(self, chainId: str = '31337'):
+    def __init__(self, chain_id: str = '31337'):
         """
         Contract classes are instantiated through the given chainId and a config.json which contains the private_key of the user.
         That in turn generated the public_address.
@@ -33,9 +33,9 @@ class BaseContract:
 
         """
 
-        self.chainId = chainId
+        self.chain_id = chain_id
         try:
-            self.w3 = Web3(Web3.HTTPProvider(provider_uri[chainId]))    
+            self.w3 = Web3(Web3.HTTPProvider(provider_uri[chain_id]))    
             with open("config.json", "r") as f:
                 data = json.load(f)
             self.private_key = data["privateKey"]
@@ -48,7 +48,7 @@ class BaseContract:
 
     def get_contract_info(self, contract_name:str):
         curr_dir = os.path.dirname(os.path.realpath(__file__))
-        print("curr_dir", curr_dir)
+        # print("curr_dir", curr_dir)
         with open(os.path.join(curr_dir, f'artifacts/{contract_name.lower()}.json'), 'r') as f:
             return json.load(f)
     
@@ -58,7 +58,7 @@ class BaseContract:
             # with open(os.path.join(curr_dir, f'artifacts/{contract_name.lower()}.json'), 'r') as f:
             #     artifact = json.load(f)
             artifact = self.get_contract_info(contract_name)
-            self.address = artifact[self.chainId]['address']
+            self.address = artifact[self.chain_id]['address']
             self.abi = artifact['abi']
             self.contract = self.w3.eth.contract(address=self.address, abi=self.abi)
         except Exception as e:
@@ -92,7 +92,7 @@ class BaseContract:
     # Builds transactions for write contract calls
     def send_transaction(self, function, **kwargs):
         default_tx_params = {
-            'chainId': int(self.chainId),
+            'chainId': int(self.chain_id),
             'gas': 1400000, # how much gas you're paying. this is the gas cap. most we're willing to spend
             'gasPrice': self.w3.eth.gas_price, # how much gas we're actually going to pay. typically 40 gwei.
             'nonce': self.w3.eth.get_transaction_count(self.public_address),

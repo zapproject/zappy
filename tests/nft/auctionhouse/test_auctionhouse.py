@@ -341,13 +341,13 @@ def mint_token0(w3, zap_media):
     w3.eth.wait_for_transaction_receipt(tx_hash, 180)
 
 
-def test_initial_connection(auctionhouse):
+def test_initial_connection(auctionhouse: AuctionHouse):
     assert auctionhouse.w3.isConnected()
 
-def test_chainId_connection(auctionhouse):
-    assert auctionhouse.chainId == "61"
+def test_chain_id_connection(auctionhouse: AuctionHouse):
+    assert auctionhouse.chain_id == "61"
 
-def test_auctionhouse_address(auctionhouse, auction_house_contract):
+def test_auctionhouse_address(auctionhouse: AuctionHouse, auction_house_contract):
     assert auctionhouse.address == auction_house_contract.address
 
 def test_create_auction(wallets, zap_token:ZapTokenBSC, auctionhouse:AuctionHouse, zap_media:ZapMedia, mint_token0):

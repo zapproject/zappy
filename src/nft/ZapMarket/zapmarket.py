@@ -15,7 +15,7 @@ class ZapMarket(BaseContract):
     def appointedOwner(self, ):
         return self.contract.functions.appointedOwner()
             
-    def bidForTokenBidder(self, mediaContractAddress, tokenId, bidder):
+    def bid_for_token_bidder(self, mediaContractAddress, tokenId, bidder):
         return self.contract.functions.bidForTokenBidder(mediaContractAddress, tokenId, bidder).call()
             
     def bidSharesForToken(self, mediaContractAddress, tokenId):
@@ -27,7 +27,7 @@ class ZapMarket(BaseContract):
     def configure(self, deployer, mediaContract, name, symbol):
         return self.contract.functions.configure(deployer, mediaContract, name, symbol)
             
-    def currentAskForToken(self, mediaContractAddress, tokenId):
+    def current_ask_for_token(self, mediaContractAddress: str, tokenId: int):
         return self.contract.functions.currentAskForToken(mediaContractAddress, tokenId).call()
             
     def get_owner(self, ):
@@ -35,12 +35,6 @@ class ZapMarket(BaseContract):
             
     def initTransferOwnership(self, newOwner):
         return self.contract.functions.initTransferOwnership(newOwner)
-            
-    def initialize(self, ):
-        return self.contract.functions.initialize()
-            
-    def initializeMarket(self, _platformAddress):
-        return self.contract.functions.initializeMarket(_platformAddress)
             
     def isConfigured(self, ):
         return self.contract.functions.isConfigured()
