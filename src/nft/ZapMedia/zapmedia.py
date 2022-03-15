@@ -1,4 +1,4 @@
-from eth_typing import Address
+# from eth_typing import Address
 from src.nft.base_contract import BaseContract
 from py_eth_sig_utils.signing import sign_typed_data
 from py_eth_sig_utils.utils import normalize_key
@@ -114,7 +114,7 @@ class ZapMedia(BaseContract):
         return self.send_transaction(self.contract.functions.acceptBid(token_id, bid), **kwargs)
             
     # Approves a user for managing the token
-    def approve(self, _to: Address, token_id: int, **kwargs):
+    def approve(self, _to: str, token_id: int, **kwargs):
         return self.send_transaction(self.contract.functions.approve(_to, token_id), **kwargs)
             
     # Burns the specified token id

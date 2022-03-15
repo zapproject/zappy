@@ -75,20 +75,6 @@ class BaseContract:
         return self
     
 
-    # # Async class methods
-    # async def get_contract(self):
-    #     contract_address = await self.coordinator.functions.getContract(self.name.upper()).call()
-    #     self.contract = self.w3.eth.contract(
-    #         address=contract_address, abi=self.artifact['abi'])
-    #     return contract_address
-
-    # def get_contract_owner(self):
-    #     return self.loop.run_until_complete(self.__async__get_contract_owner())
-
-    # async def __async__get_contract_owner(self):
-    #     contract_owner = await self.contract.functions.owner().call()
-    #     return contract_owner
-
     # Builds transactions for write contract calls
     def send_transaction(self, function, **kwargs):
         default_tx_params = {
@@ -102,7 +88,3 @@ class BaseContract:
         tx = function.buildTransaction(tx_params)
         signed_txn = self.w3.eth.account.sign_transaction(tx, self.private_key)
         return self.w3.eth.send_raw_transaction(signed_txn.rawTransaction)
-
-
-b = BaseContract()
-b.get_contract_info("zapmedia")

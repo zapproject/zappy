@@ -1,9 +1,9 @@
-from base_contract import BaseContract
+from src.nft.base_contract import BaseContract
 
 class MediaFactory(BaseContract):
 
-    def __init__(self, chainId):
-        super().__init__(chainId)
+    def __init__(self, chain_id):
+        super().__init__(chain_id)
         try:
             self.connect_to_contract(MediaFactory.__name__)
         except Exception as e:
