@@ -363,8 +363,44 @@ def test_initial_connection(media_factory: MediaFactory):
 def test_chain_id_connection(media_factory: MediaFactory):
     assert media_factory.chain_id == "61"
 
-def test_zap_media_address(media_factory: MediaFactory, media_factory_contract):
+def test_media_factory_address(media_factory: MediaFactory, media_factory_contract):
     assert media_factory.address == media_factory_contract.address
+
+def test_owner(wallets, media_factory: MediaFactory):
+    deployer = wallets[0]
+    owner = media_factory.owner()
+    assert owner == deployer
+
+# def test_media_factory_zap_market_address(media_factory: MediaFactory, zap_market: ZapMarket):
+#     # assert zap_market.
+#     assert media_factory.address == media_factory_contract.address
+
+def test_deploy_media(wallets, media_factory: MediaFactory, zap_market: ZapMarket):
+    args = ['ZAPPY COLLECTION', 'ZPC', zap_market.address, True, 'https://zappycollection.com']
+
+    tx_deploy_media = media_factory.deploy_media(*args)
+    receipt = media_factory.w3.eth.wait_for_transaction_receipt(tx_deploy_media, 180)
+    print("receipt: ",receipt)
+    print("tx: ",receipt['transactionHash'].hex())
+    print("status: ", receipt['status'])
+
+    assert False
+
+    # logs = media_factory_contract.events.MediaDeployed.getLogs()
+    # # assert len(logs) == 1
+
+    # event = logs[0]
+    # zap_media_proxy_address = event.args.mediaContract
+    
+
+    # artifacts = utils.get_ABI_Bytecode('zapmedia')
+    # abi = artifacts['abi']
+    # bytecode = artifacts['bytecode']   
+
+    # # Create our contract class.
+    # zapMedia = w3.eth.contract(address=zap_media_proxy_address, abi=abi)
+    # tx_claim = zapMedia.functions.claimTransferOwnership().transact({'from': wallets[0]})
+    # w3.eth.wait_for_transaction_receipt(tx_claim, 180)
 
 # def test_name(zap_media: ZapMedia):
 #     assert zap_media.name() == "TEST COLLECTION"
