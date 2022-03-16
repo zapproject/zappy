@@ -1,6 +1,6 @@
 import os
 import sys
-from traceback import print_tb
+import time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath("./__file__")))
 
@@ -321,14 +321,36 @@ def test_hh_acct_2_sets_bid_for_token_0_matching_ask():
     print("balance of hh_acct_9 should be 190", zap_token.balanceOf("0xa0Ee7A142d267C1f36714E4a8F75612F20a79720"))
     print("balance of zap_market should be 10", zap_token.balanceOf(zap_market.address))
 
+def test_permit():
+    print(
+        """
+        ("===================================")
+        hh_acct_9 permits hh_acct_1 for token 0.
+        ("===================================")
+        """
+    )
 
+    zap_media.connect(hh_private_keys[9])
+    hh_acct_1 = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+    token_id = zap_media.total_supply() - 1
+    deadline = int(time.time() + 60 * 60 * 24)
+
+    sig = zap_media.get_permit_signature(hh_acct_1, token_id, deadline)
+    
+    # make sure wallets[1] is not already approved
+    assert zap_media.get_approved(token_id) == "0x0000000000000000000000000000000000000000"
+
+    tx = zap_media.permit(hh_acct_1, token_id, sig)
+    zap_media.w3.eth.wait_for_transaction_receipt(tx, 180)
+    approved_address = zap_media.get_approved(token_id)
+    assert approved_address == hh_acct_1
 
 
 # test_owner_mints_from_Zap_Collection()
 
-# test_hh_acct_9_mints_from_Zap_Collection()
-# test_hh_acct_9_set_ask_for_token_0()
+test_hh_acct_9_mints_from_Zap_Collection()
+test_hh_acct_9_set_ask_for_token_0()
 
-# test_hh_acct_1_sets_bid_for_token_0()
-# test_hh_acct_3_sets_bid_for_token_0()
-# test_hh_acct_2_sets_bid_for_token_0_matching_ask()
+test_hh_acct_1_sets_bid_for_token_0()
+test_permit()
+test_hh_acct_2_sets_bid_for_token_0_matching_ask()

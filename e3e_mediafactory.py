@@ -26,7 +26,7 @@ assert media_factory.owner() == '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
 # print(media_factory.address)
 # print(media_factory.owner())
 
-args = ['ZAPPY COLLECTION', 'ZPC', zap_market.address, True, 'https://zappycollection.com']
+args = ['TEPPY COLLECTION', 'TEP', zap_market.address, True, 'https://teppycollection.com']
 
 # deployed_media = media_factory.deploy_media(*args)
 # receipt = media_factory.w3.eth.wait_for_transaction_receipt(tx_deploy_media, 180)
