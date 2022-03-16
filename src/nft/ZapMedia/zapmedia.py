@@ -12,23 +12,27 @@ class ZapMedia(BaseContract):
             self.connect_to_contract(ZapMedia.__name__)
         except Exception as e:
             print(e)
-
-
-
+    
     # ================================================================
     #                     GETTER FUNCTIONS
     # ================================================================
 
-    # Retrives the number of tokens the user has
     def balance_of(self, owner_address: str):
+        """
+        Retrives the number of tokens the user has
+        """
         return self.contract.functions.balanceOf(owner_address).call()
     
-        # Retrieves the contract URI 
     def contract_URI(self):
+        """
+        Retrieves the collection URI
+        """
         return self.contract.functions.contractURI().call()
 
-    # Retreives the approved address for specified token id
     def get_approved(self, token_id: int) -> str:
+        """
+        Retrieves the approved address for specified token id
+        """
         return self.contract.functions.getApproved(token_id).call()
             
     def get_owner(self):
@@ -36,50 +40,77 @@ class ZapMedia(BaseContract):
         Returns the owner of the media contract.
         """
         return self.contract.functions.getOwner().call()
-            
-    # Retreives the nonce for permit with signature transactions for specified user and token id
+             
     def get_permit_nonce(self, _user: str, token_id: int):
+        """
+        Retrieves the nonce for permit with signature transactions for specified user and token id
+        """
         return self.contract.functions.getPermitNonce(_user, token_id).call()
             
     def getPreviousTokenOwners(self, token_id: int):
         return self.contract.functions.getPreviousTokenOwners(token_id).call
-            
-    # Retreives the nonce for mint with signature transactions for specified user and token id
+             
     def get_sig_nonces(self, _minter: str):
+        """
+        Retrieves the nonce for mint with signature transactions for specified user and token id
+        """
         return self.contract.functions.getSigNonces(_minter).call()
-            
-    # Retreives the content URI hash for specified token id
+             
     def get_token_content_hashes(self, token_id: int):
+        """
+        Retrieves the content URI hash for specified token id
+        """
         return self.contract.functions.getTokenContentHashes(token_id).call()
             
     def get_token_creators(self, token_id: int):
         return self.contract.functions.getTokenCreators(token_id).call()
-            
-    # Retreives the metadata hash for the specified token id
+             
     def get_token_metadata_hashes(self, token_id: int):
+        """
+        Retrieves the metadata hash for the specified token id
+        """
         return self.contract.functions.getTokenMetadataHashes(token_id).call()
-            
-    # Retreives the metadata URI for the specified token id
+             
     def get_token_metadata_URIs(self, token_id: int):
+        """
+        Retrieves the metadata URI for the specified token id
+        """
         return self.contract.functions.getTokenMetadataURIs(token_id).call()
+
+    def is_approved_for_all(self, owner: str, operator: str):
+        """
+        Retrieves the approved address for all of a user's token
+        """
+        return self.contract.functions.isApprovedForAll(owner, operator).call()
         
     def marketContract(self):
+        """
+        Retrieves the Zap Market contract address
+        """
         return self.contract.functions.marketContract().call()
-
-    # Retreives the name of the media contract
+ 
     def name(self):
+        """
+        Retrieves the name of the media contract
+        """
         return self.contract.functions.name().call()
-        
-    # Retreives the owner of the specified token id
+         
     def owner_of(self, token_id):
+        """
+        Retrieves the owner of the specified token id
+        """
         return self.contract.functions.ownerOf(token_id).call()
-
-    # Determines whether the collection supports the specified interface id
+ 
     def supports_interface(self, interfaceId):
+        """
+        Determines whether the collection supports the specified interface id
+        """
         return self.contract.functions.supportsInterface(interfaceId).call()
-    
-    # Retreives the collection symbol
+     
     def symbol(self):
+        """
+        Retrieves the collection symbol
+        """
         return self.contract.functions.symbol().call()
             
     def token_by_index(self, index):
@@ -87,21 +118,24 @@ class ZapMedia(BaseContract):
         * Returns a token ID at a given `index` of all the tokens stored by the contract.
         """
         return self.contract.functions.tokenByIndex(index).call()
-            
-    # Retreives the token specified by the owner and index of the owner's tokens
+             
     def token_of_owner_by_index(self, owner, index):
+        """
+        Retrieves the token specified by the owner and index of the owner's tokens
+        """
         return self.contract.functions.tokenOfOwnerByIndex(owner, index).call()
-            
-    # Retreives the token / content URI for specified token id
+             
     def token_URI(self, token_id):
+        """
+        Retrieves the token / content URI for specified token id
+        """
         return self.contract.functions.tokenURI(token_id).call()
-            
-    # Retreives the total supply of token for this collection
+             
     def total_supply(self, ):
+        """
+        Retrieves the total supply of token for this collection
+        """
         return self.contract.functions.totalSupply().call()
-
-    def is_approved_for_all(self, owner: str, operator: str):
-        return self.contract.functions.isApprovedForAll(owner, operator).call()
 
 
     # ================================================================

@@ -2,7 +2,7 @@ from src.nft.base_contract import BaseContract
 
 class MediaFactory(BaseContract):
 
-    def __init__(self, chain_id):
+    def __init__(self, chain_id: str = '31337', custom_contract_address: str = ""):
         super().__init__(chain_id)
         try:
             self.connect_to_contract(MediaFactory.__name__)

@@ -23,26 +23,38 @@ Media Factory Info
 assert media_factory.address == '0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e'
 assert media_factory.owner() == '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
 
-# print(media_factory.address)
-# print(media_factory.owner())
+def test_deploy_custom_media():
+    args = ['TEPPY COLLECTION', 'TEP', zap_market.address, True, 'https://teppycollection.com']
 
-args = ['TEPPY COLLECTION', 'TEP', zap_market.address, True, 'https://teppycollection.com']
+    deployed_media_address = media_factory.deploy_media(*args)
+    # receipt = media_factory.w3.eth.wait_for_transaction_receipt(tx_deploy_media, 180)
+    # print(receipt)
+    # logs = media_factory.contract.events.MediaDeployed.getLogs()
+    # event = logs[0]
+    # deployed_media_address = event.args.mediaContract
 
-# deployed_media = media_factory.deploy_media(*args)
-# receipt = media_factory.w3.eth.wait_for_transaction_receipt(tx_deploy_media, 180)
-# print(receipt)
-# logs = media_factory.contract.events.MediaDeployed.getLogs()
-# event = logs[0]
-# deployed_media_address = event.args.mediaContract
+    # print("deployed_media_address: ", deployed_media_address)
 
-# print("deployed_media_address: ", deployed_media_address)
+    isRegistered = zap_market.isRegistered(deployed_media_address)
+    assert isRegistered == True
+    # print(isRegistered)
 
-# isRegistered = zap_market.isRegistered(deployed_media)
-# print(isRegistered)
+    return deployed_media_address
 
-
-my_media = ZapMedia("31337", "0x7e2d5FCC5E02cBF2b9f860052C0226104E23F9c7")
-my_media.address
+def test_deployed_media():
+    zap_media.balance_of()
+    media_address = test_deploy_custom_media()
+    my_media: ZapMedia = ZapMedia("31337", media_address)
+    assert my_media.address == media_address
+    assert my_media.chain_id == media_factory.chain_id
+    assert my_media.name() == "TEPPY COLLECTION"
+    assert my_media.symbol() == "TEP"
+    print(my_media.contract_URI())
+    assert my_media.contract_URI() == "https://teppycollection.com"
+    assert my_media.total_supply() == 0, "Total supply should be zero since it's newly deployed."
+    print(my_media.get_owner())
+    
+test_deployed_media()
 
 # def test_owner_mints_from_Zap_Collection():
 #     print(

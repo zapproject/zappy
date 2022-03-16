@@ -2,8 +2,8 @@ from src.nft.base_contract import BaseContract
 
 class ZapMarket(BaseContract):
 
-    def __init__(self, chainId):
-        super().__init__(chainId)
+    def __init__(self, chain_id: str = '31337', custom_contract_address: str = ""):
+        super().__init__(chain_id)
         try:
             self.connect_to_contract(ZapMarket.__name__)
         except Exception as e:

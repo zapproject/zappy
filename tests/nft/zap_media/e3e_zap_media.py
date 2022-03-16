@@ -436,15 +436,15 @@ def test_creator_owner_burn_token_1():
 
 # test_owner_mints_from_Zap_Collection()
 
-# test_hh_acct_9_mints_from_Zap_Collection()
-# test_hh_acct_9_set_ask_for_token_0()
+test_hh_acct_9_mints_from_Zap_Collection()
+test_hh_acct_9_set_ask_for_token_0()
 
-# test_hh_acct_1_sets_bid_for_token_0()
-# test_hh_acct_9_permits_hh_acct_1_for_token_0()
-# test_hh_acct_9_revokes_approval_for_hh_acct_1_for_token_0()
-# test_hh_acct_2_sets_bid_for_token_0_matching_ask()
-# test_hh_acct_9_mints_another_token_from_Zap_Collection()
-# test_creator_owner_burn_token_1()
+test_hh_acct_1_sets_bid_for_token_0()
+test_hh_acct_9_permits_hh_acct_1_for_token_0()
+test_hh_acct_9_revokes_approval_for_hh_acct_1_for_token_0()
+test_hh_acct_2_sets_bid_for_token_0_matching_ask()
+test_hh_acct_9_mints_another_token_from_Zap_Collection()
+test_creator_owner_burn_token_1()
 
 
 # test_burn_token_0()
