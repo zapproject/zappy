@@ -4,6 +4,8 @@ import time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath("./__file__")))
 
+import web3
+
 from src.nft.ZapMedia import ZapMedia
 from src.nft.ZapToken import ZapTokenBSC
 from src.nft.ZapMarket import ZapMarket
@@ -52,10 +54,9 @@ def test_owner_mints_from_Zap_Collection():
     )
 
     tx = zap_media.mint(mt, bt)
-    # print('tx: ', tx)
     receipt = zap_media.w3.eth.wait_for_transaction_receipt(tx, 180)
-    print("receipt - status: ", receipt['status'])
-    print("receipt - tx hash: ", receipt['transactionHash'].hex())
+    print("receipt_status: ", receipt['status'])
+    print("receipt.tx hash: ", receipt['transactionHash'].hex())
 
     token_id = zap_media.total_supply() - 1
     print("token_id: ", token_id)
@@ -89,14 +90,13 @@ def test_hh_acct_9_mints_from_Zap_Collection():
     tx = zap_media.mint(mt, bt)
     print('tx: ', tx)
     receipt = zap_media.w3.eth.wait_for_transaction_receipt(tx, 180)
-    print("receipt - status: ", receipt['status'])
-    print("receipt - tx hash: ", receipt['transactionHash'].hex())
+    print("status: ", receipt['status'])
+    print("tx hash: ", receipt['transactionHash'].hex())
 
     token_id = zap_media.total_supply() - 1
-    print("token_id: ", token_id)
-
     assert zap_media.owner_of(token_id) == '0xa0Ee7A142d267C1f36714E4a8F75612F20a79720'
     token_uri = zap_media.token_URI(0)
+    assert token_uri == "woofwoof"
 
 
 def test_hh_acct_9_set_ask_for_token_0():
@@ -141,7 +141,6 @@ def test_hh_acct_9_set_ask_for_token_0():
     assert current_ask[0] == new_ask["amount"]
     assert current_ask[1] == new_ask["currency"]
 
-
 def test_hh_acct_1_sets_bid_for_token_0():
     
     print(
@@ -178,24 +177,16 @@ def test_hh_acct_1_sets_bid_for_token_0():
     receipt = zap_media.w3.eth.wait_for_transaction_receipt(tx, 180)
     assert receipt is not None
 
-    print("Owner of token 0 before bidding: ", zap_media.owner_of(0))
-
     tx = zap_media.set_bid(token_id, bid)
     receipt = zap_media.w3.eth.wait_for_transaction_receipt(tx, 180)
     assert receipt is not None
 
-    print("Owner of token 0 after bidding: ", zap_media.owner_of(0))
-
     new_bid = zap_market.bid_for_token_bidder(zap_media.address, token_id, bidder)
-    print(new_bid)
     assert new_bid[0] == bid["amount"]
     assert new_bid[1] == bid["currency"]
     assert new_bid[2] == bid["bidder"]
     assert new_bid[3] == bid["recipient"]
     assert new_bid[4][0] == bid["sellOnShare"]["value"]
-
-    print("balance of hh_acct_1 should be 950", zap_token.balanceOf("0x70997970C51812dc3A010C7d01b50e0d17dc79C8"))
-    print("balance of zap_market should be 50", zap_token.balanceOf(zap_market.address))
 
 def test_hh_acct_3_sets_bid_for_token_0():
     
@@ -248,10 +239,6 @@ def test_hh_acct_3_sets_bid_for_token_0():
     assert new_bid[2] == bid["bidder"]
     assert new_bid[3] == bid["recipient"]
     assert new_bid[4][0] == bid["sellOnShare"]["value"]
-
-    print("balance of hh_acct_1 should be 950", zap_token.balanceOf("0x90F79bf6EB2c4f870365E785982E1f101E93b906"))
-    print("balance of zap_market should be ?", zap_token.balanceOf(zap_market.address))
-
 
 def test_hh_acct_2_sets_bid_for_token_0_matching_ask():
     
@@ -316,12 +303,7 @@ def test_hh_acct_2_sets_bid_for_token_0_matching_ask():
     assert bid_is_reset[2] == "0x0000000000000000000000000000000000000000"
     assert bid_is_reset[3] == "0x0000000000000000000000000000000000000000"
 
-    print("balance of hh_acct_1 should be 1000", zap_token.balanceOf("0x70997970C51812dc3A010C7d01b50e0d17dc79C8"))
-    print("balance of hh_acct_2 should be 800", zap_token.balanceOf("0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"))
-    print("balance of hh_acct_9 should be 190", zap_token.balanceOf("0xa0Ee7A142d267C1f36714E4a8F75612F20a79720"))
-    print("balance of zap_market should be 10", zap_token.balanceOf(zap_market.address))
-
-def test_permit():
+def test_hh_acct_9_permits_hh_acct_1_for_token_0():
     print(
         """
         ("===================================")
@@ -338,19 +320,131 @@ def test_permit():
     sig = zap_media.get_permit_signature(hh_acct_1, token_id, deadline)
     
     # make sure wallets[1] is not already approved
-    assert zap_media.get_approved(token_id) == "0x0000000000000000000000000000000000000000"
+    assert zap_media.get_approved(token_id) == web3.constants.ADDRESS_ZERO
+    zap_media.w3
 
     tx = zap_media.permit(hh_acct_1, token_id, sig)
     zap_media.w3.eth.wait_for_transaction_receipt(tx, 180)
     approved_address = zap_media.get_approved(token_id)
     assert approved_address == hh_acct_1
 
+def test_hh_acct_9_revokes_approval_for_hh_acct_1_for_token_0():
+    print(
+        """
+        ("===================================")
+        hh_acct_9 revokes hh_acct_1 approval for token 0.
+        ("===================================")
+        """
+    )
+    zap_media.connect(hh_private_keys[9])
+    hh_acct_1 = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+
+    token_id = zap_media.total_supply() - 1
+
+    # don't need to approve like below since we ran zap_media.permit(...) in the test above
+    # tx = zap_media.approve(hh_acct_1, token_id)
+    # w3.eth.wait_for_transaction_receipt(tx, 180)
+
+    postApprovedStatus = zap_media.get_approved(token_id)
+    assert postApprovedStatus == hh_acct_1
+
+    tx = zap_media.revoke_approval(token_id)
+    zap_media.w3.eth.wait_for_transaction_receipt(tx, 180)
+
+    assert zap_media.get_approved(token_id) == web3.constants.ADDRESS_ZERO
+
+def test_burn_token_0():
+    # if the owner is also the creator, owner/creator can burn
+    # if owner is NOT the creator, owner cannot burn and creator cannot burn 
+    hh_acct_2 = "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"
+    hh_acct_9 = "0xa0Ee7A142d267C1f36714E4a8F75612F20a79720"
+    token_id = zap_media.total_supply() - 1
+    token_owner = zap_media.owner_of(0)
+    print("token_owner: ", token_owner)
+    token_creator = zap_media.get_token_creators(0)
+    print("token_creator: ", token_creator)
+    
+    tx = zap_media.connect(hh_private_keys[2]).approve(hh_acct_9, 0)
+    zap_media.w3.eth.wait_for_transaction_receipt(tx, 180)
+
+    
+    # zap_media.connect(hh_private_keys[2])
+    before_bal = zap_media.balance_of(zap_media.public_address)
+
+    tx = zap_media.burn(token_id)
+    zap_media.w3.eth.wait_for_transaction_receipt(tx, 180)
+
+    after_bal = zap_media.balance_of(zap_media.public_address)
+    assert after_bal == before_bal - 1
+    assert after_bal == 0
+
+    assert zap_media.total_supply() == 0
+
+def test_hh_acct_9_mints_another_token_from_Zap_Collection():
+    print(
+        """
+        ("===================================")
+        hh_acct_9 mints another token from Zap Collention
+        ("===================================")
+        """
+    )
+    mt = zap_media.make_media_data(
+        "ruffruff", 
+        "yaowyaow"
+    )
+
+    bt = zap_media.make_bid_shares(
+        90000000000000000000,
+        5000000000000000000,
+        [],
+        []
+    )
+
+    zap_media.connect(hh_private_keys[9])
+
+    tx = zap_media.mint(mt, bt)
+    print('tx: ', tx)
+    receipt = zap_media.w3.eth.wait_for_transaction_receipt(tx, 180)
+    print("status: ", receipt['status'])
+    print("tx hash: ", receipt['transactionHash'].hex())
+
+    token_id = zap_media.total_supply() - 1
+    print("token_id: ", token_id)
+
+    assert zap_media.owner_of(token_id) == '0xa0Ee7A142d267C1f36714E4a8F75612F20a79720'
+    token_uri = zap_media.token_URI(0)
+
+def test_creator_owner_burn_token_1():
+    # if the owner is also the creator, owner/creator can burn
+    # if owner is NOT the creator, owner cannot burn and creator cannot burn 
+    token_id = zap_media.total_supply() - 1
+   
+    # tx = zap_media.connect(hh_private_keys[9]).approve(hh_acct_9, 0)
+    # zap_media.w3.eth.wait_for_transaction_receipt(tx, 180)
+    
+    zap_media.connect(hh_private_keys[9])
+    before_bal = zap_media.balance_of(zap_media.public_address)
+
+    tx = zap_media.burn(token_id)
+    zap_media.w3.eth.wait_for_transaction_receipt(tx, 180)
+
+    after_bal = zap_media.balance_of(zap_media.public_address)
+    print(after_bal)
+    assert after_bal == before_bal - 1
+    assert after_bal == 0
+
 
 # test_owner_mints_from_Zap_Collection()
 
-test_hh_acct_9_mints_from_Zap_Collection()
-test_hh_acct_9_set_ask_for_token_0()
+# test_hh_acct_9_mints_from_Zap_Collection()
+# test_hh_acct_9_set_ask_for_token_0()
 
-test_hh_acct_1_sets_bid_for_token_0()
-test_permit()
-test_hh_acct_2_sets_bid_for_token_0_matching_ask()
+# test_hh_acct_1_sets_bid_for_token_0()
+# test_hh_acct_9_permits_hh_acct_1_for_token_0()
+# test_hh_acct_9_revokes_approval_for_hh_acct_1_for_token_0()
+# test_hh_acct_2_sets_bid_for_token_0_matching_ask()
+# test_hh_acct_9_mints_another_token_from_Zap_Collection()
+# test_creator_owner_burn_token_1()
+
+
+# test_burn_token_0()

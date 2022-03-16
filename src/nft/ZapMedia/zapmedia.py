@@ -42,7 +42,7 @@ class ZapMedia(BaseContract):
         return self.contract.functions.getPermitNonce(_user, token_id).call()
             
     def getPreviousTokenOwners(self, token_id: int):
-        return self.contract.functions.getPreviousTokenOwners(token_id)
+        return self.contract.functions.getPreviousTokenOwners(token_id).call
             
     # Retreives the nonce for mint with signature transactions for specified user and token id
     def get_sig_nonces(self, _minter: str):
@@ -53,7 +53,7 @@ class ZapMedia(BaseContract):
         return self.contract.functions.getTokenContentHashes(token_id).call()
             
     def get_token_creators(self, token_id: int):
-        return self.contract.functions.getTokenCreators(token_id)
+        return self.contract.functions.getTokenCreators(token_id).call()
             
     # Retreives the metadata hash for the specified token id
     def get_token_metadata_hashes(self, token_id: int):
@@ -118,7 +118,7 @@ class ZapMedia(BaseContract):
         return self.send_transaction(self.contract.functions.approve(_to, token_id), **kwargs)
             
     # Burns the specified token id
-    def burn(self, token_id, **kwargs):
+    def burn(self, token_id: int, **kwargs):
         return self.send_transaction(self.contract.functions.burn(token_id), **kwargs)
                         
     # Mints a new token
