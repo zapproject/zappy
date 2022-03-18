@@ -6,9 +6,9 @@ sys.path.insert(0, os.path.dirname(os.path.abspath("./__file__")))
 
 import web3
 
-from src.nft.ZapMedia import ZapMedia
-from src.nft.ZapToken import ZapTokenBSC
-from src.nft.ZapMarket import ZapMarket
+from src.zappy.zapmedia import ZapMedia
+from src.zappy.zaptokenbsc import ZapTokenBSC
+from src.zappy.zapmarket import ZapMarket
 
 from tests.nft.test_utilities import hh_private_keys
 

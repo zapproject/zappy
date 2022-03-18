@@ -1,7 +1,7 @@
-# from eth_typing import Address
-from src.nft.base_contract import BaseContract
 from py_eth_sig_utils.signing import sign_typed_data
 from py_eth_sig_utils.utils import normalize_key
+
+from .base_contract import BaseContract
 
 
 class ZapMedia(BaseContract):

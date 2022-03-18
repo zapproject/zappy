@@ -21,7 +21,7 @@ wallets = [web3.Account.from_key(pk) for pk in hh_private_keys]
 
 
 def get_ABI_Bytecode(contract_name:str):
-    curr_dir = os.path.dirname(os.path.realpath("src/nft/artifacts"))
+    curr_dir = os.path.dirname(os.path.realpath("src/zappy/artifacts"))
 
     with open(os.path.join(curr_dir, f'artifacts/{contract_name.lower()}.json'), 'r') as f:
         artifact = json.load(f)
@@ -31,7 +31,7 @@ def get_ABI_Bytecode(contract_name:str):
             }
             
 def get_artifact(contract_name:str):
-    curr_dir = os.path.dirname(os.path.realpath("src/nft/artifacts"))
+    curr_dir = os.path.dirname(os.path.realpath("src/zappy/artifacts"))
 
     with open(os.path.join(curr_dir, f'artifacts/{contract_name.lower()}.json'), 'r') as f:
       return json.load(f)
