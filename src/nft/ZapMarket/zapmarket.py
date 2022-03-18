@@ -30,17 +30,17 @@ class ZapMarket(BaseContract):
     def current_ask_for_token(self, mediaContractAddress: str, tokenId: int):
         return self.contract.functions.currentAskForToken(mediaContractAddress, tokenId).call()
             
-    def get_owner(self, ):
+    def get_owner(self):
         return self.contract.functions.getOwner().call()
             
     def initTransferOwnership(self, newOwner):
         return self.contract.functions.initTransferOwnership(newOwner)
             
-    def isConfigured(self, ):
-        return self.contract.functions.isConfigured()
+    def isConfigured(self, media_contract_address: str) -> bool:
+        return self.contract.functions.isConfigured(media_contract_address).call()
             
-    def isRegistered(self, mediaContractAddress):
-        return self.contract.functions.isRegistered(mediaContractAddress).call()
+    def isRegistered(self, media_contract_address: str) -> bool:
+        return self.contract.functions.isRegistered(media_contract_address).call()
             
     def isValidBid(self, mediaContractAddress, tokenId, bidAmount):
         return self.contract.functions.isValidBid(mediaContractAddress, tokenId, bidAmount).call()
