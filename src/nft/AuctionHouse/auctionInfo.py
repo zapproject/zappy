@@ -1,3 +1,4 @@
+from typing import TypedDict
 class AuctionInfo():
 
     def __init__(self, auctionResponse):
@@ -18,3 +19,20 @@ class TokenDetails():
     def __init__(self, token_details):
         self.token_id = token_details[0]
         self.media_contract = token_details[1]
+
+# class TokenDetails(TypedDict, total=False):
+#     tokenId: int
+#     mediaContract: str
+
+# class Auction(TypedDict, total=False):
+#     token: TokenDetails
+#     approved: bool
+#     amount: int
+#     duration: int
+#     firstBidTime: int
+#     reservePrice: int
+#     curatorFeePercentage: int 
+#     tokenOwner: str
+#     bidder: str
+#     curator: str
+#     auctionCurrency: str

@@ -2,8 +2,8 @@ from src.nft.base_contract import BaseContract
 
 class ZapTokenBSC(BaseContract):
 
-    def __init__(self, chainId):
-        super().__init__(chainId)
+    def __init__(self, chain_id: str = '31337', custom_contract_address: str = ""):
+        super().__init__(chain_id)
         try:
             self.connect_to_contract(ZapTokenBSC.__name__)
         except Exception as e:
@@ -13,7 +13,7 @@ class ZapTokenBSC(BaseContract):
         return self.contract.functions.allocate(_to, amount)
             
     def allowance(self, _owner, _spender):
-        return self.contract.functions.allowance(_owner, _spender)
+        return self.contract.functions.allowance(_owner, _spender).call()
             
     def approve(self, _spender, _value):
         return self.send_transaction(self.contract.functions.approve(_spender, _value))

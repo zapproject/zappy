@@ -2,8 +2,8 @@ from src.nft.base_contract import BaseContract
 
 class ZapMarket(BaseContract):
 
-    def __init__(self, chainId):
-        super().__init__(chainId)
+    def __init__(self, chain_id: str = '31337', custom_contract_address: str = ""):
+        super().__init__(chain_id)
         try:
             self.connect_to_contract(ZapMarket.__name__)
         except Exception as e:
@@ -15,7 +15,7 @@ class ZapMarket(BaseContract):
     def appointedOwner(self, ):
         return self.contract.functions.appointedOwner()
             
-    def bidForTokenBidder(self, mediaContractAddress, tokenId, bidder):
+    def bid_for_token_bidder(self, mediaContractAddress, tokenId, bidder):
         return self.contract.functions.bidForTokenBidder(mediaContractAddress, tokenId, bidder).call()
             
     def bidSharesForToken(self, mediaContractAddress, tokenId):
@@ -27,26 +27,20 @@ class ZapMarket(BaseContract):
     def configure(self, deployer, mediaContract, name, symbol):
         return self.contract.functions.configure(deployer, mediaContract, name, symbol)
             
-    def currentAskForToken(self, mediaContractAddress, tokenId):
+    def current_ask_for_token(self, mediaContractAddress: str, tokenId: int):
         return self.contract.functions.currentAskForToken(mediaContractAddress, tokenId).call()
             
-    def get_owner(self, ):
+    def get_owner(self):
         return self.contract.functions.getOwner().call()
             
     def initTransferOwnership(self, newOwner):
         return self.contract.functions.initTransferOwnership(newOwner)
             
-    def initialize(self, ):
-        return self.contract.functions.initialize()
+    def isConfigured(self, media_contract_address: str) -> bool:
+        return self.contract.functions.isConfigured(media_contract_address).call()
             
-    def initializeMarket(self, _platformAddress):
-        return self.contract.functions.initializeMarket(_platformAddress)
-            
-    def isConfigured(self, ):
-        return self.contract.functions.isConfigured()
-            
-    def isRegistered(self, mediaContractAddress):
-        return self.contract.functions.isRegistered(mediaContractAddress).call()
+    def isRegistered(self, media_contract_address: str) -> bool:
+        return self.contract.functions.isRegistered(media_contract_address).call()
             
     def isValidBid(self, mediaContractAddress, tokenId, bidAmount):
         return self.contract.functions.isValidBid(mediaContractAddress, tokenId, bidAmount).call()
