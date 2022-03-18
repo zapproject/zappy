@@ -154,6 +154,9 @@ class ZapMedia(BaseContract):
     # Burns the specified token id
     def burn(self, token_id: int, **kwargs):
         return self.send_transaction(self.contract.functions.burn(token_id), **kwargs)
+
+    def claim_transfer_ownership(self):
+        return self.send_transaction(self.contract.functions.claimTransferOwnership())
                         
     # Mints a new token
     def mint(self, data, bidShares, **kwargs):
@@ -203,6 +206,8 @@ class ZapMedia(BaseContract):
 
     def transfer_from(self, _from: str, _to: str, token_id: int):
         return self.send_transaction(self.contract.functions.transferFrom(_from, _to, token_id))
+
+    
     
     
     
