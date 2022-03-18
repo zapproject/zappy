@@ -15,10 +15,10 @@ from eth_tester import EthereumTester
 from unittest.mock import patch
 
 import tests.nft.test_utilities as utils
-from src.nft.ZapMedia import ZapMedia
-from src.nft.ZapMarket import ZapMarket
-from src.nft.ZapToken import ZapTokenBSC
-from src.nft.MediaFactory import MediaFactory
+from src.zappy.zapmedia import ZapMedia
+from src.zappy.zapmarket import ZapMarket
+from src.zappy.zaptokenbsc import ZapTokenBSC
+from src.zappy.mediafactory import MediaFactory
 
 import pprint
 pp = pprint.PrettyPrinter(indent=4)
@@ -266,7 +266,7 @@ def zap_media_proxy_contract(eth_tester, w3, zap_market_contract, media_factory_
 
 
 @pytest.fixture
-@patch('src.nft.base_contract.json', autospec=True)
+@patch('src.zappy.base_contract.json', autospec=True)
 def zap_media(mock_json, w3, zap_media_proxy_contract) -> ZapMedia:
     zap_media_address = zap_media_proxy_contract.address
     artifact = utils.get_artifact('zapmedia')
@@ -285,7 +285,7 @@ def zap_media(mock_json, w3, zap_media_proxy_contract) -> ZapMedia:
     
 
 @pytest.fixture
-@patch('src.nft.base_contract.json', autospec=True)
+@patch('src.zappy.base_contract.json', autospec=True)
 def zap_market(mock_json, w3, zap_market_contract):
     zap_market_address = zap_market_contract.address
     artifact = utils.get_artifact('zapmarket')
@@ -302,7 +302,7 @@ def zap_market(mock_json, w3, zap_market_contract):
     return zap_market
 
 @pytest.fixture
-@patch('src.nft.base_contract.json', autospec=True)
+@patch('src.zappy.base_contract.json', autospec=True)
 def zap_token(mock_json, w3, zap_token_contract):
     zap_token_address = zap_token_contract.address
     artifact = utils.get_artifact('zaptokenbsc')
@@ -319,7 +319,7 @@ def zap_token(mock_json, w3, zap_token_contract):
     return zap_token
 
 @pytest.fixture
-@patch('src.nft.base_contract.json', autospec=True)
+@patch('src.zappy.base_contract.json', autospec=True)
 def media_factory(mock_json, w3, media_factory_contract):
     media_factory_address = media_factory_contract.address
     artifact = utils.get_artifact('mediafactory')
