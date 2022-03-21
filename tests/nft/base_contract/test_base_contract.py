@@ -1,7 +1,7 @@
 import os
 import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath("./__file__")))
-from src.nft.ZapMedia import ZapMedia
+from src.zappy.zapmedia import ZapMedia
 
 
 # create Zap Media
