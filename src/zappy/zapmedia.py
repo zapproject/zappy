@@ -29,7 +29,7 @@ class ZapMedia(BaseContract):
         """
         return self.contract.functions.contractURI().call()
 
-    def get_approved(self, token_id: int) -> str:
+    def get_approved(self, token_id: int):
         """
         Retrieves the approved address for specified token id
         """
@@ -95,13 +95,13 @@ class ZapMedia(BaseContract):
         """
         return self.contract.functions.name().call()
          
-    def owner_of(self, token_id):
+    def owner_of(self, token_id: int):
         """
         Retrieves the owner of the specified token id
         """
         return self.contract.functions.ownerOf(token_id).call()
  
-    def supports_interface(self, interfaceId):
+    def supports_interface(self, interfaceId: str):
         """
         Determines whether the collection supports the specified interface id
         """
@@ -113,25 +113,25 @@ class ZapMedia(BaseContract):
         """
         return self.contract.functions.symbol().call()
             
-    def token_by_index(self, index):
+    def token_by_index(self, index: int):
         """
         * Returns a token ID at a given `index` of all the tokens stored by the contract.
         """
         return self.contract.functions.tokenByIndex(index).call()
              
-    def token_of_owner_by_index(self, owner, index):
+    def token_of_owner_by_index(self, owner: str, index: int):
         """
         Retrieves the token specified by the owner and index of the owner's tokens
         """
         return self.contract.functions.tokenOfOwnerByIndex(owner, index).call()
              
-    def token_URI(self, token_id):
+    def token_URI(self, token_id: int):
         """
         Retrieves the token / content URI for specified token id
         """
         return self.contract.functions.tokenURI(token_id).call()
              
-    def total_supply(self, ):
+    def total_supply(self):
         """
         Retrieves the total supply of token for this collection
         """
@@ -144,7 +144,7 @@ class ZapMedia(BaseContract):
         
     # Accepts the specified bid as the token owner or approved user. 
     # Transfer of the token and bid amount is done internally.
-    def accept_bid(self, token_id, bid, **kwargs):
+    def accept_bid(self, token_id: int, bid, **kwargs):
         return self.send_transaction(self.contract.functions.acceptBid(token_id, bid), **kwargs)
             
     # Approves a user for managing the token
@@ -163,15 +163,15 @@ class ZapMedia(BaseContract):
         return self.send_transaction(self.contract.functions.mint(data, bidShares), **kwargs)
             
     # Mints a new token with ECDSA compliant signatures
-    def mint_with_sig(self, creator, data, bidShares, sig, **kwargs):
+    def mint_with_sig(self, creator: str, data, bidShares, sig, **kwargs):
         return self.send_transaction(self.contract.functions.mintWithSig(creator, data, bidShares, sig), **kwargs)
 
     # Approves user with specified signature and token id
-    def permit(self, spender, token_id, sig, **kwargs):
+    def permit(self, spender: str, token_id: int, sig, **kwargs):
         return self.send_transaction(self.contract.functions.permit(spender, token_id, sig), **kwargs)
             
     # Removes the current ask on the specified token id
-    def remove_ask(self, token_id, **kwargs):
+    def remove_ask(self, token_id: int, **kwargs):
         return self.send_transaction(self.contract.functions.removeAsk(token_id), **kwargs)
             
     # Removes the current bid on the specified token id
@@ -179,23 +179,23 @@ class ZapMedia(BaseContract):
         return self.send_transaction(self.contract.functions.removeBid(token_id), **kwargs)
             
     # Removes all approvals on specified token id
-    def revoke_approval(self, token_id, **kwargs):
+    def revoke_approval(self, token_id: int, **kwargs):
         return self.send_transaction(self.contract.functions.revokeApproval(token_id), **kwargs)
             
-    # Creates a new ask for specified token id. Restricted for owner or approved users.
-    def set_ask(self, token_id, ask, **kwargs):
+    # Creates a new ask for specified token id. Restricted to owner or approved users.
+    def set_ask(self, token_id: int, ask, **kwargs):
         return self.send_transaction(self.contract.functions.setAsk(token_id, ask), **kwargs)
             
     # Creates a new bid for specified token id
-    def set_bid(self, token_id, bid, **kwargs):
+    def set_bid(self, token_id: int, bid, **kwargs):
         return self.send_transaction(self.contract.functions.setBid(token_id, bid), **kwargs)
     
     # Updates the metadata URI for specified token id
-    def update_token_metadata_URI(self, token_id, metadataURI, **kwargs):
+    def update_token_metadata_URI(self, token_id: int, metadataURI: str, **kwargs):
         return self.send_transaction(self.contract.functions.updateTokenMetadataURI(token_id, metadataURI), **kwargs)
             
     # Updates the token URI for the specified token id
-    def update_token_URI(self, token_id, tokenURILocal, **kwargs):
+    def update_token_URI(self, token_id: int, tokenURILocal: str, **kwargs):
         return self.send_transaction(self.contract.functions.updateTokenURI(token_id, tokenURILocal), **kwargs)
 
     def set_approval_for_all(self, operator: str, approved: bool, **kwarg):
@@ -230,7 +230,7 @@ class ZapMedia(BaseContract):
 
     ## Helper function that builds a dict representing IMedia.MediaData
     # def make_media_data(self, tokenURI, metadataURI, contentHash, metadataHash):
-    def make_media_data(self, tokenURI, metadataURI):
+    def make_media_data(self, tokenURI: str, metadataURI: str):
         return {
             "tokenURI": tokenURI,
             "metadataURI": metadataURI,
@@ -239,7 +239,7 @@ class ZapMedia(BaseContract):
         }
 
     ## Helper function that build a dict representing IMarket.BidShares
-    def make_bid_shares(self, creator, owner, collaborators, collabShares):
+    def make_bid_shares(self, creator: str, owner: str, collaborators, collabShares):
         return {
             "creator": {"value": creator},
             "owner": {"value": owner},
