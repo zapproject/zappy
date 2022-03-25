@@ -5,6 +5,28 @@ from .base_contract import BaseContract
 
 
 class ZapMedia(BaseContract):
+    """
+    This class wraps the deployed ZapMedia contract.
+    
+    :param chain_id: chain Id of network 
+    :type chain_id: str
+    :param custom_contract_address: optional address for custom ZapMedia contract other than the official Zap Media Collection
+    :type custom_contract_address: str
+
+    :return: ZapMedia class connected to contract on given chain Id.
+
+    - Example of connection to Zap Collection on BSC Testnet::
+        
+        bsc_testnet_chainId: str = "97"
+        media = ZapMedia(bsc_testnet_chainId)
+    
+    - Example of connection to Zap Collection on BSC Testnet::
+        
+        bsc_testnet_chainId: str = "97"
+        custom_media_contract: str = "0xCUSTOM_MEDIA_ADDRESS_FROM_MEDIA_FACTORY"
+        media = ZapMedia(bsc_testnet_chainId, custom_media_contract)
+    
+    """
 
     def __init__(self, chain_id: str = '31337', custom_contract_address: str = ""):
         super().__init__(chain_id, custom_contract_address)
@@ -19,7 +41,18 @@ class ZapMedia(BaseContract):
 
     def balance_of(self, owner_address: str):
         """
-        Retrives the number of tokens the user has
+            **Get NFT Balance**
+
+            Retrives the number of tokens the user has
+            
+            :param owner_address: address of wallet
+            :type owner_address: str
+            :return: number of NFTs owned by given address
+
+            - Example::
+
+                balance = zap_media.balance_of(signers[1].address)
+            
         """
         return self.contract.functions.balanceOf(owner_address).call()
     
