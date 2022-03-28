@@ -41,8 +41,6 @@ class ZapMedia(BaseContract):
 
     def balance_of(self, owner_address: str):
         """
-            **Get NFT Balance**
-
             Retrives the number of tokens the user has
             
             :param owner_address: address of wallet
@@ -58,115 +56,276 @@ class ZapMedia(BaseContract):
     
     def contract_URI(self):
         """
-        Retrieves the collection URI
+            Retrives the contract URI used for the collection
+
+            :return: base URI of contract 
+
+            - Example::
+
+                uri = zap_media.contract_URI()
+            
         """
         return self.contract.functions.contractURI().call()
 
     def get_approved(self, token_id: int):
         """
-        Retrieves the approved address for specified token id
+            Retrives the approved address for a given token id
+            
+            :param token_id: Id of NFT token
+            :type token_id: int
+            :return: address of approved 
+
+            - Example::
+                token_id: int = 3
+                balance = zap_media.get_approved(token_id)
+            
         """
         return self.contract.functions.getApproved(token_id).call()
             
     def get_owner(self):
         """
-        Returns the owner of the media contract.
+            Retrives the owner address for the deploy media contract
+            
+            :return: address of contract owner 
+
+            - Example::
+
+                owner_address = zap_media.get_owner()
+            
         """
         return self.contract.functions.getOwner().call()
              
     def get_permit_nonce(self, _user: str, token_id: int):
         """
-        Retrieves the nonce for permit with signature transactions for specified user and token id
+            Retrives nonce of a particular NFT to create a permit. Used when creating a signature.
+
+            :param _user: address of user
+            :type _user: str
+            :param token_id: Id of NFT token
+            :type token_id: int
+            :return: latest nonce of a given address and token id
+
+            - Example::
+                user: str = "0xUserAddress"
+                token_id: int = 5
+                nonce = zap_media.get_permit_nonce(user, token_id)
+            
         """
         return self.contract.functions.getPermitNonce(_user, token_id).call()
             
-    def getPreviousTokenOwners(self, token_id: int):
-        return self.contract.functions.getPreviousTokenOwners(token_id).call
+    def get_previous_token_owners(self, token_id: int):
+        """
+            Retrieves the previous owner of an NFT
+
+            :param token_id: Id of NFT token
+            :type token_id: int
+            :return: address of previous owner of given NFT
+
+            - Example::
+                token_id: int = 5
+                prev_owner = zap_media.getPreviousTokenOwners(token_id)
+            
+        """
+        return self.contract.functions.get_previous_token_owners(token_id).call
              
     def get_sig_nonces(self, _minter: str):
         """
-        Retrieves the nonce for mint with signature transactions for specified user and token id
+            Retrives nonce of a particular NFT to create a signature. Used when creating a signature.
+
+            :param _minter: address of user
+            :type _minter: str
+            :return: latest nonce of a given address and token id
+
+            - Example::
+                minter: str = "0xUserAddress"
+                sig_nonce = zap_media.get_sig_nonces(minter)
+            
         """
         return self.contract.functions.getSigNonces(_minter).call()
              
     def get_token_content_hashes(self, token_id: int):
         """
-        Retrieves the content URI hash for specified token id
+            Retrives the content hash of the NFT
+
+            :param token_id: Id of NFT token
+            :type token_id: int
+            :return: content hash 
+
+            - Example::
+
+                content_hash = zap_media.get_token_content_hashes(7)
+            
         """
         return self.contract.functions.getTokenContentHashes(token_id).call()
             
     def get_token_creators(self, token_id: int):
+        """
+            Retrives the creator of the NFT
+
+            :param token_id: Id of NFT token
+            :type token_id: int
+            :return: base URI of contract 
+
+            - Example::
+
+                content_hash = zap_media.get_token_content_hashes(7)
+            
+        """
         return self.contract.functions.getTokenCreators(token_id).call()
              
     def get_token_metadata_hashes(self, token_id: int):
         """
-        Retrieves the metadata hash for the specified token id
+            Retrives the metadata hash of the NFT
+
+            :param token_id: Id of NFT token
+            :type token_id: int
+            :return: metadata hash 
+
+            - Example::
+
+                content_hash = zap_media.get_token_metadata_hashes(7)
+            
         """
         return self.contract.functions.getTokenMetadataHashes(token_id).call()
              
     def get_token_metadata_URIs(self, token_id: int):
         """
-        Retrieves the metadata URI for the specified token id
+            Retrives the metadata URI of the NFT
+
+            :param token_id: Id of NFT token
+            :type token_id: int
+            :return: metadata URI 
+
+            - Example::
+
+                content_hash = zap_media.get_token_metadata_URIs(7)
+            
         """
         return self.contract.functions.getTokenMetadataURIs(token_id).call()
 
     def is_approved_for_all(self, owner: str, operator: str):
         """
-        Retrieves the approved address for all of a user's token
+            Retrives the approved address for all of a user's NFTs
+            
+            :param owner: owner address of the NFTs
+            :type owner: str
+            :param token_id: Id of NFT token
+            :type token_id: int
+            :return: address of approved 
+
+            - Example::
+                owner: str = "0xOwnerAddress"
+                token_id: int = 3
+                balance = zap_media.is_approved_for_all(owner, token_id)
+            
         """
         return self.contract.functions.isApprovedForAll(owner, operator).call()
         
-    def marketContract(self):
+    def market_contract(self):
         """
-        Retrieves the Zap Market contract address
+            Retrieves the Zap Market contract address
+            :return: address of Zap Market contract
+
+            - Example::
+                zap_market_address = zap_media.market_contract(owner, token_id)
         """
         return self.contract.functions.marketContract().call()
  
     def name(self):
         """
-        Retrieves the name of the media contract
+            Retrieves the name of the NFT collection
+            :return: collection name
+
+            - Example::
+                collection_name = zap_media.name()
         """
         return self.contract.functions.name().call()
          
     def owner_of(self, token_id: int):
         """
-        Retrieves the owner of the specified token id
+            Retrieves the name of the NFT collection
+
+            :param token_id: Id of NFT token
+            :type token_id: int
+            :return: collection name
+
+            - Example::
+                collection_name = zap_media.name()
         """
         return self.contract.functions.ownerOf(token_id).call()
  
-    def supports_interface(self, interfaceId: str):
+    def supports_interface(self, interface_id: str):
         """
-        Determines whether the collection supports the specified interface id
+            Checks if the contract support a particular interface
+
+            :param interface_id: interface id to check
+            :type interface_id: string
+            :return: collection name
+
+            - Example::
+                collection_name = zap_media.name()
         """
-        return self.contract.functions.supportsInterface(interfaceId).call()
+        return self.contract.functions.supportsInterface(interface_id).call()
      
     def symbol(self):
         """
-        Retrieves the collection symbol
+            Retrieves the symbol of the NFT collection
+            :return: symbol of collection
+
+            - Example::
+                symbol = zap_media.symbol()
         """
         return self.contract.functions.symbol().call()
             
     def token_by_index(self, index: int):
         """
-        * Returns a token ID at a given `index` of all the tokens stored by the contract.
+            Retrieves the token_id of the NFT in Zap Media
+
+            :param index: Id of NFT token
+            :type index: int
+            :return: corresponsing token id of a given index
+
+            - Example::
+                token_id = zap_media.token_by_index(3)
         """
         return self.contract.functions.tokenByIndex(index).call()
              
     def token_of_owner_by_index(self, owner: str, index: int):
         """
-        Retrieves the token specified by the owner and index of the owner's tokens
+            Retrieves the token_id of the NFT in Zap Media
+
+            :param owner: address of token owner
+            :type owner: str
+            :param index: Id of NFT token
+            :type index: int
+            :return: corresponsing token id of a given addressa and index
+
+            - Example::
+                token_id = zap_media.token_of_owner_by_index("0xOWNERADDRES", 3)
         """
         return self.contract.functions.tokenOfOwnerByIndex(owner, index).call()
              
     def token_URI(self, token_id: int):
         """
-        Retrieves the token / content URI for specified token id
+            Retrieves the URI of an NFT
+
+            :param token_id: Id of NFT token
+            :type token_id: int
+            :return: URI of minted NFT
+
+            - Example::
+                token_id = zap_media.token_URI(3)
         """
         return self.contract.functions.tokenURI(token_id).call()
              
     def total_supply(self):
         """
-        Retrieves the total supply of token for this collection
+            Retrieves the total supply of the media contract
+
+            :return: Total supply. Subtract by 1 to get the latest token Id.
+
+            - Example::
+                token_id = zap_media.total_supply()
         """
         return self.contract.functions.totalSupply().call()
 
@@ -272,7 +431,7 @@ class ZapMedia(BaseContract):
         }
 
     ## Helper function that build a dict representing IMarket.BidShares
-    def make_bid_shares(self, creator: str, owner: str, collaborators, collabShares):
+    def make_bid_shares(self, creator: int, owner: int, collaborators, collabShares):
         return {
             "creator": {"value": creator},
             "owner": {"value": owner},

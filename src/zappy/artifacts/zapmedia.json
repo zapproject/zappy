@@ -9,6 +9,9 @@
   "56": {
     "address": "0xBSC_MAINNETADDRESS"
   },
+  "97": {
+    "address": "0x314D0A56B2bd8229a18A3B9f0875E4fE7A963375"
+  },
   "abi": [
     {
       "anonymous": false,

@@ -1,4 +1,4 @@
-zapmedia module
+ZapMedia
 ===============
 
 .. automodule:: src.zappy.zapmedia
