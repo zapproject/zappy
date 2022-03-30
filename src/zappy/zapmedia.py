@@ -522,20 +522,80 @@ class ZapMedia(BaseContract):
         """
         return self.send_transaction(self.contract.functions.permit(spender, token_id, sig), **kwargs)
             
-    # Removes the current ask on the specified token id
     def remove_ask(self, token_id: int, **kwargs):
+        """
+            Removes the current ask on the specified token id
+            
+            :param token_id: Id of NFT token
+            :type token_id: int
+            :return: transaction hash
+
+            **kwargs: Arbitrary keyword arguments.
+
+            - Example::
+                            
+                tx = zap_media.remove_ask(3)
+        """
         return self.send_transaction(self.contract.functions.removeAsk(token_id), **kwargs)
             
-    # Removes the current bid on the specified token id
     def remove_bid(self, token_id: int, **kwargs):
+        """
+            Removes the current bid on the specified token id            
+            :param token_id: Id of NFT token
+            :type token_id: int
+            :return: transaction hash
+
+            **kwargs: Arbitrary keyword arguments.
+
+            - Example::
+                            
+                tx = zap_media.remove_bid(3)
+        """
         return self.send_transaction(self.contract.functions.removeBid(token_id), **kwargs)
             
-    # Removes all approvals on specified token id
     def revoke_approval(self, token_id: int, **kwargs):
+        """
+            Removes all approvals on specified token id            
+            :param token_id: Id of NFT token
+            :type token_id: int
+            :return: transaction hash
+
+            **kwargs: Arbitrary keyword arguments.
+
+            - Example::
+                            
+                tx = zap_media.revoke_approval(3)
+        """
         return self.send_transaction(self.contract.functions.revokeApproval(token_id), **kwargs)
-            
-    # Creates a new ask for specified token id. Restricted to owner or approved users.
+
     def set_ask(self, token_id: int, ask, **kwargs):
+        """
+            Creates a new ask for specified token id.
+            Restricted to owner or approved users.
+            
+            :param token_id: Id of NFT token
+            :type token_id: int
+            :param ask: dictionary of ask data
+            :type ask: dict[int, str]
+            :return: transaction hash
+
+            **kwargs: Arbitrary keyword arguments.
+
+            .. seealso::
+                
+                :Helper function: zap_media.make_ask(...)
+                    
+                For simplicity, use the helper function to create the ask parameter.
+
+            - Example::
+                            
+                ask = zap_media.make_ask(
+                    100,
+                    zap_token.address
+                    )
+
+                tx_hash = zap_media.set_ask(3, ask)
+        """
         return self.send_transaction(self.contract.functions.setAsk(token_id, ask), **kwargs)
             
     # Creates a new bid for specified token id
