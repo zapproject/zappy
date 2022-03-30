@@ -337,22 +337,126 @@ class ZapMedia(BaseContract):
     # Accepts the specified bid as the token owner or approved user. 
     # Transfer of the token and bid amount is done internally.
     def accept_bid(self, token_id: int, bid, **kwargs):
+        """
+            Owner of an approved user can use this function to accept a submitted bid for an NFT.
+            Once accepted, payment and NFT are both transferred to it's new wallet/owner.
+
+            :param token_id: Id of NFT token
+            :type token_id: int
+            :param bid: dictionary of the bid. 
+            :type bid: dict[int, str, str, str, dict[int]]
+            **kwargs: Arbitrary keyword arguments.
+            :return: transaction hash
+
+            .. seealso:: Helper function 'ZapMedia.make_bid(...)'
+
+            - bid param::
+
+                bid = {
+                        "amount": int,
+                        "currency": str,
+                        "bidder": str,
+                        "recipient": str,
+                        "sellOnShare": {"value": int}
+                    }
+
+            - Example using make_bid helper function::
+
+                bid = make_bid(50, zap_token.address, "0xBIDDER_ADDRESS", "0xRECIPIENT_ADDRESS", 10)
+                token_id = zap_media.accept_bid(3, bid)
+        """
         return self.send_transaction(self.contract.functions.acceptBid(token_id, bid), **kwargs)
             
-    # Approves a user for managing the token
-    def approve(self, _to: str, token_id: int, **kwargs):
-        return self.send_transaction(self.contract.functions.approve(_to, token_id), **kwargs)
+    def approve(self, to: str, token_id: int, **kwargs):
+        """
+            NFT owner can approve a user address, to help manage the token.
+
+            :param to: address
+            :type to: str
+            :param token_id: Id of NFT token
+            :type token_id: int
+            **kwargs: Arbitrary keyword arguments.
+            :return: transaction hash
+
+            .. seealso:: Helper function 'ZapMedia.set_approval_for_all(...)'
+
+            - Example::
+
+                tx = zap_media.accept_bid(3, bid)
+        """
+        return self.send_transaction(self.contract.functions.approve(to, token_id), **kwargs)
             
-    # Burns the specified token id
     def burn(self, token_id: int, **kwargs):
+        """
+            Owner or approved can burns the specified token id.
+
+            :param token_id: Id of NFT token
+            :type token_id: int
+            **kwargs: Arbitrary keyword arguments.
+            :return: transaction hash
+
+            - Example::
+
+                tx = zap_media.burn(3)
+        """
         return self.send_transaction(self.contract.functions.burn(token_id), **kwargs)
 
-    def claim_transfer_ownership(self):
-        return self.send_transaction(self.contract.functions.claimTransferOwnership())
+    def claim_transfer_ownership(self, **kwargs):
+        """
+            Deployer can use this function to claim ownership of a custom media contract deployed through the Media Factory.
+            The Media Factory will be the owner of the contract until claimed.
+
+            :return: transaction hash
+            **kwargs: Arbitrary keyword arguments.
+            
+
+            - Example::
+
+                media_factory = MediaFactory()
+                
+                args = [
+                    'CUSTOM COLLECTION', 
+                    'CCT', 
+                    zap_market.address,
+                    True, 
+                    'https://customcollection.com'
+                    ]
+                
+                (receipt, deployed_media_address) = media_factory.deploy_media(*args)                
+                my_media = ZapMedia("chainId", deployed_media_address)
+                tx = my_media.claim_transfer_ownership()
+        """
+        return self.send_transaction(self.contract.functions.claimTransferOwnership(), **kwargs)
                         
     # Mints a new token
-    def mint(self, data, bidShares, **kwargs):
-        return self.send_transaction(self.contract.functions.mint(data, bidShares), **kwargs)
+    def mint(self, data, bid_shares, **kwargs):
+        """
+            Mints a new token. Once minted, should in the owner's wallet.
+
+            :param data: dictionary of media metadata
+            :type data: dict[str, str, bytes(32), bytes(32)]
+            :param bid_shares: dictionary of the bidShare
+            :type bid_shares: dict[dict[int], dict[int], List[str], List[int]]
+            :return: transaction hash
+
+            **kwargs: Arbitrary keyword arguments.
+            
+            .. seealso::
+                
+                :Helper function: ZapMedia.make_media_data(...)
+                :Helper function: ZapMedia.make_bid_shares(...)
+                    
+                For simplicity, use the helper functions to create the data and bid_shares parameters.
+
+
+            - Example::
+
+                media_data = zap_media.make_media_data(...)
+                bid_shares = zap_media.make_bid_shares(...)
+                             
+                tx = zap_media.mint(media_data, bid_shares)
+        """
+        return self.send_transaction(self.contract.functions.mint(data, bid_shares), **kwargs)
             
     # Mints a new token with ECDSA compliant signatures
     def mint_with_sig(self, creator: str, data, bidShares, sig, **kwargs):
@@ -412,7 +516,6 @@ class ZapMedia(BaseContract):
 
 
             
-    
 
 
 
