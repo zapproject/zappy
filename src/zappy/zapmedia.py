@@ -458,12 +458,68 @@ class ZapMedia(BaseContract):
         """
         return self.send_transaction(self.contract.functions.mint(data, bid_shares), **kwargs)
             
-    # Mints a new token with ECDSA compliant signatures
     def mint_with_sig(self, creator: str, data, bidShares, sig, **kwargs):
+        """
+            Mints a new token with ECDSA compliant signatures. Once minted, should in the owner's wallet.
+
+            :param creator: public address of creator
+            :type creator: str
+            :param data: dictionary of media metadata
+            :type data: dict[str, str, bytes(32), bytes(32)]
+            :param bid_shares: dictionary of the bidShare
+            :type bid_shares: dict[dict[int], dict[int], List[str], List[int]]
+            :param sig: ECDSA compliant signature
+            :type sig: string
+            :return: transaction hash
+
+            **kwargs: Arbitrary keyword arguments.
+            
+            .. seealso::
+                
+                :Helper function: zap_media.make_media_data(...)
+                :Helper function: zap_media.make_bid_shares(...)
+                :Helper function: zap_media.get_mint_signature(...)
+                    
+                For simplicity, use the helper functions to create the data, bid_shares, and sig parameters.
+
+
+            - Example::
+
+                media_data = zap_media.make_media_data(...)
+                bid_shares = zap_media.make_bid_shares(...)
+                sig = zap_media.get_mint_signature_shares(...)
+                             
+                tx = zap_media.mint_with_sig(creator_address, media_data, bid_shares, sig)
+        """
         return self.send_transaction(self.contract.functions.mintWithSig(creator, data, bidShares, sig), **kwargs)
 
-    # Approves user with specified signature and token id
     def permit(self, spender: str, token_id: int, sig, **kwargs):
+        """
+            Approves user with specified signature and token id
+            
+            :param spender: public address of spender
+            :type spender: str
+            :param token_id: Id of NFT token
+            :type token_id: int
+            :param sig: ECDSA compliant signature
+            :type sig: string
+            :return: transaction hash
+
+            **kwargs: Arbitrary keyword arguments.
+            
+            .. seealso::
+                
+                :Helper function: zap_media.get_permit_signature(...)
+                    
+                For simplicity, use the helper function to create the sig parameter.
+
+
+            - Example::
+
+                sig = zap_media.get_permit_signature(...)
+                             
+                tx = zap_media.permit(spender_address, 3, sig)
+        """
         return self.send_transaction(self.contract.functions.permit(spender, token_id, sig), **kwargs)
             
     # Removes the current ask on the specified token id
