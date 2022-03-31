@@ -658,7 +658,7 @@ class ZapMedia(BaseContract):
     def update_token_URI(self, token_id: int, token_URI_Local: str, **kwargs):
         """
             Updates the token URI for the specified token id
-                     
+
             :param token_id: Id of NFT token
             :type token_id: int
             :param token_URI_Local: URI to updated metadata
@@ -675,6 +675,25 @@ class ZapMedia(BaseContract):
         return self.send_transaction(self.contract.functions.updateTokenURI(token_id, token_URI_Local), **kwargs)
 
     def set_approval_for_all(self, operator: str, approved: bool, **kwarg):
+        """
+            NFT owner can approve a user address, to help manage all tokens in collection.
+
+            :param operator: address to give approval for all
+            :type operator: str
+            :param approved: True or False
+            :type approved: bool
+            :kwargs: Arbitrary keyword arguments.
+            :return: transaction hash
+
+            .. seealso:: Helper function 'ZapMedia.approve(...)'
+
+            - Example::
+
+                user_to_approve: "0xUSERADDRESS"
+                permission: True
+
+                tx = zap_media.set_approval_for_all(user_to_approve, permission)
+        """
         return self.send_transaction(self.contract.functions.setApprovalForAll(operator, approved), **kwarg)
 
     def safe_transfer_from(self, _from: str, _to: str, token_id: int, **kwarg):
