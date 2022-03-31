@@ -711,21 +711,37 @@ class ZapMedia(BaseContract):
 
             - Example::
 
-                tx = zap_media.safe_transfer_from(user_to_approve, permission)
+                owner = "0xOWNERADDRESS"
+                recipient = "0xRECIPIENTADDRESS"
+                token_id = 3
+
+                tx = zap_media.safe_transfer_from(owner, recipient, token_id)
         """
         return self.send_transaction(self.contract.functions.safeTransferFrom(_from, _to, token_id), **kwarg)
 
     def transfer_from(self, _from: str, _to: str, token_id: int):
+        """
+            Transfers the specified tokenId to the specified to address
+
+            :param _from: address of the owner
+            :type _from: str
+            :param _to: address of the recipient
+            :type _to: str
+            :param token_id: Id of NFT token
+            :type token_id: int
+            :kwargs: Arbitrary keyword arguments.
+            :return: transaction hash
+
+            - Example::
+
+                owner = "0xOWNERADDRESS"
+                recipient = "0xRECIPIENTADDRESS"
+                token_id = 3
+                tx = zap_media.transfer_from(owner, recipient, token_id)
+        """
         return self.send_transaction(self.contract.functions.transferFrom(_from, _to, token_id))   
     
-    
-    # def revokeTransferOwnership(self):
-    #     return self.contract.functions.revokeTransferOwnership()
-
-
-
-
-            
+               
 
 
 
