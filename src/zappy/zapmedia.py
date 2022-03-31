@@ -697,20 +697,31 @@ class ZapMedia(BaseContract):
         return self.send_transaction(self.contract.functions.setApprovalForAll(operator, approved), **kwarg)
 
     def safe_transfer_from(self, _from: str, _to: str, token_id: int, **kwarg):
+        """
+            Executes a SafeTransfer of the given tokenId to the specified address if and only if it adheres to the ERC721-Receiver Interface
+
+            :param _from: address of the owner
+            :type _from: str
+            :param _to: address of the recipient
+            :type _to: str
+            :param token_id: Id of NFT token
+            :type token_id: int
+            :kwargs: Arbitrary keyword arguments.
+            :return: transaction hash
+
+            - Example::
+
+                tx = zap_media.safe_transfer_from(user_to_approve, permission)
+        """
         return self.send_transaction(self.contract.functions.safeTransferFrom(_from, _to, token_id), **kwarg)
 
     def transfer_from(self, _from: str, _to: str, token_id: int):
-        return self.send_transaction(self.contract.functions.transferFrom(_from, _to, token_id))
-
-    
-    
+        return self.send_transaction(self.contract.functions.transferFrom(_from, _to, token_id))   
     
     
     # def revokeTransferOwnership(self):
     #     return self.contract.functions.revokeTransferOwnership()
 
-    # def safeTransferFrom(self, _from, _to, token_id, _data):
-    #     return self.contract.functions.safeTransferFrom(_from, _to, token_id, _data)
 
 
 
