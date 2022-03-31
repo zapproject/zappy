@@ -345,10 +345,13 @@ class ZapMedia(BaseContract):
             :type token_id: int
             :param bid: dictionary of the bid. 
             :type bid: dict[int, str, str, str, dict[int]]
-            **kwargs: Arbitrary keyword arguments.
-            :return: transaction hash
+            :kwargs: Arbitrary keyword arguments.
+            :return: transaction hash 
+            
 
-            .. seealso:: Helper function 'ZapMedia.make_bid(...)'
+            .. seealso:: 
+
+                Helper function ``zap_media.make_bid(...)``
 
             - bid param::
 
@@ -362,7 +365,13 @@ class ZapMedia(BaseContract):
 
             - Example using make_bid helper function::
 
-                bid = make_bid(50, zap_token.address, "0xBIDDER_ADDRESS", "0xRECIPIENT_ADDRESS", 10)
+                bid = make_bid(
+                        50,
+                        zap_token.address, 
+                        "0xBIDDER_ADDRESS",
+                        "0xRECIPIENT_ADDRESS", 
+                        10
+                        )
                 token_id = zap_media.accept_bid(3, bid)
         """
         return self.send_transaction(self.contract.functions.acceptBid(token_id, bid), **kwargs)
@@ -375,7 +384,7 @@ class ZapMedia(BaseContract):
             :type to: str
             :param token_id: Id of NFT token
             :type token_id: int
-            **kwargs: Arbitrary keyword arguments.
+            :kwargs: Arbitrary keyword arguments.
             :return: transaction hash
 
             .. seealso:: Helper function 'ZapMedia.set_approval_for_all(...)'
@@ -392,7 +401,7 @@ class ZapMedia(BaseContract):
 
             :param token_id: Id of NFT token
             :type token_id: int
-            **kwargs: Arbitrary keyword arguments.
+            :kwargs: Arbitrary keyword arguments.
             :return: transaction hash
 
             - Example::
@@ -406,8 +415,8 @@ class ZapMedia(BaseContract):
             Deployer can use this function to claim ownership of a custom media contract deployed through the Media Factory.
             The Media Factory will be the owner of the contract until claimed.
 
+            :kwargs: Arbitrary keyword arguments.
             :return: transaction hash
-            **kwargs: Arbitrary keyword arguments.
             
 
             - Example::
@@ -437,9 +446,9 @@ class ZapMedia(BaseContract):
             :type data: dict[str, str, bytes(32), bytes(32)]
             :param bid_shares: dictionary of the bidShare
             :type bid_shares: dict[dict[int], dict[int], List[str], List[int]]
+            :kwargs: Arbitrary keyword arguments.
             :return: transaction hash
 
-            **kwargs: Arbitrary keyword arguments.
             
             .. seealso::
                 
@@ -470,9 +479,9 @@ class ZapMedia(BaseContract):
             :type bid_shares: dict[dict[int], dict[int], List[str], List[int]]
             :param sig: ECDSA compliant signature
             :type sig: string
+            :kwargs: Arbitrary keyword arguments.
             :return: transaction hash
 
-            **kwargs: Arbitrary keyword arguments.
             
             .. seealso::
                 
@@ -503,9 +512,9 @@ class ZapMedia(BaseContract):
             :type token_id: int
             :param sig: ECDSA compliant signature
             :type sig: string
+            :kwargs: Arbitrary keyword arguments.
             :return: transaction hash
 
-            **kwargs: Arbitrary keyword arguments.
             
             .. seealso::
                 
@@ -528,9 +537,9 @@ class ZapMedia(BaseContract):
             
             :param token_id: Id of NFT token
             :type token_id: int
+            :kwargs: Arbitrary keyword arguments.
             :return: transaction hash
 
-            **kwargs: Arbitrary keyword arguments.
 
             - Example::
                             
@@ -545,7 +554,7 @@ class ZapMedia(BaseContract):
             :type token_id: int
             :return: transaction hash
 
-            **kwargs: Arbitrary keyword arguments.
+            :kwargs: Arbitrary keyword arguments.
 
             - Example::
                             
@@ -558,9 +567,9 @@ class ZapMedia(BaseContract):
             Removes all approvals on specified token id            
             :param token_id: Id of NFT token
             :type token_id: int
+            :kwargs: Arbitrary keyword arguments.
             :return: transaction hash
 
-            **kwargs: Arbitrary keyword arguments.
 
             - Example::
                             
@@ -572,14 +581,14 @@ class ZapMedia(BaseContract):
         """
             Creates a new ask for specified token id.
             Restricted to owner or approved users.
-            
+
             :param token_id: Id of NFT token
             :type token_id: int
             :param ask: dictionary of ask data
             :type ask: dict[int, str]
+            :kwargs: Arbitrary keyword arguments.
             :return: transaction hash
 
-            **kwargs: Arbitrary keyword arguments.
 
             .. seealso::
                 
@@ -598,8 +607,33 @@ class ZapMedia(BaseContract):
         """
         return self.send_transaction(self.contract.functions.setAsk(token_id, ask), **kwargs)
             
-    # Creates a new bid for specified token id
     def set_bid(self, token_id: int, bid, **kwargs):
+        """
+            Creates a new bid for specified token id.
+            
+            :param token_id: Id of NFT token
+            :type token_id: int
+            :param bid: dictionary of bid data
+            :type bid: dict[int, str, str, str, int]
+            :kwargs: Arbitrary keyword arguments.
+            :return: transaction hash
+
+
+            .. seealso:: Helper function 'zap_media.make_bid(...)'
+
+
+            - Example::
+                            
+                bid = zap_media.make_bid(
+                    100,
+                    zap_token.address,
+                    bidder,
+                    wallets[1],
+                    10
+                    )
+
+                tx_hash = zap_media.set_bid(3, bid)
+        """
         return self.send_transaction(self.contract.functions.setBid(token_id, bid), **kwargs)
     
     # Updates the metadata URI for specified token id
