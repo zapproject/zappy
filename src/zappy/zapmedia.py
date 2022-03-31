@@ -655,15 +655,14 @@ class ZapMedia(BaseContract):
         """
         return self.send_transaction(self.contract.functions.updateTokenMetadataURI(token_id, metadataURI), **kwargs)
             
-    # Updates the token URI for the specified token id
-    def update_token_URI(self, token_id: int, tokenURILocal: str, **kwargs):
-                """
-            Updates the metadata URI for specified token id.
-            
+    def update_token_URI(self, token_id: int, token_URI_Local: str, **kwargs):
+        """
+            Updates the token URI for the specified token id
+                     
             :param token_id: Id of NFT token
             :type token_id: int
-            :param metadataURI: URI to updated metadata
-            :type metadataURI: str
+            :param token_URI_Local: URI to updated metadata
+            :type token_URI_Local: str
             :kwargs: Arbitrary keyword arguments.
             :return: transaction hash
 
@@ -671,9 +670,9 @@ class ZapMedia(BaseContract):
             
                 token_id = 3
                 new_URI = "https://newURI.com"     
-                tx_hash = zap_media.update_token_metadata_URI(token_id, new_URI)
+                tx_hash = zap_media.update_token_URI(token_id, new_URI)
         """
-        return self.send_transaction(self.contract.functions.updateTokenURI(token_id, tokenURILocal), **kwargs)
+        return self.send_transaction(self.contract.functions.updateTokenURI(token_id, token_URI_Local), **kwargs)
 
     def set_approval_for_all(self, operator: str, approved: bool, **kwarg):
         return self.send_transaction(self.contract.functions.setApprovalForAll(operator, approved), **kwarg)
