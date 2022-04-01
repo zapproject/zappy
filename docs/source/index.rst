@@ -25,5 +25,6 @@ Contents
 --------
 
 .. toctree::
+   auctionhouse
    zapmedia
 

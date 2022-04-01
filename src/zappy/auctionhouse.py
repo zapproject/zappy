@@ -37,19 +37,22 @@ class AuctionHouse(BaseContract):
     # ================================================================
 
 
-    def auctions(self, auction_Id: int) -> AuctionInfo:
+    def auctions(self, auction_id: int) -> AuctionInfo:
         """
-        Get auction detail for a given auction Id.
+            Get auction detail for a given auction Id.
 
-        :param int auction_Id: auction id number
+            :param auction_id: Id of auction
+            :type auction_id: int
+            :return: transaction hash
 
-        :example:
-        >>> auction_house.auctions(4)
+            - Example::
+
+                auction_info = auction_house.auctions(4)
         
         """
 
         # get auction data from blockchain
-        response = self.contract.functions.auctions(auction_Id).call()
+        response = self.contract.functions.auctions(auction_id).call()
         
         # parse response into usable python class
         return AuctionInfo(response)
@@ -60,103 +63,137 @@ class AuctionHouse(BaseContract):
     # ================================================================
 
 
-    def cancel_auction(self, auction_Id: int):
+    def cancel_auction(self, auction_id: int, **kwargs):
         """
-        Cancels auction for a given auction Id.
+            Cancel an auction of a given auction Id.
 
-        :param int auction_Id: auction id number
+            :param auction_id: Id of auction
+            :type auction_id: int
+            :kwargs: Arbitrary keyword arguments.
+            :return: transaction hash
 
-        :example:
-        >>> auction_house.cancel_auction(4)
-        
-        """
-        return self.send_transaction(self.contract.functions.cancelAuction(auction_Id))
+            - Example::
+
+                tx = auction_house.cancel_auction(4)
             
-    def create_auction(self, token_Id: int, media_contract: str, duration: int, reservePrice: int, curator: str, curatorFeePercentage: int, auctionCurrency: str):
         """
-        Creates an auction for a given token Id.
-
-        :param int auction_Id: auction id number
-        :param int token_Id: token Id number
-        :param str media_contract: media contract address
-        :param int duration: token Id number
-        :param int reservePrice: token Id number
-        :param str curator: curator's address
-        :param int curatorFeePercentage: token Id number
-        :param str auctionCurrency: address of accepted token for payment
-
-        :example:
-            params = [
-            token_id, 
-            zap_media.address, 
-            duration, 
-            reservePrice, 
-            curator, 
-            0, 
-            zap_token.address
-            ]
-
-        >>> auctionhouse.create_auction(*params)
-        
-        """
-        return self.send_transaction(self.contract.functions.createAuction(token_Id, media_contract, duration, reservePrice, curator, curatorFeePercentage, auctionCurrency))
+        return self.send_transaction(self.contract.functions.cancelAuction(auction_id),  **kwargs)
             
-    def create_bid(self, auction_Id: int, amount: int, media_contract: str):
+    def create_auction(self, token_id: int, media_contract: str, duration: int, reserve_price: int, curator: str, curator_fee_percentage: int, auction_currency: str, **kwargs):
         """
-        Creates bid for a given auction Id.
+            Creates an auction for a given token Id.
 
-        :param int auction_Id: auction id number
-        :param int amount: amount of tokens
-        :param str media_contract: media contract address associated with the auction Id
+            :param token_id: token Id number
+            :type token_id: int
+            :param media_contract: media contract address
+            :type media_contract: str
+            :param duration: duration of auctionhouse
+            :type duration: int
+            :param reserve_price: minimum accepted price
+            :type reserve_price: int
+            :param curator: curator's address
+            :type curator: str
+            :param curator_fee_percentage: curator fee
+            :type curator_fee_percentage: int
+            :param auction_currency: token address of accepted token
+            :type auction_currency: str
+            :kwargs: Arbitrary keyword arguments.
+            :return: transaction hash
 
-        :example:
-        >>> auction_house.create_bid(4, "0x1234567890qwerty")
+            - Example::
+                
+                params = {
+                    token_id: 3, 
+                    media_contract: zap_media.address, 
+                    duration: duration, 
+                    reserve_price: reserve_price, 
+                    curator: curator, 
+                    curator_fee_percentage: curator_fee_percentage, 
+                    auction_currency: zap_token.address
+                    }
+
+                tx = auctionhouse.create_auction(**params)
         
         """
-        return self.send_transaction(self.contract.functions.createBid(auction_Id, amount, media_contract))
+        return self.send_transaction(self.contract.functions.createAuction(token_id, media_contract, duration, reserve_price, curator, curator_fee_percentage, auction_currency), **kwargs)
             
-    def end_auction(self, auction_Id: int, media_contract: str):
+    def create_bid(self, auction_id: int, amount: int, media_contract: str, **kwargs):
         """
-        End auction for a given auction Id.
+            Create a bid on a token, with a given amount.
 
-        :param int auction_Id: auction id number
-        :param str media_contract: media contract address associated with the auction Id
+            :param auction_id: Id of auction
+            :type auction_id: int
+            :param amount: bid amount
+            :type amount: int
+            :param media_contract: contract address of collection the NFT belongs to
+            :type media_contract: str
+            :kwargs: Arbitrary keyword arguments.
+            :return: transaction hash
 
-        :example:
-        >>> auction_house.end_auction(4, "0x1234567890qwerty")
-        
-        """
-        return self.send_transaction(self.contract.functions.endAuction(auction_Id, media_contract))
+            - Example::
             
-    def set_auction_reserve_price(self, auction_Id: int, reserve_price: int):
-        """
-        Set reserve price for a given auction Id.
-
-        :param int auction_Id: auction id number
-        :param int reserve_price: minimun price of tokens that need to be met
-
-        :example:
-        >>> auction_house.set_auction_reserve_price(4, 300)
-        
-        """
-        return self.send_transaction(self.contract.functions.setAuctionReservePrice(auction_Id, reserve_price))
+                tx = auction_house.create_bid(4, 500, "0xMEDIACONTRACTADDRESS")
             
-    def start_auction(self, auction_Id: int, approved: bool):
         """
-        Starts the auction for a given auction Id.
-
-        :param int auction_Id: auction id number
-        :param bool approved: approve auction, starting it up for a bid
-
-        :example:
-        >>> auction_house.start_auction(4, True)
-        
+        return self.send_transaction(self.contract.functions.createBid(auction_id, amount, media_contract), **kwargs)
+            
+    def end_auction(self, auction_id: int, media_contract: str, **kwargs):
         """
-        return self.send_transaction(self.contract.functions.startAuction(auction_Id, approved))
+            End an auction, finalizing the bid on Zap NFT Marketplace if applicable and paying out the respective parties.
+
+            :param auction_id: Id of auction
+            :type auction_id: int
+            :param media_contract: contract address of collection the NFT belongs to
+            :type media_contract: str
+            :kwargs: Arbitrary keyword arguments.
+            :return: transaction hash
+
+            - Example::
+            
+                tx = auction_house.end_auction(4, "0xMEDIACONTRACTADDRESS")
+            
+        """
+        return self.send_transaction(self.contract.functions.endAuction(auction_id, media_contract), **kwargs)
+            
+    def set_auction_reserve_price(self, auction_id: int, reserve_price: int, **kwargs):
+        """
+            Set a reserve price of an auction.
+
+            :param auction_id: Id of auction
+            :type auction_id: int
+            :param reserve_price: minimum accepted price
+            :type reserve_price: str
+            :kwargs: Arbitrary keyword arguments.
+            :return: transaction hash
+
+            - Example::
+            
+                tx = auction_house.set_auction_reserve_price(4, 650)
+            
+        """
+        return self.send_transaction(self.contract.functions.setAuctionReservePrice(auction_id, reserve_price), **kwargs)
+            
+    def start_auction(self, auction_id: int, approved: bool, **kwargs):
+        """
+            Approve an auction, opening up the auction for bids.
+
+            :param auction_id: Id of auction
+            :type auction_id: int
+            :param approved: approve auction
+            :type approved: bool
+            :kwargs: Arbitrary keyword arguments.
+            :return: transaction hash
+
+            - Example::
+            
+                tx = auction_house.start_auction(4, True)
+            
+        """
+        return self.send_transaction(self.contract.functions.startAuction(auction_id, approved), **kwargs)
             
     ## Helper function that builds a dict representing IAuctionHouse.TokenDetails
-    def makeTokenDetails(self, token_Id, media_contract):
+    def makeTokenDetails(self, token_id, media_contract):
         return {
-            "token_Id": token_Id,
+            "token_id": token_id,
             "media_contract": media_contract
         }
