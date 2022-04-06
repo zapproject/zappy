@@ -387,7 +387,9 @@ class ZapMedia(BaseContract):
             :kwargs: Arbitrary keyword arguments.
             :return: transaction hash
 
-            .. seealso:: Helper function 'ZapMedia.set_approval_for_all(...)'
+            .. seealso:: 
+            
+                'ZapMedia.set_approval_for_all(...)'
 
             - Example::
 
@@ -619,7 +621,9 @@ class ZapMedia(BaseContract):
             :return: transaction hash
 
 
-            .. seealso:: Helper function 'zap_media.make_bid(...)'
+            .. seealso:: 
+                
+                Helper function 'zap_media.make_bid(...)'
 
 
             - Example::
@@ -685,7 +689,9 @@ class ZapMedia(BaseContract):
             :kwargs: Arbitrary keyword arguments.
             :return: transaction hash
 
-            .. seealso:: Helper function 'ZapMedia.approve(...)'
+            .. seealso:: 
+                
+                Helper function 'ZapMedia.approve(...)'
 
             - Example::
 
@@ -749,18 +755,64 @@ class ZapMedia(BaseContract):
     #                     HELPER FUNCTIONS
     # ================================================================
 
-    ## Helper function that builds a dict representing IMedia.MediaData
-    # def make_media_data(self, tokenURI, metadataURI, contentHash, metadataHash):
-    def make_media_data(self, tokenURI: str, metadataURI: str):
+    def make_media_data(self, token_URI: str, metadata_URI: str):
+        """
+            Helper function that builds a dict representing IMedia.MediaData struct.
+
+            :param token_URI: link to the media/resource that is representated by the NFT token
+            :type token_URI: str
+            :param metadata_URI: address of the recipient
+            :type metadata_URI: str
+            :kwargs: Arbitrary keyword arguments.
+            :return: dict[str, str, bytes, bytes]
+
+            - Example::
+
+                # if using Pinata
+                base_url = 'https://gateway.pinata.cloud/ipfs/'
+                token_URI = base_url + "CID_FROM_PINATA"
+                metadata_URI = base_url + "ANOTHER_CID_FROM_PINATA"
+
+                media_data = zap_media.transfer_from(token_URI, metadata_URI)
+        """
         return {
-            "tokenURI": tokenURI,
-            "metadataURI": metadataURI,
-            "contentHash": self.generate_hash_from_string(tokenURI),
-            "metadataHash": self.generate_hash_from_string(metadataURI)
+            "tokenURI": token_URI,
+            "metadataURI": metadata_URI,
+            "contentHash": self.generate_hash_from_string(token_URI),
+            "metadataHash": self.generate_hash_from_string(metadata_URI)
         }
 
-    ## Helper function that build a dict representing IMarket.BidShares
     def make_bid_shares(self, creator: int, owner: int, collaborators, collabShares):
+        """
+            Helper function that build a dict representing IMarket.BidShares struct.
+            Used when minting a new token and defines the creator, owner, and collaborators of the media being minted.
+            Also defines the each members share of the media.
+
+            :param creator: creator share
+            :type creator: int
+            :param owner: owner share
+            :type owner: int
+            :param collaborators: a list of address that represents collaborators on the media
+            :type collaborators: List[str]
+            :param collabShares: a list of integers that represents each collaborator's share of the media
+            :type collabShares: List[int]
+            :kwargs: Arbitrary keyword arguments.
+            :return: dict[dict[int], dict[int], List[str], List[int]]
+
+            .. note:: 
+                Total shares should add up to 95% since the platform automatically get 5%.
+
+
+            - Example::
+                
+                creator_share = 10
+                owner_share = 75
+                collaborators = ["0xFIRSTCOLLABORATOR", "0xSECONDCOLLABORATOR"]
+                collab_shares = [5,5]
+                # total shares: 10 + 75 + 5 + 5 = 95
+
+                bid_shares = zap_media.make_bid_shares(creator_share, owner_share, collaborators, collab_shares)
+        """
         return {
             "creator": {"value": creator},
             "owner": {"value": owner},

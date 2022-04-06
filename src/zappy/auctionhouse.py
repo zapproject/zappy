@@ -1,9 +1,7 @@
 from .base_contract import BaseContract
 
-class AuctionInfo():
-    
-    def __init__(self, auctionResponse):
-        
+class AuctionInfo():    
+    def __init__(self, auctionResponse):        
             self.token_details = TokenDetails(auctionResponse[0])
             self.approved = auctionResponse[1]
             self.amount = auctionResponse[2]
@@ -191,9 +189,3 @@ class AuctionHouse(BaseContract):
         """
         return self.send_transaction(self.contract.functions.startAuction(auction_id, approved), **kwargs)
             
-    ## Helper function that builds a dict representing IAuctionHouse.TokenDetails
-    def makeTokenDetails(self, token_id, media_contract):
-        return {
-            "token_id": token_id,
-            "media_contract": media_contract
-        }
