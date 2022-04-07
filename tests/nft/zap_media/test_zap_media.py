@@ -564,7 +564,7 @@ def test_media_mint_w_sig(w3, wallets, zap_media):
     )
     deadline = int(time.time() + 60 * 60 * 24)
 
-    sig = zap_media.get_mint_signature(media_data, bid_shares, deadline) 
+    sig = zap_media.get_mint_signature(media_data, bid_shares, deadline)
 
     tx = zap_media.mint_with_sig(zap_media.public_address, media_data, bid_shares, sig)
     w3.eth.wait_for_transaction_receipt(tx, 360)

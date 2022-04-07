@@ -224,6 +224,7 @@ class ZapMedia(BaseContract):
     def market_contract(self):
         """
             Retrieves the Zap Market contract address
+
             :return: address of Zap Market contract
 
             - Example::
@@ -234,6 +235,7 @@ class ZapMedia(BaseContract):
     def name(self):
         """
             Retrieves the name of the NFT collection
+
             :return: collection name
 
             - Example::
@@ -786,7 +788,7 @@ class ZapMedia(BaseContract):
         """
             Helper function that build a dict representing IMarket.BidShares struct.
             Used when minting a new token and defines the creator, owner, and collaborators of the media being minted.
-            Also defines the each members share of the media.
+            Also defines the each member's share of the media.
 
             :param creator: creator share
             :type creator: int
@@ -820,8 +822,86 @@ class ZapMedia(BaseContract):
             "collabShares": collabShares
         }
 
-    ## Helper function that builds a dict representing IMedia.EIP712Signature
+    def make_ask(self, amount: int, currency: str):
+        """
+            Helper function that builds a dict representing IMarket.Ask struct
+
+            :param amount: the price of the token
+            :type amount: int
+            :param currency: address of ERC20 token being used to pay
+            :type currency: str
+            :kwargs: Arbitrary keyword arguments.
+            :return: dict[int, str]
+
+            - Example::
+                
+                amount = 250
+                currency = "0xTOKENCONTRACTADDRESS"
+                
+                bid = zap_media.make_ask(amount, currency)
+        """
+
+        return {
+            "amount": amount,
+            "currency": currency
+        }
+
+
+    def make_bid(self, amount: int, currency: str, bidder: str, recipient: str, sell_on_share: int):
+        """
+            Helper function that builds a dict representing IMarket.Bid
+
+            :param amount: amount willing to bid
+            :type amount: int
+            :param currency: address of ERC20 token being used to pay
+            :type currency: str
+            :param bidder: address of bidder
+            :type bidder: str
+            :param recipient: address of recipient
+            :type recipient: str
+            :param sell_on_share: % of the next sale to award the current owner
+            :type sell_on_share: int
+            :kwargs: Arbitrary keyword arguments.
+            :return: dict[int, str, str, str, dict[int]]
+
+            - Example::
+                
+                amount = 250
+                currency = "0xTOKENCONTRACTADDRESS"
+                bidder = "0xBIDDERADDRESS"
+                recipient = "0xRECIPIENTADDRESS"
+                sell_on_share = 10
+                
+                bid = zap_media.make_bid(amount, currency, bidder, recipient, sell_on_share)
+        """
+        return {
+            "amount": amount,
+            "currency": currency,
+            "bidder": bidder,
+            "recipient": recipient,
+            "sellOnShare": {"value": sell_on_share}
+        }
+    
     def make_EIP712_Sig(self, deadline, v, r, s):
+        """
+            Helper function that builds a dict representing IMedia.EIP712Signature.
+            Mainly used internally to create the signature or a permit signature.
+
+            :param deadline: amount willing to bid
+            :type deadline: int
+            :param v: a component of the signature
+            :type v: str
+            :param r: a component of the signature
+            :type r: str
+            :param s: a component of the signature
+            :type s: str
+            :kwargs: Arbitrary keyword arguments.
+            :return: dict[int, str, str, int]
+
+            - Example::
+                
+                sig = zap_media.make_EIP712_Sig(deadline, v, r, s)
+        """
         return {
             "deadline": deadline,
             "v": v,
@@ -829,25 +909,36 @@ class ZapMedia(BaseContract):
             "s": s
         }
 
-    ## Helper function that builds a dict representing IMarket.Ask
-    def make_ask(self, amount: int, currency_address: str):
-        return {
-            "amount": amount,
-            "currency": currency_address
-        }
-
-    ## Helper function that builds a dict representing IMarket.Bid
-    def make_bid(self, amount: int, currency: str, bidder: str, recipient: str, sellOnShare: int):
-        return {
-            "amount": amount,
-            "currency": currency,
-            "bidder": bidder,
-            "recipient": recipient,
-            "sellOnShare": {"value": sellOnShare}
-        }
-
     # Creates the ECDSA compliant signature for minting
     def get_mint_signature(self, media_data, bid_share, deadline):
+        """
+            Helper function to creates the ECDSA compliant signature for minting
+
+            :param media_data: media data dict
+            :type media_data: dict
+            :param bid_share: bid_share dict
+            :type bid_share: dict
+            :param deadline: deadline in unixtime
+            :type deadline: int
+            :kwargs: Arbitrary keyword arguments.
+            :return: dict[int, int, str, str]
+
+            - Example::
+                
+                media_data = zap_media.make_media_data(
+                                            token_URI, 
+                                            metadataURI
+                                            )
+                bid_shares = zap_media.make_bid_shares(
+                                            90000000000000000000,
+                                            5000000000000000000,
+                                            [],
+                                            []
+                                            )
+                deadline = int(time.time() + 60 * 60 * 24)
+                
+                sig = zap_media.get_mint_signature(media_data, bid_shares, deadline) 
+        """
         # EIP191 data structure which specifies EIP712 versioning
         data = {
             "types": {
@@ -892,9 +983,30 @@ class ZapMedia(BaseContract):
             self.w3.toHex(sig_data[2]),
         )
 
-    
-    # Creates the ECDSA compliant signature for approving
     def get_permit_signature(self, spender: str, token_id: int, deadline: int):
+        """
+            Helper function to creates the ECDSA compliant signature for approving
+
+            :param spender: address to give approval
+            :type spender: str
+            :param token_id: Id of NFT token
+            :type token_id: int
+            :param deadline: deadline in unixtime
+            :type deadline: int
+            :kwargs: Arbitrary keyword arguments.
+            :return: dict[int, int, str, str]
+
+            - Example::
+                
+                spender = "0xSPENDERADDRESS"
+                token_id = 4
+                deadline = int(time.time() + 60 * 60 * 24)
+                
+                sig = zap_media.get_permit_signature(spender, token_id, deadline) 
+        """
+
+
+
         # EIP191 data structure which specifies EIP712 versioning
         data = {
             "types": {
@@ -939,6 +1051,22 @@ class ZapMedia(BaseContract):
 
 
     def generate_hash_from_string(self, string_input: str):
+        """
+            Helper function to creates a str that's compatible with bytes32 in Solidity.
+            This function helps with strings that are too long and not compatible with bytes32.
+            Mainly used in helper function `make_media_data()`.
+
+            :param string_input: string input
+            :type string_input: str
+            :return: bytes
+
+            - Example::
+                
+                base_url = 'https://gateway.pinata.cloud/ipfs/'
+                token_URI = base_url + "CID_FROM_PINATA"
+                
+                hash = self.get_permit_signature(token_URI) 
+        """
         hex = self.w3.toHex(text=string_input)
         hash = self.w3.solidityKeccak(['bytes32'], [hex])
         return hash
