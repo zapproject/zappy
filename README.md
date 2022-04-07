@@ -29,7 +29,7 @@ Add your private key to the property `privateKey`/
 For example:
 ```
 {
-    "privateKey": "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+"privateKey": "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
 }
 ```
 
@@ -37,12 +37,12 @@ For example:
 * Run all tests: `pytest`
 * Run a specific test file: `pytest tests/nft/<folder>/<file-name>.py`
 * Run a specific test in a file: `pytest tests/nft/<folder>/<file-name>.py::<nameof_test>`
-    * Example: `pytest tests/nft/zap_media/test_zapMedia.py::test_total_supply` will only run `test_total_supply` in `test_zapMedia.py`  
+* Example: `pytest tests/nft/zap_media/test_zapMedia.py::test_total_supply` will only run `test_total_supply` in `test_zapMedia.py`  
 
 
-    ### Notes:
-    Add `-v` flag `pytest -v` for verbose messages.  
-    Will only run tests in `./tests/nft/*`  
+### Notes:
+Add `-v` flag `pytest -v` for verbose messages.  
+Will only run tests in `./tests/nft/*`  
 ## Packages
 
 ## Usage
